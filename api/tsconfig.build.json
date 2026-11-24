@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+  },
+  "include": ["*.ts", "routes/**/*.ts", "middleware/**/*.ts", "db/**/*.ts", "crypto/**/*.ts", "services/**/*.ts"],
+  "exclude": ["node_modules", "dist", "test"]
+}

@@ -1,0 +1,178 @@
+import { useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Navigate, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom'
+import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from './client/contracts'
+import type { AppearancePreference } from './features/settings/preferences'
+import { PasswordGeneratorPage } from './features/password-security/PasswordSecurity'
+import { SettingsHealthPage, SettingsPage } from './features/settings/SettingsPage'
+import Landing from './pages/Landing'
+import { Console } from './pages/Console'
+import { McpConfirmations } from './pages/McpConfirmations'
+import { VaultLayout } from './App'
+import { ItemDetail } from './pages/ItemDetail'
+import { Login } from './pages/Login'
+import { NotFound } from './pages/NotFound'
+import { RegisterPreview } from './pages/RegisterPreview'
+import { Unlock } from './pages/Unlock'
+import { VaultList } from './pages/VaultList'
+
+export type RouteScreen = 'vault' | 'unlock' | 'generator' | 'settings' | 'health' | 'confirmations'
+
+export interface RouteMatch {
+  userId: string
+  itemId: string | null
+  screen: RouteScreen
+}
+
+function matchProtectedPath(pathname: string): RouteMatch | null {
+  const unlock = matchPath('/users/:userId/unlock', pathname)
+  if (unlock?.params.userId) return { userId: unlock.params.userId, itemId: null, screen: 'unlock' }
+
+  const item = matchPath('/users/:userId/items/:itemId', pathname)
+  if (item?.params.userId && item?.params.itemId) return { userId: item.params.userId, itemId: item.params.itemId, screen: 'vault' }
+
+  const generator = matchPath('/users/:userId/generator', pathname)
+  if (generator?.params.userId) return { userId: generator.params.userId, itemId: null, screen: 'generator' }
+
+  const health = matchPath('/users/:userId/settings/health', pathname)
+  if (health?.params.userId) return { userId: health.params.userId, itemId: null, screen: 'health' }
+
+  const confirmations = matchPath('/users/:userId/confirmations', pathname)
+  if (confirmations?.params.userId) return { userId: confirmations.params.userId, itemId: null, screen: 'confirmations' }
+
+  const settings = matchPath('/users/:userId/settings', pathname)
+  if (settings?.params.userId) return { userId: settings.params.userId, itemId: null, screen: 'settings' }
+
+  const vault = matchPath('/users/:userId', pathname)
+  if (vault?.params.userId) return { userId: vault.params.userId, itemId: null, screen: 'vault' }
+
+  return null
+}
+
+/** Matches the current URL against the /users/:userId route family using React Router's matcher. */
+export function useRouteMatch(): RouteMatch | null {
+  const { pathname } = useLocation()
+  return useMemo(() => matchProtectedPath(pathname), [pathname])
+}
+
+export interface AppRoutesProps {
+  user: VaultIdentity | null
+  isUnlocked: boolean
+  /** Cached admin-role probe result for this login session. */
+  isAdmin: boolean
+  items: VaultListItem[]
+  selectedItem: VaultItem | null
+  loadingItemId: string | null
+  detailLoadErrorId: string | null
+  appearancePreference: AppearancePreference
+  onAppearanceChange: (preference: AppearancePreference) => void
+  onNavigate: (path: string, replace?: boolean) => void
+  onLogin: (email: string, password: string) => Promise<string | null>
+  onUnlock: (password: string) => Promise<string | null>
+  onOpenItem: (itemId: string) => void
+  onCreateItem: (input: VaultItemInput) => Promise<VaultItem | null>
+  onUpdateItem: (itemId: string, input: VaultItemInput) => Promise<VaultItem | null>
+  onDeleteItem: (itemId: string) => Promise<boolean>
+  onLogout: () => void
+  onCopy: (value: string, label: string) => void
+  loadHealthItem: (itemId: string) => Promise<VaultItem>
+  /** Returns the in-memory access JWT when the session adapter holds one. */
+  getAccessToken: () => string | null
+  /** Shared token refresher (the vault adapter's); admin/MCP clients call it on 401. */
+  refreshAccessToken: (signal?: AbortSignal) => Promise<string>
+  /** KEK-only v3 container for cloud backup; null when the vault is locked. */
+  onExportBackup: () => Promise<Uint8Array | null>
+  /** Full v3 container (KEK + recovery-key wrappings) for manual export. */
+  onExportBackupFull: (masterPassword: string, recoveryKey: string) => Promise<Uint8Array>
+}
+
+function UnlockRoute(props: AppRoutesProps) {
+  const { userId } = useParams()
+  const { user, onUnlock, onLogout, onNavigate, onLogin } = props
+  if (user && userId === user.id) {
+    return <Unlock user={user} onUnlock={onUnlock} onBackToLogin={onLogout} onNavigate={onNavigate} />
+  }
+  return <Login onLogin={onLogin} onNavigate={onNavigate} />
+}
+
+/**
+ * Role-gated admin entry. The admin console needs only the login session
+ * plus the admin role — never a vault unlock (no master password). Non-admin
+ * sessions are sent back to their own vault instead of a dead end.
+ */
+function AdminRoute(props: AppRoutesProps) {
+  const { user, isAdmin, onNavigate, getAccessToken, refreshAccessToken } = props
+  if (!user) return <Navigate to="/login" replace />
+  if (!isAdmin) return <Navigate to={`/users/${user.id}`} replace />
+  return <Console onNavigate={onNavigate} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} currentUserId={user.id} />
+}
+
+function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 'settings' | 'health' | 'confirmations' }) {
+  const { userId, itemId } = useParams()
+  const { t } = useTranslation(['common', 'vault'])
+  const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, detailLoadErrorId, screen, onNavigate, onLogin, onLogout, onOpenItem, onCreateItem, onUpdateItem, onDeleteItem, onCopy, loadHealthItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull, getAccessToken, refreshAccessToken } = props
+
+  if (!user || userId !== user.id || !isUnlocked) {
+    return <Login onLogin={onLogin} onNavigate={onNavigate} />
+  }
+
+  const loading = (
+    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+      <div className="detail-loading" role="status" aria-live="polite">{t('vault:loadingEntry')}</div>
+    </VaultLayout>
+  )
+
+  if (screen === 'generator') {
+    return (
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+        <PasswordGeneratorPage onBack={() => onNavigate(`/users/${user.id}`)} onCopy={(value, label) => onCopy(value, label)} />
+      </VaultLayout>
+    )
+  }
+  if (screen === 'settings') {
+    return (
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+        <SettingsPage user={user} items={items} loadItem={loadHealthItem} onNavigate={onNavigate} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} />
+      </VaultLayout>
+    )
+  }
+  if (screen === 'health') {
+    return (
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+        <SettingsHealthPage items={items} loadItem={loadHealthItem} onBack={() => onNavigate(`/users/${user.id}/settings`)} />
+      </VaultLayout>
+    )
+  }
+  if (screen === 'confirmations') {
+    return <McpConfirmations user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onLogout={onLogout} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} />
+  }
+  if (itemId) {
+    if (!selectedItem || selectedItem.id !== itemId) {
+      if (loadingItemId === itemId) return loading
+      if (detailLoadErrorId === itemId) return <NotFound onNavigate={onNavigate} />
+      return loading
+    }
+    return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} itemCount={items.length} items={items} isAdmin={isAdmin} loadItem={loadHealthItem} onNavigate={onNavigate} onLogout={onLogout} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
+  }
+  return <VaultList user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onOpenItem={onOpenItem} onLogout={onLogout} onCreateItem={onCreateItem} />
+}
+
+export function AppRoutes(props: AppRoutesProps) {
+  const { onNavigate, onLogin } = props
+  return (
+    <Routes>
+      <Route path="/" element={<Landing onNavigate={onNavigate} />} />
+      <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} />} />
+      <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} />} />
+      <Route path="/admin" element={<AdminRoute {...props} />} />
+      <Route path="/users/:userId" element={<VaultRoute {...props} screen="vault" />} />
+      <Route path="/users/:userId/unlock" element={<UnlockRoute {...props} />} />
+      <Route path="/users/:userId/items/:itemId" element={<VaultRoute {...props} screen="vault" />} />
+      <Route path="/users/:userId/generator" element={<VaultRoute {...props} screen="generator" />} />
+      <Route path="/users/:userId/settings" element={<VaultRoute {...props} screen="settings" />} />
+      <Route path="/users/:userId/settings/health" element={<VaultRoute {...props} screen="health" />} />
+      <Route path="/users/:userId/confirmations" element={<VaultRoute {...props} screen="confirmations" />} />
+      <Route path="*" element={<NotFound onNavigate={onNavigate} />} />
+    </Routes>
+  )
+}
