@@ -1,5 +1,16 @@
 <p align="center">
-  <img src="logo/sealero-logo.svg" alt="Sealero" width="160">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="logo/sealero-app-icon.png" alt="Sealero app icon" width="160">
+        <br><sub>App icon</sub>
+      </td>
+      <td align="center">
+        <img src="logo/sealero-logo.svg" alt="Sealero logo" width="160">
+        <br><sub>Logo</sub>
+      </td>
+    </tr>
+  </table>
 </p>
 
 <h1 align="center">Sealero</h1>
