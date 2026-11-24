@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { describe, expect, it, vi } from 'vitest';
-import vercelApp, { createDeploymentApp } from '../index.js';
-import type { DeploymentAuthDependencies } from '../index.js';
+import vercelApp, { createDeploymentApp } from '../../api/index.js';
+import type { DeploymentAuthDependencies } from '../../api/index.js';
 import { ApiError, createApp, type Logger, type RequestLogEntry } from '../app.js';
 import { ENVIRONMENT_VARIABLE_NAMES, loadConfig } from '../config.js';
 

@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import { createApp, type Logger } from './app.js';
-import { createConfiguredAuthenticatedApp } from './auth/app.js';
-import type { ConfiguredAuthenticatedAppDependencies } from './auth/app.js';
-import type { JwtKeyEnvironment } from './auth/keyring.js';
-import { loadConfig } from './config.js';
+import { createApp, type Logger } from '../server/app.js';
+import { createConfiguredAuthenticatedApp } from '../server/auth/app.js';
+import type { ConfiguredAuthenticatedAppDependencies } from '../server/auth/app.js';
+import type { JwtKeyEnvironment } from '../server/auth/keyring.js';
+import { loadConfig } from '../server/config.js';
 
 export type DeploymentAuthDependencies = Omit<
   ConfiguredAuthenticatedAppDependencies,
