@@ -83,6 +83,15 @@ button {
   letter-spacing: -0.07em;
   line-height: 1;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wordmark-logo {
+  height: 28px;
+  width: auto;
+  flex-shrink: 0;
 }
 
 .wordmark-period {
@@ -116,10 +125,13 @@ button {
 
 .language-control::after {
   position: absolute;
-  right: 10px;
-  color: #818895;
-  content: '⌄';
-  font-size: 14px;
+  right: 12px;
+  width: 7px;
+  height: 7px;
+  border-right: 1.5px solid #818895;
+  border-bottom: 1.5px solid #818895;
+  transform: rotate(45deg) translateY(-2px);
+  content: '';
   pointer-events: none;
 }
 
@@ -203,6 +215,187 @@ button {
   color: #697280;
   font-size: 11px;
   line-height: 1.55;
+}
+
+.landing-section {
+  width: min(100%, 850px);
+  margin: 0 auto;
+  padding: 64px 0;
+  text-align: center;
+}
+
+.landing-section h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.section-subtitle {
+  margin: 12px auto 0;
+  color: #697280;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 36px;
+  text-align: left;
+}
+
+.pricing-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  padding: 28px;
+}
+
+.pricing-card-pro {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue);
+}
+
+.pricing-card h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 650;
+}
+
+.pricing-price {
+  margin: 14px 0 0;
+  color: var(--ink);
+  font-size: 40px;
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.pricing-period {
+  margin-left: 6px;
+  color: #697280;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.pricing-yearly {
+  margin: 8px 0 0;
+  color: #697280;
+  font-size: 13px;
+}
+
+.pricing-desc {
+  margin: 12px 0 0;
+  color: #697280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pricing-features {
+  flex: 1;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pricing-features li {
+  padding: 7px 0 7px 24px;
+  position: relative;
+  color: #414958;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.pricing-features li::before {
+  position: absolute;
+  left: 2px;
+  top: 9px;
+  width: 14px;
+  height: 8px;
+  border-left: 2px solid var(--blue);
+  border-bottom: 2px solid var(--blue);
+  transform: rotate(-45deg) translateY(-2px);
+  content: '';
+}
+
+.pricing-cta {
+  justify-content: center;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.pricing-note {
+  margin: 20px 0 0;
+  color: #697280;
+  font-size: 12px;
+}
+
+.faq-list {
+  margin-top: 32px;
+  text-align: left;
+}
+
+.faq-item {
+  border-top: 1px solid var(--line);
+  padding: 18px 0;
+}
+
+.faq-item:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq-item summary {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary:hover {
+  color: var(--blue);
+}
+
+.faq-item p {
+  margin: 10px 0 0;
+  color: #697280;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.public-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding: 24px 0 32px;
+  color: #697280;
+  font-size: 13px;
+}
+
+.footer-by {
+  color: #414958;
+  font-weight: 550;
+  text-decoration: none;
+}
+
+.footer-by:hover {
+  color: var(--blue);
+  text-decoration: underline;
 }
 
 .button {
@@ -1602,6 +1795,20 @@ button {
   .landing-description {
     max-width: 520px;
     font-size: 16px;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-section {
+    padding: 48px 0;
+  }
+
+  .public-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
   .auth-shell {
