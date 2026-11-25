@@ -1,4 +1,5 @@
-import { motion, MotionConfig } from 'motion/react'
+import { useCallback, useEffect, useState } from 'react'
+import { motion, MotionConfig, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
@@ -8,6 +9,46 @@ import { FooterStatus } from '../features/api-health/FooterStatus'
 
 const GITHUB_REPO_URL = 'https://github.com/werkero/Sealero'
 const WERKERO_URL = 'https://werkero.vercel.app'
+
+function TypewriterTitle({ text, onDone }: { text: string; onDone: () => void }) {
+  const reduceMotion = useReducedMotion()
+  const [count, setCount] = useState(reduceMotion ? text.length : 0)
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setCount(text.length)
+      onDone()
+      return
+    }
+    setCount(0)
+    const interval = Math.max(30, Math.min(70, 1400 / Math.max(text.length, 1)))
+    let index = 0
+    let timer: ReturnType<typeof setInterval> | undefined
+    const start = setTimeout(() => {
+      timer = setInterval(() => {
+        index += 1
+        setCount(index)
+        if (index >= text.length) {
+          if (timer) clearInterval(timer)
+          onDone()
+        }
+      }, interval)
+    }, 150)
+    return () => {
+      clearTimeout(start)
+      if (timer) clearInterval(timer)
+    }
+  }, [text, reduceMotion, onDone])
+
+  const done = count >= text.length
+  return (
+    <span aria-hidden="true">
+      {text.slice(0, count)}
+      {!done && <span className="typewriter-caret" />}
+      <span className="typewriter-rest">{text.slice(count)}</span>
+    </span>
+  )
+}
 
 function PublicHeader({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
@@ -171,6 +212,15 @@ function PublicFooter({ onNavigate }: { onNavigate: (path: string) => void }) {
 
 export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
+  const reduceMotion = useReducedMotion()
+  const title = t('common:landingTitle')
+  const [titleDone, setTitleDone] = useState(false)
+  const handleTitleDone = useCallback(() => setTitleDone(true), [])
+
+  useEffect(() => {
+    setTitleDone(false)
+  }, [title])
+
   return (
     <MotionConfig reducedMotion="user">
       <div className="public-shell">
@@ -183,29 +233,31 @@ export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <img src="/sealero-logo.svg" alt="Sealero" width="120" height="120" />
+              <motion.img
+                src="/sealero-logo.svg"
+                alt="Sealero"
+                width="120"
+                height="120"
+                animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+              />
             </motion.div>
-            <motion.h1
-              id="landing-title"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: 'easeOut', delay: 0.08 }}
-            >
-              {t('common:landingTitle')}
-            </motion.h1>
+            <h1 id="landing-title" aria-label={title}>
+              <TypewriterTitle text={title} onDone={handleTitleDone} />
+            </h1>
             <motion.p
               className="landing-description"
               initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: 'easeOut', delay: 0.16 }}
+              animate={titleDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
             >
               {t('common:landingBody')}
             </motion.p>
             <motion.div
               className="landing-actions"
               initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.26 }}
+              animate={titleDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+              transition={{ duration: 0.5, ease: 'easeOut', delay: 0.12 }}
             >
               <a className="button button-primary" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
                 {t('auth:createAccount')}

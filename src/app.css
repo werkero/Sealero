@@ -214,21 +214,40 @@ button {
 }
 
 .landing-copy h1 {
-  max-width: 850px;
+  max-width: 920px;
   margin: 0 auto;
   color: var(--ink);
-  font-size: clamp(42px, 7.1vw, 78px);
+  font-size: clamp(46px, 7.5vw, 88px);
   font-weight: 650;
   letter-spacing: -0.067em;
   line-height: 1.05;
   text-wrap: balance;
 }
 
+.typewriter-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  margin-left: 4px;
+  vertical-align: -0.05em;
+  background: var(--blue);
+  animation: caret-blink 0.9s step-end infinite;
+}
+
+.typewriter-rest {
+  opacity: 0;
+}
+
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .landing-description {
   max-width: 610px;
-  margin: 22px auto 0;
+  margin: clamp(24px, 3vw, 36px) auto 0;
   color: var(--muted);
-  font-size: clamp(16px, 1.65vw, 18px);
+  font-size: clamp(17px, 1.8vw, 20px);
   line-height: 1.65;
 }
 
@@ -236,13 +255,13 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: clamp(32px, 4vw, 48px);
 }
 
 .landing-logo {
   display: flex;
   justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: clamp(28px, 4vw, 44px);
 }
 
 .landing-logo img {
@@ -624,13 +643,15 @@ button {
 }
 
 .auth-shell {
+  display: flex;
+  flex-direction: column;
   min-height: 100svh;
   padding: 0 clamp(20px, 5vw, 64px) 30px;
 }
 
 .auth-main {
   width: min(100%, 470px);
-  margin: clamp(18px, 3vw, 26px) auto 0;
+  margin: auto;
 }
 
 .preview-notice {
@@ -1988,7 +2009,6 @@ button {
 
   .landing-copy h1 {
     max-width: 700px;
-    font-size: clamp(40px, 9vw, 62px);
   }
 
   .landing-description {
