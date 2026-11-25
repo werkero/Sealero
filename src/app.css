@@ -89,7 +89,7 @@ button {
 }
 
 .wordmark-logo {
-  height: 28px;
+  height: 32px;
   width: auto;
   flex-shrink: 0;
 }
@@ -218,8 +218,8 @@ button {
 }
 
 .landing-logo img {
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: 96px;
 }
 
 .landing-section {
@@ -404,7 +404,6 @@ button {
 }
 
 .public-footer {
-  border-top: 1px solid var(--line);
   padding: 32px 0 40px;
   color: #8a93a1;
   font-size: 13px;
@@ -2167,7 +2166,7 @@ button {
   }
 
   .wordmark-logo {
-    height: 24px;
+    height: 28px;
   }
 
   .language-control select {
@@ -2186,8 +2185,8 @@ button {
   }
 
   .landing-logo img {
-    width: 60px;
-    height: 60px;
+    width: 72px;
+    height: 72px;
   }
 
   .landing-copy h1 {

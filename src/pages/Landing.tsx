@@ -2,7 +2,6 @@ import { motion, MotionConfig } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
-import { ApiHealthDot } from '../features/api-health/ApiHealthDot'
 import { FooterStatus } from '../features/api-health/FooterStatus'
 
 const GITHUB_REPO_URL = 'https://github.com/werkero/Sealero'
@@ -14,7 +13,6 @@ function PublicHeader({ onNavigate }: { onNavigate: (path: string) => void }) {
     <header className="public-header">
       <Brand onNavigate={onNavigate} />
       <div className="public-header-actions">
-        <ApiHealthDot />
         <LanguageSelector />
         <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
           {t('auth:loginTitle')}
@@ -182,7 +180,7 @@ export default function Landing({ onNavigate }: { onNavigate: (path: string) => 
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <img src="/sealero-logo.svg" alt="Sealero" width="72" height="72" />
+              <img src="/sealero-app-icon.svg" alt="Sealero" width="96" height="96" />
             </motion.div>
             <motion.h1
               id="landing-title"
