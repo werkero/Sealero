@@ -4,7 +4,6 @@
  "landingEyebrow": "Un espace plus serein pour vos identifiants",
  "landingTitle": "Tous vos mots de passe, au même endroit.",
  "landingBody": "Un coffre personnel, clair et simple, conçu autour de la confidentialité.",
- "landingFootnote": "Le coffre web fonctionne en ligne. Les données déverrouillées restent en mémoire et se verrouillent automatiquement.",
  "faqTitle": "Questions fréquentes",
  "faqQ1": "Mes données sont-elles vraiment privées ?",
  "faqA1": "Oui. Sealero est à connaissance nulle : votre coffre est chiffré sur votre appareil avant même de le quitter. Le serveur ne stocke que du texte chiffré et ne peut jamais lire vos mots de passe, notes ou secrets TOTP.",

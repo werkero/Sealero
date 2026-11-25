@@ -4,7 +4,6 @@
  "landingEyebrow": "Ein ruhigerer Ort für deine Zugangsdaten",
  "landingTitle": "Alle Passwörter an einem Ort.",
  "landingBody": "Ein persönlicher Tresor, klar und einfach, mit Datenschutz im Mittelpunkt.",
- "landingFootnote": "Der Webtresor ist nur online verfügbar. Entsperrte Inhalte bleiben im Browserspeicher und werden automatisch gesperrt.",
  "faqTitle": "Häufige Fragen",
  "faqQ1": "Sind meine Daten wirklich privat?",
  "faqA1": "Ja. Sealero ist Zero-Knowledge: Ihr Tresor wird auf Ihrem Gerät verschlüsselt, bevor er es verlässt. Der Server speichert nur Chiffretext und kann Ihre Passwörter, Notizen oder TOTP-Schlüssel niemals lesen.",
