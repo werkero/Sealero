@@ -24,8 +24,6 @@ export function Login({ onLogin, onNavigate, onAppearanceChange }: {
   return (
     <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card" aria-labelledby="login-title">
-        <div className="auth-card-mark" aria-hidden="true"><span>↗</span></div>
-        <p className="eyebrow">{t('auth:loginEyebrow')}</p>
         <h1 id="login-title">{t('auth:loginTitle')}</h1>
         <p className="auth-subtitle">{t('auth:loginSubtitle')}</p>
         <form className="auth-form" onSubmit={submit}>
@@ -68,7 +66,6 @@ export function Login({ onLogin, onNavigate, onAppearanceChange }: {
               )}
             </button>
           </div>
-          <p className="field-hint">{t('auth:loginPasswordHint')}</p>
           {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
           <button className="button button-primary button-full" type="submit">{t('auth:continueButton')}<span aria-hidden="true">→</span></button>
         </form>

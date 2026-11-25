@@ -1,5 +1,27 @@
 import type { EncryptedVaultItemDto, VaultIdentity, VaultItem, VaultItemInput, VaultListItem, VaultListPageDto } from './types'
 
+/** Input for POST /v1/vault-key (System Design §5.1). `expected_wrapping_state_hash` is null on the first upload. */
+export interface VaultKeyUploadInput {
+  wrapped_dek: string
+  nonce: string
+  kdf_salt: string
+  kdf_params: string
+  dek_version: number
+  master_password_version: number
+  expected_wrapping_state_hash: string | null
+}
+
+/** The 7 fields GET/POST /v1/vault-key return (System Design §5.1). */
+export interface VaultKeyRecord {
+  wrapped_dek: string
+  nonce: string
+  kdf_salt: string
+  kdf_params: string
+  dek_version: number
+  master_password_version: number
+  wrapping_state_hash: string
+}
+
 /**
  * Client-side boundary for the Web vault, backed by the production HTTP
  * adapter (`./http-vault-client`). The adapter keeps the access JWT, derived
@@ -18,6 +40,27 @@ import type { EncryptedVaultItemDto, VaultIdentity, VaultItem, VaultItemInput, V
 export interface VaultClient {
   login(email: string, loginPassword: string, signal?: AbortSignal): Promise<VaultIdentity>
   unlock(masterPassword: string, signal?: AbortSignal): Promise<void>
+  /**
+   * Registration (System Design §5.1). Creates the account; the server
+   * response is generic by design (anti-enumeration) and reveals neither
+   * whether the email already exists nor whether registration is open.
+   * The caller proceeds to `verifyEmail` afterwards; when the server has
+   * email verification disabled, `verifyEmail` throws `email_verification_disabled`
+   * and the caller skips that step.
+   */
+  register(email: string, loginPassword: string, signal?: AbortSignal): Promise<void>
+  verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
+  resendVerification(email: string, signal?: AbortSignal): Promise<void>
+  /**
+   * Reads the public `policy_version` from GET /v1/health (System Design
+   * §5.1). The client needs it to submit consent before uploading the
+   * vault key at registration.
+   */
+  fetchPolicyVersion(signal?: AbortSignal): Promise<string>
+  /** Submits the current privacy consent (POST /v1/auth/consent). Requires a login session. */
+  submitConsent(policyVersion: string, signal?: AbortSignal): Promise<void>
+  /** Uploads the KEK-wrapped DEK for a new account (POST /v1/vault-key). Requires a login session. */
+  uploadVaultKey(input: VaultKeyUploadInput, signal?: AbortSignal): Promise<VaultKeyRecord>
   list(signal?: AbortSignal): Promise<VaultListItem[]>
   getItem(itemId: string, signal?: AbortSignal): Promise<VaultItem>
   createItem(input: VaultItemInput, signal?: AbortSignal): Promise<VaultItem>

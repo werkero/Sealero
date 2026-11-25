@@ -1,5 +1,5 @@
 import type { EncryptedVaultItemDto, VaultIdentity, VaultItem, VaultItemInput, VaultListItem, VaultListPageDto } from './types'
-import type { VaultClient } from './contracts'
+import type { VaultClient, VaultKeyRecord, VaultKeyUploadInput } from './contracts'
 import { buildBackupContainer, type BackupExportItem } from '../features/settings/backup-export.ts'
 import {
   buildDetailJson,
@@ -34,16 +34,6 @@ export class VaultApiError extends Error {
     this.code = code
     this.status = status
   }
-}
-
-interface VaultKeyRecord {
-  wrapped_dek: string
-  nonce: string
-  kdf_salt: string
-  kdf_params: string
-  dek_version: number
-  master_password_version: number
-  wrapping_state_hash: string
 }
 
 function throwIfAborted(signal?: AbortSignal) {
@@ -325,6 +315,78 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       if (!sub) throw new VaultApiError('login_failed', response.status)
       userId = sub
       return { id: sub, email: email.trim() }
+    },
+
+    async register(email: string, loginPassword: string, signal?: AbortSignal): Promise<void> {
+      throwIfAborted(signal)
+      const response = await fetch(`${baseUrl}/v1/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        signal,
+        body: JSON.stringify({ email: email.trim(), login_password: loginPassword }),
+      })
+      if (!response.ok) {
+        const code = await readErrorCode(response)
+        throw new VaultApiError(code ?? 'register_failed', response.status)
+      }
+    },
+
+    async verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void> {
+      throwIfAborted(signal)
+      const response = await fetch(`${baseUrl}/v1/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        signal,
+        body: JSON.stringify({ email: email.trim(), code: code.trim() }),
+      })
+      if (!response.ok) {
+        const errorCode = await readErrorCode(response)
+        throw new VaultApiError(errorCode ?? 'email_verification_failed', response.status)
+      }
+    },
+
+    async resendVerification(email: string, signal?: AbortSignal): Promise<void> {
+      throwIfAborted(signal)
+      const response = await fetch(`${baseUrl}/v1/auth/resend-verification`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        signal,
+        body: JSON.stringify({ email: email.trim() }),
+      })
+      if (!response.ok) {
+        const code = await readErrorCode(response)
+        throw new VaultApiError(code ?? 'resend_verification_failed', response.status)
+      }
+    },
+
+    async fetchPolicyVersion(signal?: AbortSignal): Promise<string> {
+      throwIfAborted(signal)
+      const response = await fetch(`${baseUrl}/v1/health`, { method: 'GET', signal })
+      if (!response.ok) throw new VaultApiError('health_check_failed', response.status)
+      const body = (await response.json()) as { policy_version?: unknown }
+      if (typeof body.policy_version !== 'string' || !body.policy_version) {
+        throw new VaultApiError('policy_version_unavailable', response.status)
+      }
+      return body.policy_version
+    },
+
+    async submitConsent(policyVersion: string, signal?: AbortSignal): Promise<void> {
+      throwIfAborted(signal)
+      await request<unknown>('/v1/auth/consent', {
+        method: 'POST',
+        body: JSON.stringify({ policy_version: policyVersion }),
+      }, signal)
+    },
+
+    async uploadVaultKey(input: VaultKeyUploadInput, signal?: AbortSignal): Promise<VaultKeyRecord> {
+      throwIfAborted(signal)
+      return request<VaultKeyRecord>('/v1/vault-key', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      }, signal)
     },
 
     async unlock(masterPassword: string, signal?: AbortSignal): Promise<void> {

@@ -107,7 +107,7 @@ export function createAuthenticatedApp(
     authService: service,
     dbDumpKey: dependencies.dbDumpKey,
   });
-  const routes = createHealthRoutes(config, () => adminConsoleService.getHealthSettings());
+  const routes = createHealthRoutes(config, () => adminConsoleService.getHealthSettings(), policyVersion);
   routes.route('/auth', createAuthRoutes(service, {
     siteOrigin: dependencies.siteOrigin ?? dependencies.jwtKeys.issuer,
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,

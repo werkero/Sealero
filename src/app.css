@@ -867,6 +867,49 @@ button {
   line-height: 1.6;
 }
 
+.auth-info {
+  margin: 12px 0 0;
+  color: #2e7d32;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Recovery key: 24 numbered words in a 3-column grid. */
+.recovery-words {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recovery-words li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #e3e6eb;
+  border-radius: 8px;
+  background: #f8f9fb;
+  padding: 8px 10px;
+  color: #222936;
+  font-size: 12px;
+}
+
+.recovery-word-index {
+  color: #89909b;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recovery-confirm-row {
+  margin-top: 14px;
+}
+
+.recovery-confirm-row .text-input {
+  margin-top: 8px;
+}
+
 .unlock-card {
   padding-top: 24px;
 }
@@ -2360,6 +2403,20 @@ button {
     border-color: #303540;
     background: #1b1e25;
     box-shadow: 0 18px 52px rgb(0 0 0 / 24%);
+  }
+
+:root[data-theme="dark"] .recovery-words li {
+    border-color: #303540;
+    background: #23262f;
+    color: #e5e9f0;
+  }
+
+:root[data-theme="dark"] .recovery-word-index {
+    color: #8f98a7;
+  }
+
+:root[data-theme="dark"] .auth-info {
+    color: #7ec98a;
   }
 :root[data-theme="dark"] .vault-header .wordmark {
     color: #e5e9f0;

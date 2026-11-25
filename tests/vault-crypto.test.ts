@@ -8,13 +8,18 @@ import {
   deriveKek,
   deriveRecoveryWrappingKey,
   encryptBlock,
+  generateRecoveryKey,
   importDek,
+  KDF_PARAMS_P0,
+  kdfParamsToCanonicalJson,
   normalizeRecoveryKey,
   parseDetailJson,
   parseKdfParams,
   parseOverviewJson,
+  randomBytes,
   unwrapDek,
   validateRecoveryKey,
+  wrapDekForServer,
 } from '../src/client/crypto.ts'
 
 function hexToBytes(hex: string): Uint8Array {
@@ -227,4 +232,29 @@ test('recovery wrapping key derives deterministically per salt (Argon2id, 32 byt
   assert.equal(first.length, 32)
   assert.deepEqual(first, second)
   assert.notDeepEqual(first, other)
+})
+
+test('generateRecoveryKey produces 24 valid BIP39 words that validate', async () => {
+  const first = await generateRecoveryKey()
+  const second = await generateRecoveryKey()
+  assert.equal(first.split(' ').length, 24)
+  assert.notEqual(first, second)
+  assert.equal(await validateRecoveryKey(first), first)
+  assert.equal(await validateRecoveryKey(second), second)
+})
+
+test('wrapDekForServer round-trips through unwrapDek with the server AAD', async () => {
+  const dek = randomBytes(32)
+  const kek = randomBytes(32)
+  const wrapped = await wrapDekForServer(kek, 'user-1', 1, dek)
+  const recovered = await unwrapDek(wrapped.wrapped_dek, wrapped.nonce, kek, 'user-1', 1)
+  assert.deepEqual(recovered, dek)
+  // Wrong user id or version must fail the GCM tag check.
+  await assert.rejects(unwrapDek(wrapped.wrapped_dek, wrapped.nonce, kek, 'user-2', 1))
+  await assert.rejects(unwrapDek(wrapped.wrapped_dek, wrapped.nonce, kek, 'user-1', 2))
+})
+
+test('KDF P0 canonical JSON matches the server test vector', () => {
+  assert.equal(kdfParamsToCanonicalJson(KDF_PARAMS_P0), '{"algorithm":"argon2id","m":65536,"output_len":32,"p":4,"t":3}')
+  assert.deepEqual(parseKdfParams(kdfParamsToCanonicalJson(KDF_PARAMS_P0)), KDF_PARAMS_P0)
 })

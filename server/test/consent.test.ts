@@ -193,4 +193,12 @@ describe('authenticated privacy consent API', () => {
     expect(response.status).toBe(403);
     expect(await response.json()).toMatchObject({ code: 'email_verification_required' });
   });
+
+  it('exposes the current policy version on the public health endpoint', async () => {
+    const harness = await createHarness();
+    const response = await harness.app.fetch(new Request('https://api.sealero.test/v1/health'));
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ policy_version: POLICY_VERSION });
+  });
 });

@@ -238,6 +238,27 @@ export function normalizeRecoveryKey(input: string): string {
 
 const BIP39_WORD_INDEX = new Map<string, number>(BIP39_ENGLISH_WORDLIST.map((word, index) => [word, index]))
 
+/**
+ * Generate a fresh 24-word BIP39 recovery key (System Design §7.1):
+ * 256 bits of entropy plus an 8-bit checksum (the first byte of SHA-256
+ * over the entropy), split into 24 groups of 11 bits. The result round-trips
+ * through `validateRecoveryKey`.
+ */
+export async function generateRecoveryKey(): Promise<string> {
+  const entropy = randomBytes(32)
+  const digest = await crypto.subtle.digest('SHA-256', entropy as BufferSource)
+  const checksumByte = new Uint8Array(digest)[0] as number
+  const bits = [...entropy].map((byte) => byte.toString(2).padStart(8, '0')).join('')
+    + checksumByte.toString(2).padStart(8, '0')
+  const words: string[] = []
+  for (let index = 0; index < 24; index += 1) {
+    const word = BIP39_ENGLISH_WORDLIST[Number.parseInt(bits.slice(index * 11, index * 11 + 11), 2)]
+    if (!word) throw new Error('recovery_key_generation_failed')
+    words.push(word)
+  }
+  return words.join(' ')
+}
+
 export async function validateRecoveryKey(input: string): Promise<string> {
   const normalized = normalizeRecoveryKey(input)
   const words = normalized === '' ? [] : normalized.split(' ')
@@ -282,6 +303,41 @@ export async function unwrapDek(
     fromBase64(wrappedDekBase64) as BufferSource,
   )
   return new Uint8Array(plain)
+}
+
+/**
+ * Wrap the DEK with a wrapping key for the server vault-key record
+ * (System Design §7.1). The AAD is the server vault-key AAD
+ * (`sealero-v1\n<user_id>\nvault-key\n<dek_version>`), which differs from
+ * the backup container's DEK AAD. Returns Base64 ciphertext and nonce.
+ */
+export async function wrapDekForServer(
+  wrappingKeyBytes: Uint8Array,
+  userId: string,
+  dekVersion: number,
+  dekBytes: Uint8Array,
+): Promise<{ wrapped_dek: string; nonce: string }> {
+  const key = await importAesKey(wrappingKeyBytes)
+  const nonce = randomBytes(12)
+  const aad = textEncoder.encode(`sealero-v1\n${userId}\nvault-key\n${dekVersion}`)
+  const sealed = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv: nonce as BufferSource, additionalData: aad, tagLength: 128 },
+    key,
+    dekBytes as BufferSource,
+  )
+  return { wrapped_dek: toBase64(new Uint8Array(sealed)), nonce: toBase64(nonce) }
+}
+
+/** KDF tier P0 (current, System Design §7.1): Argon2id m=64 MiB, t=3, p=4, 32-byte output. */
+export const KDF_PARAMS_P0: KdfParams = { algorithm: 'argon2id', m: 65536, t: 3, p: 4, output_len: 32 }
+
+/**
+ * Render KDF params as the canonical compact JSON the server requires
+ * (System Design §7.1): keys in ASCII order (algorithm, m, output_len, p,
+ * t), no spaces. `JSON.stringify` preserves the literal insertion order.
+ */
+export function kdfParamsToCanonicalJson(params: KdfParams): string {
+  return JSON.stringify({ algorithm: params.algorithm, m: params.m, output_len: params.output_len, p: params.p, t: params.t })
 }
 
 export async function importDek(dekBytes: Uint8Array): Promise<CryptoKey> {

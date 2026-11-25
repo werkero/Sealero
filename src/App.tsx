@@ -353,6 +353,8 @@ function AppShell() {
 
   return (
     <AppRoutes
+      vaultClient={vaultClient}
+      onSessionLogin={login}
       user={user}
       isUnlocked={isUnlocked}
       isAdmin={isAdmin}

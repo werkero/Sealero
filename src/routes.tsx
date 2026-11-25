@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom'
-import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from './client/contracts'
+import type { VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from './client/contracts'
 import type { AppearancePreference } from './features/settings/preferences'
 import { PasswordGeneratorPage } from './features/password-security/PasswordSecurity'
 import { SettingsHealthPage, SettingsPage } from './features/settings/SettingsPage'
@@ -13,7 +13,7 @@ import { VaultLayout } from './App'
 import { ItemDetail } from './pages/ItemDetail'
 import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
-import { RegisterPreview } from './pages/RegisterPreview'
+import { Register } from './pages/Register'
 import { Unlock } from './pages/Unlock'
 import { VaultList } from './pages/VaultList'
 
@@ -57,6 +57,9 @@ export function useRouteMatch(): RouteMatch | null {
 }
 
 export interface AppRoutesProps {
+  vaultClient: VaultClient
+  /** Session login (sets the user, no navigation); the Register page uses it to get a JWT before uploading the vault key. */
+  onSessionLogin: (email: string, loginPassword: string) => Promise<VaultIdentity | null>
   user: VaultIdentity | null
   isUnlocked: boolean
   /** Cached admin-role probe result for this login session. */
@@ -159,14 +162,14 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 }
 
 export function AppRoutes(props: AppRoutesProps) {
-  const { onNavigate, onLogin, onAppearanceChange } = props
+  const { vaultClient, onSessionLogin, onNavigate, onLogin, onAppearanceChange } = props
   return (
     <Routes>
       <Route path="/" element={<Landing onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
-      <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
+      <Route path="/register" element={<Register vaultClient={vaultClient} onSessionLogin={onSessionLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/admin" element={<AdminRoute {...props} />} />
       <Route path="/users/:userId" element={<VaultRoute {...props} screen="vault" />} />
       <Route path="/users/:userId/unlock" element={<UnlockRoute {...props} />} />
