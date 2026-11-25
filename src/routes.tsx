@@ -6,6 +6,7 @@ import type { AppearancePreference } from './features/settings/preferences'
 import { PasswordGeneratorPage } from './features/password-security/PasswordSecurity'
 import { SettingsHealthPage, SettingsPage } from './features/settings/SettingsPage'
 import Landing from './pages/Landing'
+import { LegalPage } from './pages/Legal'
 import { Console } from './pages/Console'
 import { McpConfirmations } from './pages/McpConfirmations'
 import { VaultLayout } from './App'
@@ -162,6 +163,8 @@ export function AppRoutes(props: AppRoutesProps) {
   return (
     <Routes>
       <Route path="/" element={<Landing onNavigate={onNavigate} />} />
+      <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} />} />
+      <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} />} />
       <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} />} />
       <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} />} />
       <Route path="/admin" element={<AdminRoute {...props} />} />
