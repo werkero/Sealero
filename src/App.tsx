@@ -15,7 +15,6 @@ import './app.css'
 export type VaultFilter = 'all' | 'favorites'
 
 export function AuthShell({ children, onNavigate }: { children: ReactNode; onNavigate: (path: string) => void }) {
-  const { t } = useTranslation('common')
   return (
     <div className="auth-shell">
       <header className="auth-header">
@@ -24,7 +23,6 @@ export function AuthShell({ children, onNavigate }: { children: ReactNode; onNav
       </header>
       <main className="auth-main">
         {children}
-        <p className="auth-footer-note">{t('authFooter')}</p>
       </main>
     </div>
   )

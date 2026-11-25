@@ -1,5 +1,6 @@
 {
  "language": "Language",
+ "toggleTheme": "Toggle dark mode",
  "previewMode": "Preview build",
  "landingEyebrow": "A calmer place for your credentials",
  "landingTitle": "Your passwords, all in one place.",
@@ -83,7 +84,6 @@
  "apiStatusServer": "Server: {{name}}",
  "apiStatusRetry": "Retry",
  "signOut": "Sign out",
- "authFooter": "Front-end preview with synthetic sample data. No server connection.",
  "notFoundTitle": "This page isn’t here",
  "notFoundBody": "The address may be incorrect, or this preview does not include that screen.",
  "openHome": "Back to home"

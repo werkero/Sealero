@@ -1,5 +1,6 @@
 {
  "language": "Sprache",
+ "toggleTheme": "Dunkelmodus umschalten",
  "previewMode": "Oberflächenvorschau",
  "landingEyebrow": "Ein ruhigerer Ort für deine Zugangsdaten",
  "landingTitle": "Alle Passwörter an einem Ort.",
@@ -83,7 +84,6 @@
  "apiStatusServer": "Server: {{name}}",
  "apiStatusRetry": "Erneut versuchen",
  "signOut": "Abmelden",
- "authFooter": "Frontend-Vorschau mit synthetischen Beispieldaten. Keine Serververbindung.",
  "notFoundTitle": "Diese Seite gibt es hier nicht",
  "notFoundBody": "Die Adresse ist möglicherweise falsch oder diese Seite ist nicht Teil der Vorschau.",
  "openHome": "Zur Startseite"

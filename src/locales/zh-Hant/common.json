@@ -1,5 +1,6 @@
 {
  "language": "語言",
+ "toggleTheme": "切換深色模式",
  "previewMode": "介面預覽版",
  "landingEyebrow": "讓憑證管理更從容",
  "landingTitle": "把密碼，收納在一處。",
@@ -83,7 +84,6 @@
  "apiStatusServer": "伺服器：{{name}}",
  "apiStatusRetry": "重試",
  "signOut": "登出",
- "authFooter": "前端預覽，使用合成範例資料；未連接伺服器。",
  "notFoundTitle": "找不到此頁面",
  "notFoundBody": "網址可能有誤，或預覽版尚未包含此頁面。",
  "openHome": "返回首頁"

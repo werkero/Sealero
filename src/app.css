@@ -4,10 +4,12 @@
 
 :root {
   --ink: #171a21;
+  --ink-soft: #414958;
   --muted: #707886;
   --subtle: #9299a5;
   --line: #e9ebef;
   --line-strong: #dfe3e8;
+  --page: #fff;
   --surface: #fff;
   --surface-soft: #f8f9fb;
   --blue: #2764e8;
@@ -15,6 +17,7 @@
   --blue-soft: #edf3ff;
   --green: #14845d;
   --amber: #946316;
+  --chevron: #818895;
   --shadow-card: 0 18px 60px rgb(25 39 67 / 8%), 0 2px 8px rgb(25 39 67 / 4%);
 }
 
@@ -63,7 +66,7 @@ button {
   padding: 0 clamp(20px, 5vw, 64px);
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--page);
   color: var(--ink);
 }
 
@@ -128,8 +131,8 @@ button {
   right: 12px;
   width: 7px;
   height: 7px;
-  border-right: 1.5px solid #818895;
-  border-bottom: 1.5px solid #818895;
+  border-right: 1.5px solid var(--chevron);
+  border-bottom: 1.5px solid var(--chevron);
   transform: rotate(45deg) translateY(-2px);
   content: '';
   pointer-events: none;
@@ -140,9 +143,34 @@ button {
   background: var(--surface-soft);
 }
 
+.language-control select option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  padding: 0;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  border-color: var(--line);
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
 .text-link,
 .small-link {
-  color: #414958;
+  color: var(--ink-soft);
   font-size: 14px;
   font-weight: 550;
   text-decoration: none;
@@ -177,7 +205,7 @@ button {
   align-items: center;
   gap: 9px;
   margin: 0 0 18px;
-  color: #66707e;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.075em;
@@ -199,7 +227,7 @@ button {
 .landing-description {
   max-width: 610px;
   margin: 22px auto 0;
-  color: #697280;
+  color: var(--muted);
   font-size: clamp(16px, 1.65vw, 18px);
   line-height: 1.65;
 }
@@ -218,8 +246,8 @@ button {
 }
 
 .landing-logo img {
-  width: 96px;
-  height: 96px;
+  width: 120px;
+  height: 120px;
 }
 
 .landing-section {
@@ -240,7 +268,7 @@ button {
 
 .section-subtitle {
   margin: 12px auto 0;
-  color: #697280;
+  color: var(--muted);
   font-size: 16px;
   line-height: 1.6;
 }
@@ -258,7 +286,7 @@ button {
   flex-direction: column;
   border: 1px solid var(--line);
   border-radius: 16px;
-  background: #fff;
+  background: var(--surface);
   padding: 28px;
 }
 
@@ -285,7 +313,7 @@ button {
 
 .pricing-period {
   margin-left: 6px;
-  color: #697280;
+  color: var(--muted);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
@@ -293,13 +321,13 @@ button {
 
 .pricing-yearly {
   margin: 8px 0 0;
-  color: #697280;
+  color: var(--muted);
   font-size: 13px;
 }
 
 .pricing-desc {
   margin: 12px 0 0;
-  color: #697280;
+  color: var(--muted);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -314,7 +342,7 @@ button {
 .pricing-features li {
   padding: 7px 0 7px 24px;
   position: relative;
-  color: #414958;
+  color: var(--ink-soft);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -339,7 +367,7 @@ button {
 
 .pricing-note {
   margin: 20px 0 0;
-  color: #697280;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -380,8 +408,8 @@ button {
   flex: 0 0 auto;
   width: 8px;
   height: 8px;
-  border-right: 1.5px solid #818895;
-  border-bottom: 1.5px solid #818895;
+  border-right: 1.5px solid var(--chevron);
+  border-bottom: 1.5px solid var(--chevron);
   transform: rotate(45deg) translateY(-2px);
   transition: transform 0.2s ease;
   content: '';
@@ -398,14 +426,14 @@ button {
 .faq-item p {
   max-width: 680px;
   margin: 0 0 22px;
-  color: #697280;
+  color: var(--muted);
   font-size: 15px;
   line-height: 1.75;
 }
 
 .public-footer {
   padding: 32px 0 40px;
-  color: #8a93a1;
+  color: var(--muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -432,7 +460,7 @@ button {
 .footer-social {
   display: inline-flex;
   align-items: center;
-  color: #414958;
+  color: var(--ink-soft);
   text-decoration: none;
 }
 
@@ -447,7 +475,7 @@ button {
 }
 
 .footer-links a {
-  color: #414958;
+  color: var(--ink-soft);
   font-size: 14px;
   font-weight: 550;
   text-decoration: none;
@@ -467,7 +495,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #414958;
+  color: var(--ink-soft);
   font-size: 13px;
 }
 
@@ -475,7 +503,7 @@ button {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #98a2b3;
+  background: var(--subtle);
 }
 
 .footer-status--online .footer-status-dot {
@@ -508,7 +536,7 @@ button {
 }
 
 .footer-copyright {
-  color: #8a93a1;
+  color: var(--muted);
 }
 
 .legal-main {
@@ -533,7 +561,7 @@ button {
 
 .legal-updated {
   margin: 12px 0 0;
-  color: #697280;
+  color: var(--muted);
   font-size: 13px;
 }
 
@@ -550,7 +578,7 @@ button {
 
 .legal-doc p {
   margin: 0;
-  color: #414958;
+  color: var(--ink-soft);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -586,8 +614,8 @@ button {
 
 .button-secondary {
   border-color: var(--line-strong);
-  background: #fff;
-  color: #353c48;
+  background: var(--surface);
+  color: var(--ink-soft);
 }
 
 .button-full {
@@ -748,6 +776,18 @@ button {
   padding-right: 67px;
 }
 
+.password-input-wrap--icon .text-input {
+  padding-right: 48px;
+}
+
+.password-input-wrap--icon .input-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  right: 8px;
+  padding: 6px;
+}
+
 .input-action {
   position: absolute;
   top: 50%;
@@ -808,13 +848,6 @@ button {
   color: #b3261e;
   font-size: 11px;
   line-height: 1.6;
-}
-
-.auth-footer-note {
-  margin: 19px 0 0;
-  color: #9ba1ab;
-  text-align: center;
-  font-size: 11px;
 }
 
 .unlock-card {
@@ -1942,6 +1975,22 @@ button {
     padding: 0 22px;
   }
 
+  .auth-shell {
+    padding: 0 22px 24px;
+  }
+
+  .auth-main {
+    margin-top: 18px;
+  }
+
+  .auth-card {
+    padding: 26px 24px 22px;
+  }
+
+  .auth-card h1 {
+    font-size: 26px;
+  }
+
   .public-header,
   .auth-header {
     min-height: 70px;
@@ -2157,6 +2206,25 @@ button {
     padding: 0 17px;
   }
 
+  .auth-shell {
+    padding: 0 17px 20px;
+  }
+
+  .auth-card {
+    padding: 24px 20px 20px;
+    border-radius: 14px;
+  }
+
+  .auth-card h1 {
+    font-size: 24px;
+  }
+
+  .auth-card-mark {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 18px;
+  }
+
   .public-header-actions {
     gap: 9px;
   }
@@ -2185,8 +2253,8 @@ button {
   }
 
   .landing-logo img {
-    width: 72px;
-    height: 72px;
+    width: 90px;
+    height: 90px;
   }
 
   .landing-copy h1 {
@@ -2235,14 +2303,17 @@ button {
 
 :root[data-theme="dark"] {
     --ink: #eef0f4;
+    --ink-soft: #c2c9d4;
     --muted: #aeb6c4;
     --line: #343946;
     --line-strong: #3c424f;
+    --page: #15171d;
     --surface: #1b1e25;
     --surface-soft: #20242d;
     --blue: #79a2ff;
     --blue-hover: #91b2ff;
     --blue-soft: #252f43;
+    --chevron: #9aa3af;
     color-scheme: dark;
   }
 :root[data-theme="dark"] body,
@@ -2253,31 +2324,16 @@ button {
     background: #15171d;
     color: #e8ebf1;
   }
+:root[data-theme="dark"] .wordmark-logo,
+:root[data-theme="dark"] .landing-logo img {
+    filter: brightness(1.7) saturate(1.25);
+  }
 :root[data-theme="dark"] .wordmark,
 :root[data-theme="dark"] .landing-copy h1,
 :root[data-theme="dark"] .auth-card h1,
 :root[data-theme="dark"] .vault-title-row h1,
 :root[data-theme="dark"] .detail-title-copy h1 {
     color: #f2f4f8;
-  }
-:root[data-theme="dark"] .public-shell {
-    --ink: #171a21;
-    --blue: #2764e8;
-    --blue-hover: #1f56cf;
-    color-scheme: light;
-    background: #fff;
-    color: #171a21;
-  }
-:root[data-theme="dark"] .public-shell .wordmark,
-:root[data-theme="dark"] .public-shell .landing-copy h1 {
-    color: #171a21;
-  }
-:root[data-theme="dark"] .public-shell .language-control select,
-:root[data-theme="dark"] .public-shell .text-link {
-    color: #414958;
-  }
-:root[data-theme="dark"] .public-shell .landing-description {
-    color: #697280;
   }
 :root[data-theme="dark"] .public-header,
 :root[data-theme="dark"] .auth-header,
@@ -2330,7 +2386,6 @@ button {
 :root[data-theme="dark"] .text-input::placeholder,
 :root[data-theme="dark"] .search-box input::placeholder,
 :root[data-theme="dark"] .field-hint,
-:root[data-theme="dark"] .auth-footer-note,
 :root[data-theme="dark"] .item-row-category,
 :root[data-theme="dark"] .item-row-updated,
 :root[data-theme="dark"] .detail-field-label,

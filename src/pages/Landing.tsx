@@ -2,17 +2,20 @@ import { motion, MotionConfig } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeToggle } from '../components/ThemeToggle'
+import type { AppearancePreference } from '../features/settings/preferences'
 import { FooterStatus } from '../features/api-health/FooterStatus'
 
 const GITHUB_REPO_URL = 'https://github.com/werkero/Sealero'
 const WERKERO_URL = 'https://werkero.vercel.app'
 
-function PublicHeader({ onNavigate }: { onNavigate: (path: string) => void }) {
+function PublicHeader({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
   return (
     <header className="public-header">
       <Brand onNavigate={onNavigate} />
       <div className="public-header-actions">
+        <ThemeToggle onAppearanceChange={onAppearanceChange} />
         <LanguageSelector />
         <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
           {t('auth:loginTitle')}
@@ -166,12 +169,12 @@ function PublicFooter({ onNavigate }: { onNavigate: (path: string) => void }) {
   )
 }
 
-export default function Landing({ onNavigate }: { onNavigate: (path: string) => void }) {
+export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
   return (
     <MotionConfig reducedMotion="user">
       <div className="public-shell">
-        <PublicHeader onNavigate={onNavigate} />
+        <PublicHeader onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
         <main className="landing-main">
           <section className="landing-copy" aria-labelledby="landing-title">
             <motion.div
@@ -180,7 +183,7 @@ export default function Landing({ onNavigate }: { onNavigate: (path: string) => 
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
-              <img src="/sealero-app-icon.svg" alt="Sealero" width="96" height="96" />
+              <img src="/sealero-logo.svg" alt="Sealero" width="120" height="120" />
             </motion.div>
             <motion.h1
               id="landing-title"

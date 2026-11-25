@@ -1,5 +1,6 @@
 {
  "language": "语言",
+ "toggleTheme": "切换深色模式",
  "previewMode": "界面预览版",
  "landingEyebrow": "让凭据管理更从容",
  "landingTitle": "把密码，收纳在一处。",
@@ -83,7 +84,6 @@
  "apiStatusServer": "服务器：{{name}}",
  "apiStatusRetry": "重试",
  "signOut": "退出登录",
- "authFooter": "前端预览，使用合成示例数据；未连接服务器。",
  "notFoundTitle": "找不到此页面",
  "notFoundBody": "地址可能有误，或预览版尚未包含此页面。",
  "openHome": "返回首页"

@@ -1,5 +1,6 @@
 {
  "language": "Langue",
+ "toggleTheme": "Basculer le mode sombre",
  "previewMode": "Aperçu de l’interface",
  "landingEyebrow": "Un espace plus serein pour vos identifiants",
  "landingTitle": "Tous vos mots de passe, au même endroit.",
@@ -83,7 +84,6 @@
  "apiStatusServer": "Serveur : {{name}}",
  "apiStatusRetry": "Réessayer",
  "signOut": "Se déconnecter",
- "authFooter": "Aperçu du frontend avec des données synthétiques. Aucun serveur connecté.",
  "notFoundTitle": "Cette page n’existe pas ici",
  "notFoundBody": "L’adresse est peut-être incorrecte ou cette page n’est pas incluse dans l’aperçu.",
  "openHome": "Retour à l’accueil"

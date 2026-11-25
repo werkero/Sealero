@@ -159,12 +159,12 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 }
 
 export function AppRoutes(props: AppRoutesProps) {
-  const { onNavigate, onLogin } = props
+  const { onNavigate, onLogin, onAppearanceChange } = props
   return (
     <Routes>
-      <Route path="/" element={<Landing onNavigate={onNavigate} />} />
-      <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} />} />
-      <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} />} />
+      <Route path="/" element={<Landing onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
+      <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
+      <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} />} />
       <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} />} />
       <Route path="/admin" element={<AdminRoute {...props} />} />
