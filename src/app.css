@@ -251,7 +251,7 @@ button {
 }
 
 .landing-section {
-  width: 100%;
+  width: min(100%, 1200px);
   margin: 0 auto;
   padding: clamp(40px, 6vw, 64px) 0;
   text-align: center;
