@@ -215,11 +215,15 @@ export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate
   const reduceMotion = useReducedMotion()
   const title = t('common:landingTitle')
   const [titleDone, setTitleDone] = useState(false)
-  const handleTitleDone = useCallback(() => setTitleDone(true), [])
-
-  useEffect(() => {
+  // 语言切换时重播序列：渲染期间重置（不能用 useEffect，
+  // 父组件 effect 在子组件 effect 之后跑，会把减弱动态下
+  // TypewriterTitle 同步触发的 onDone 又清回 false）。
+  const [prevTitle, setPrevTitle] = useState(title)
+  if (prevTitle !== title) {
+    setPrevTitle(title)
     setTitleDone(false)
-  }, [title])
+  }
+  const handleTitleDone = useCallback(() => setTitleDone(true), [])
 
   return (
     <MotionConfig reducedMotion="user">
