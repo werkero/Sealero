@@ -71,16 +71,7 @@ button {
 }
 
 .public-header,
-.auth-header {
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
-  min-height: 88px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
+.auth-header,
 .vault-header {
   min-height: 88px;
   display: flex;
@@ -205,7 +196,6 @@ button {
 
 .landing-copy {
   width: 100%;
-  max-width: 1440px;
   margin: 0 auto;
   padding: 0;
 }
@@ -262,7 +252,6 @@ button {
 
 .landing-section {
   width: 100%;
-  max-width: 1440px;
   margin: 0 auto;
   padding: clamp(40px, 6vw, 64px) 0;
   text-align: center;
@@ -444,8 +433,6 @@ button {
 
 .public-footer {
   width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
   padding: 32px 0 40px;
   color: var(--muted);
   font-size: 13px;
