@@ -89,11 +89,11 @@ export interface AppRoutesProps {
 
 function UnlockRoute(props: AppRoutesProps) {
   const { userId } = useParams()
-  const { user, onUnlock, onLogout, onNavigate, onLogin } = props
+  const { user, onUnlock, onLogout, onNavigate, onLogin, onAppearanceChange } = props
   if (user && userId === user.id) {
-    return <Unlock user={user} onUnlock={onUnlock} onBackToLogin={onLogout} onNavigate={onNavigate} />
+    return <Unlock user={user} onUnlock={onUnlock} onBackToLogin={onLogout} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
   }
-  return <Login onLogin={onLogin} onNavigate={onNavigate} />
+  return <Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
 }
 
 /**
@@ -114,7 +114,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, detailLoadErrorId, screen, onNavigate, onLogin, onLogout, onOpenItem, onCreateItem, onUpdateItem, onDeleteItem, onCopy, loadHealthItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull, getAccessToken, refreshAccessToken } = props
 
   if (!user || userId !== user.id || !isUnlocked) {
-    return <Login onLogin={onLogin} onNavigate={onNavigate} />
+    return <Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
   }
 
   const loading = (
@@ -150,7 +150,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   if (itemId) {
     if (!selectedItem || selectedItem.id !== itemId) {
       if (loadingItemId === itemId) return loading
-      if (detailLoadErrorId === itemId) return <NotFound onNavigate={onNavigate} />
+      if (detailLoadErrorId === itemId) return <NotFound onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
       return loading
     }
     return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} itemCount={items.length} items={items} isAdmin={isAdmin} loadItem={loadHealthItem} onNavigate={onNavigate} onLogout={onLogout} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
@@ -165,8 +165,8 @@ export function AppRoutes(props: AppRoutesProps) {
       <Route path="/" element={<Landing onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
-      <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} />} />
-      <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} />} />
+      <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
+      <Route path="/register" element={<RegisterPreview onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/admin" element={<AdminRoute {...props} />} />
       <Route path="/users/:userId" element={<VaultRoute {...props} screen="vault" />} />
       <Route path="/users/:userId/unlock" element={<UnlockRoute {...props} />} />
@@ -175,7 +175,7 @@ export function AppRoutes(props: AppRoutesProps) {
       <Route path="/users/:userId/settings" element={<VaultRoute {...props} screen="settings" />} />
       <Route path="/users/:userId/settings/health" element={<VaultRoute {...props} screen="health" />} />
       <Route path="/users/:userId/confirmations" element={<VaultRoute {...props} screen="confirmations" />} />
-      <Route path="*" element={<NotFound onNavigate={onNavigate} />} />
+      <Route path="*" element={<NotFound onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
     </Routes>
   )
 }

@@ -1,8 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
+import type { AppearancePreference } from '../features/settings/preferences'
 
-export function Login({ onLogin, onNavigate }: { onLogin: (email: string, password: string) => Promise<string | null>; onNavigate: (path: string) => void }) {
+export function Login({ onLogin, onNavigate, onAppearanceChange }: {
+  onLogin: (email: string, password: string) => Promise<string | null>
+  onNavigate: (path: string) => void
+  onAppearanceChange: (preference: AppearancePreference) => void
+}) {
   const { t } = useTranslation(['common', 'auth'])
   const [email, setEmail] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -17,7 +22,7 @@ export function Login({ onLogin, onNavigate }: { onLogin: (email: string, passwo
   }
 
   return (
-    <AuthShell onNavigate={onNavigate}>
+    <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card" aria-labelledby="login-title">
         <div className="auth-card-mark" aria-hidden="true"><span>↗</span></div>
         <p className="eyebrow">{t('auth:loginEyebrow')}</p>

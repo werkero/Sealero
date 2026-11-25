@@ -2,12 +2,14 @@ import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
 import type { VaultIdentity } from '../client/contracts'
+import type { AppearancePreference } from '../features/settings/preferences'
 
-export function Unlock({ user, onUnlock, onBackToLogin, onNavigate }: {
+export function Unlock({ user, onUnlock, onBackToLogin, onNavigate, onAppearanceChange }: {
   user: VaultIdentity
   onUnlock: (password: string) => Promise<string | null>
   onBackToLogin: () => void
   onNavigate: (path: string) => void
+  onAppearanceChange: (preference: AppearancePreference) => void
 }) {
   const { t } = useTranslation(['common', 'auth'])
   const [masterPassword, setMasterPassword] = useState('')
@@ -22,7 +24,7 @@ export function Unlock({ user, onUnlock, onBackToLogin, onNavigate }: {
   }
 
   return (
-    <AuthShell onNavigate={onNavigate}>
+    <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card unlock-card" aria-labelledby="unlock-title">
         <button className="back-button" type="button" onClick={onBackToLogin}><span aria-hidden="true">←</span>{t('auth:backToLogin')}</button>
         <div className="auth-card-mark lock-mark" aria-hidden="true"><span>⌑</span></div>

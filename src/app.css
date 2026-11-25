@@ -71,7 +71,16 @@ button {
 }
 
 .public-header,
-.auth-header,
+.auth-header {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .vault-header {
   min-height: 88px;
   display: flex;
@@ -190,12 +199,13 @@ button {
   justify-content: center;
   min-height: calc(100vh - 88px);
   min-height: calc(100svh - 88px);
-  padding: 32px 0 92px;
+  padding: clamp(24px, 3vw, 32px) 0 clamp(64px, 8vw, 92px);
   text-align: center;
 }
 
 .landing-copy {
-  width: min(100%, 850px);
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
   padding: 0;
 }
@@ -215,7 +225,7 @@ button {
 
 .landing-copy h1 {
   max-width: 850px;
-  margin: 0;
+  margin: 0 auto;
   color: var(--ink);
   font-size: clamp(42px, 7.1vw, 78px);
   font-weight: 650;
@@ -251,9 +261,10 @@ button {
 }
 
 .landing-section {
-  width: min(100%, 850px);
+  width: 100%;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 64px 0;
+  padding: clamp(40px, 6vw, 64px) 0;
   text-align: center;
 }
 
@@ -432,6 +443,9 @@ button {
 }
 
 .public-footer {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
   padding: 32px 0 40px;
   color: var(--muted);
   font-size: 13px;
@@ -624,17 +638,12 @@ button {
 
 .auth-shell {
   min-height: 100svh;
-  padding: 0 42px 30px;
-}
-
-.auth-header {
-  width: min(100%, 1200px);
-  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) 30px;
 }
 
 .auth-main {
   width: min(100%, 470px);
-  margin: 26px auto 0;
+  margin: clamp(18px, 3vw, 26px) auto 0;
 }
 
 .preview-notice {
@@ -670,7 +679,7 @@ button {
   border: 1px solid #e9ebef;
   border-radius: 16px;
   background: var(--surface);
-  padding: 31px 34px 25px;
+  padding: clamp(24px, 4vw, 31px) clamp(20px, 4vw, 34px) clamp(20px, 3vw, 25px);
   box-shadow: 0 12px 42px rgb(23 32 52 / 5%);
 }
 
@@ -699,7 +708,7 @@ button {
 .auth-card h1 {
   margin: 0;
   color: var(--ink);
-  font-size: 30px;
+  font-size: clamp(24px, 3vw, 30px);
   font-weight: 640;
   letter-spacing: -0.05em;
   line-height: 1.15;
@@ -1964,10 +1973,6 @@ button {
     margin-right: auto;
     margin-left: auto;
   }
-
-  .landing-section {
-    padding: 56px 0;
-  }
 }
 
 @media (max-width: 700px) {
@@ -1977,18 +1982,6 @@ button {
 
   .auth-shell {
     padding: 0 22px 24px;
-  }
-
-  .auth-main {
-    margin-top: 18px;
-  }
-
-  .auth-card {
-    padding: 26px 24px 22px;
-  }
-
-  .auth-card h1 {
-    font-size: 26px;
   }
 
   .public-header,
@@ -2014,10 +2007,6 @@ button {
   .landing-description {
     max-width: 520px;
     font-size: 16px;
-  }
-
-  .landing-section {
-    padding: 48px 0;
   }
 
   .footer-top {
@@ -2211,12 +2200,7 @@ button {
   }
 
   .auth-card {
-    padding: 24px 20px 20px;
     border-radius: 14px;
-  }
-
-  .auth-card h1 {
-    font-size: 24px;
   }
 
   .auth-card-mark {

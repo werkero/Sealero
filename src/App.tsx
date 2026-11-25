@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
 import { LanguageSelector } from './components/LanguageSelector'
+import { ThemeToggle } from './components/ThemeToggle'
+import type { AppearancePreference } from './features/settings/preferences'
 import type { VaultIdentity, VaultItemInput } from './client/contracts'
 import { createHttpVaultClient, VaultApiError } from './client/http-vault-client'
 import { useAutoLock } from './hooks/use-auto-lock'
@@ -14,12 +16,19 @@ import './app.css'
 
 export type VaultFilter = 'all' | 'favorites'
 
-export function AuthShell({ children, onNavigate }: { children: ReactNode; onNavigate: (path: string) => void }) {
+export function AuthShell({ children, onNavigate, onAppearanceChange }: {
+  children: ReactNode
+  onNavigate: (path: string) => void
+  onAppearanceChange: (preference: AppearancePreference) => void
+}) {
   return (
     <div className="auth-shell">
       <header className="auth-header">
         <Brand onNavigate={onNavigate} />
-        <LanguageSelector />
+        <div className="public-header-actions">
+          <ThemeToggle onAppearanceChange={onAppearanceChange} />
+          <LanguageSelector />
+        </div>
       </header>
       <main className="auth-main">
         {children}

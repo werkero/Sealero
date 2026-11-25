@@ -1,10 +1,14 @@
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
+import type { AppearancePreference } from '../features/settings/preferences'
 
-export function RegisterPreview({ onNavigate }: { onNavigate: (path: string) => void }) {
+export function RegisterPreview({ onNavigate, onAppearanceChange }: {
+  onNavigate: (path: string) => void
+  onAppearanceChange: (preference: AppearancePreference) => void
+}) {
   const { t } = useTranslation(['common', 'auth'])
   return (
-    <AuthShell onNavigate={onNavigate}>
+    <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card" aria-labelledby="register-title">
         <div className="auth-card-mark" aria-hidden="true"><span>↗</span></div>
         <p className="eyebrow">{t('common:previewMode')}</p>
