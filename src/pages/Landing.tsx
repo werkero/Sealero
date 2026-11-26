@@ -204,6 +204,7 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
             <li>{t('pricingFreeF2')}</li>
             <li>{t('pricingFreeF3')}</li>
             <li>{t('pricingFreeF4')}</li>
+            <li>{t('pricingFreeF5')}</li>
           </ul>
           <a
             className="button button-secondary pricing-cta"
@@ -221,7 +222,7 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
           )}
         </motion.article>
         <motion.article
-          className="pricing-card pricing-card-pro"
+          className="pricing-card"
           whileHover={{ y: -4 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
         >
@@ -236,11 +237,33 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
             <li>{t('pricingProF1')}</li>
             <li>{t('pricingProF2')}</li>
             <li>{t('pricingProF3')}</li>
-            <li>{t('pricingProF4')}</li>
           </ul>
           {user ? null : (
             <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
               {t('pricingProCta')}
+            </a>
+          )}
+        </motion.article>
+        <motion.article
+          className="pricing-card pricing-card-pro"
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          <h3>{t('pricingCloudName')}</h3>
+          <p className="pricing-price">
+            {t('pricingCloudPrice')}
+            <span className="pricing-period">{t('pricingCloudPeriod')}</span>
+          </p>
+          <p className="pricing-yearly">{t('pricingCloudYearly')}</p>
+          <p className="pricing-desc">{t('pricingCloudDesc')}</p>
+          <ul className="pricing-features">
+            <li>{t('pricingCloudF1')}</li>
+            <li>{t('pricingCloudF2')}</li>
+            <li>{t('pricingCloudF3')}</li>
+          </ul>
+          {user ? null : (
+            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+              {t('pricingCloudCta')}
             </a>
           )}
         </motion.article>

@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 /**
- * VaultLayout render test (shared backend shell + profile menu + sign-out
- * confirm), via React's server renderer — no jsdom or component renderer
- * exists in this repo, so the layout is rendered to static markup and the
- * initial (closed) state is asserted on: the sidebar holds the brand and
- * the user row, the profile button must be a menu button, not a logout
- * button, and neither the menu nor the confirm dialog may be in the
- * initial markup. Browser globals are stubbed before the dynamic import
- * because src/i18n.ts reads navigator/localStorage/document at import time.
- * This file lives under server/test/ only so the existing vitest run
- * (pnpm test:api) executes it; it tests web UI, not the API.
+ * VaultLayout render test (shared backend shell on the shadcn/ui Sidebar
+ * + profile menu + sign-out confirm), via React's server renderer — no
+ * jsdom or component renderer exists in this repo, so the layout is
+ * rendered to static markup and the initial (closed) state is asserted
+ * on: the sidebar holds the brand and the user menu trigger, the profile
+ * button must be a menu button, not a logout button, and neither the
+ * menu nor the confirm dialog may be in the initial markup. Browser
+ * globals are stubbed before the dynamic import because src/i18n.ts
+ * reads navigator/localStorage/document at import time. This file lives
+ * under server/test/ only so the existing vitest run (pnpm test:api)
+ * executes it; it tests web UI, not the API.
  */
 
 function installBrowserStubs(): void {
@@ -65,6 +66,7 @@ async function renderVaultLayout(): Promise<string> {
       filter="all"
       itemCount={3}
       isAdmin={false}
+      appearancePreference="system"
       onFilterChange={() => undefined}
       onNavigate={() => undefined}
       onLock={() => undefined}
@@ -77,25 +79,25 @@ async function renderVaultLayout(): Promise<string> {
 }
 
 describe('VaultLayout profile menu and sign-out confirm', () => {
-  it('renders the shared shell: brand in the sidebar, no top header, user row at the bottom', async () => {
+  it('renders the shadcn Sidebar shell: brand in the sidebar header, no hand-written shell', async () => {
     const html = await renderVaultLayout();
-    expect(html).toContain('backend-sidebar');
-    expect(html).toContain('backend-sidebar-brand');
-    expect(html).toContain('backend-user-row');
+    expect(html).toContain('data-slot="sidebar-wrapper"');
+    expect(html).toContain('data-slot="sidebar"');
+    expect(html).toContain('data-slot="sidebar-header"');
+    expect(html).toContain('wordmark');
+    expect(html).toContain('sealero');
+    expect(html).not.toContain('backend-sidebar');
     expect(html).not.toContain('vault-header');
   });
 
   it('renders the profile control as a menu button, with menu and confirm dialog closed', async () => {
     const html = await renderVaultLayout();
     // Avatar shows the first letter of the email.
-    expect(html).toContain('profile-avatar');
     expect(html).toContain('>A<');
     // The profile button opens a menu; it must not act as a logout button.
     expect(html).toContain('aria-haspopup="menu"');
     expect(html).toContain('data-state="closed"');
     // Menu and confirm dialog are state-driven and start closed.
-    expect(html).not.toContain('class="profile-menu"');
-    expect(html).not.toContain('profile-menu-backdrop');
     expect(html).not.toContain('Lock vault');
     expect(html).not.toContain('confirm-dialog');
     expect(html).not.toContain('Are you sure you want to sign out?');
@@ -106,7 +108,8 @@ describe('VaultLayout profile menu and sign-out confirm', () => {
     // The standalone sidebar sign-out button is gone: sign-out lives in the user menu.
     expect(html).not.toContain('sidebar-sign-out');
     expect(html).not.toContain('Sign out');
-    expect(html).toContain('sidebar-lock-card');
+    expect(html).not.toContain('sidebar-lock-card');
+    expect(html).toContain('Auto-lock is on');
     expect(html).toContain('vault body');
   });
 });

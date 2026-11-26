@@ -7,7 +7,7 @@ import type { AppearancePreference } from '../features/settings/preferences'
 import { Button } from '../components/ui/button'
 import { ItemEditor } from './ItemEditor'
 
-export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, onAppearanceChange }: {
+export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, appearancePreference, onAppearanceChange }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
@@ -16,6 +16,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   onCreateItem: (input: VaultItemInput) => Promise<unknown>
   onLock: () => void
   onLogout: () => void
+  appearancePreference: AppearancePreference
   onAppearanceChange: (preference: AppearancePreference) => void
 }) {
   const { t } = useTranslation(['common', 'vault'])
@@ -49,7 +50,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="vault-content">
         <div className="vault-title-row">
           <div>

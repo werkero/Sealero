@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronDown, Copy, LayoutGrid, Lock, LogOut, Settings, Sparkles, Star } from 'lucide-react'
+import { Check, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Sparkles, Star, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
 import { LanguageSelector } from './components/LanguageSelector'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 import { Button } from './components/ui/button'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger } from './components/ui/sidebar'
+import { applyLanguagePreference } from './features/settings/preferences'
+import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
 import type { VaultIdentity, VaultItemInput } from './client/contracts'
 import { createHttpVaultClient, VaultApiError } from './client/http-vault-client'
@@ -42,55 +45,106 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
 }
 
 /**
- * Shared shell for both backends (vault + admin console): a full-height
- * left sidebar with the brand, navigation, and a bottom user row; no top
- * header bar. The sidebar menu differs per backend, so the caller
- * supplies it as a function receiving `requestSignOut` (which opens the
- * shared sign-out confirm dialog). Toasts are event-driven and render
- * nothing when empty, so both backends can share this shell.
+ * Shared shell for both backends (vault + admin console), built on the
+ * shadcn/ui Sidebar: a collapsible icon rail on desktop, a sheet drawer
+ * on mobile, and a slim top bar with the sidebar trigger. The sidebar
+ * menu differs per backend, so the caller supplies it as a function
+ * receiving `requestSignOut` (which opens the shared sign-out confirm
+ * dialog); the shell appends the appearance + language submenus and the
+ * sign-out item itself, so sign-out is always last. The user menu opens
+ * upward (side="top") because the trigger sits at the bottom of the
+ * sidebar. Toasts are event-driven and render nothing when empty, so
+ * both backends can share this shell.
  */
-export function BackendShell({ user, nav, bottom, menu, onNavigate, onLogout, onAppearanceChange, children }: {
+export function BackendShell({ user, nav, bottom, menu, title, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   nav: ReactNode
   bottom?: ReactNode
   menu: (requestSignOut: () => void) => ReactNode
+  title?: ReactNode
+  appearancePreference: AppearancePreference
   onNavigate: (path: string) => void
   onLogout: () => void
   onAppearanceChange: (preference: AppearancePreference) => void
   children: ReactNode
 }) {
+  const { t, i18n } = useTranslation(['common', 'settings'])
   const [confirmSignOutOpen, setConfirmSignOutOpen] = useState(false)
+  const currentLanguage = isLanguage(i18n.resolvedLanguage) ? i18n.resolvedLanguage : 'en'
   return (
-    <div className="backend-shell">
-      <aside className="backend-sidebar">
-        <div className="backend-sidebar-brand"><Brand onNavigate={onNavigate} /></div>
-        {nav}
-        <div className="backend-sidebar-bottom">
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader>
+          <Brand onNavigate={onNavigate} />
+        </SidebarHeader>
+        <SidebarContent>
+          {nav}
+        </SidebarContent>
+        <SidebarFooter>
           {bottom}
-        </div>
-        <div className="backend-user-row">
-          <div className="profile-menu-wrap">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="profile-button" type="button" aria-label={user.email} title={user.email}>
-                  <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
-                  <span className="profile-email">{user.email}</span>
-                  <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="profile-menu" align="end">
-                {menu(() => setConfirmSignOutOpen(true))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-          <ThemeToggle onAppearanceChange={onAppearanceChange} />
-          <LanguageSelector />
-        </div>
-      </aside>
-      <main className="backend-main">{children}</main>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuButton size="lg" tooltip={user.email}>
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</span>
+                    <span className="min-w-0 flex-1 truncate text-left">{user.email}</span>
+                    <ChevronUp className="ml-auto size-4" aria-hidden="true" />
+                  </SidebarMenuButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="top" align="end" className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg">
+                  {menu(() => setConfirmSignOutOpen(true))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Sun className="size-4" aria-hidden="true" />
+                      <span>{t('settings:appearanceTitle')}</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup value={appearancePreference} onValueChange={(value) => onAppearanceChange(value as AppearancePreference)}>
+                        <DropdownMenuRadioItem value="system">{t('settings:followSystem')}</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="light">{t('settings:light')}</DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="dark">{t('settings:dark')}</DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>
+                      <Languages className="size-4" aria-hidden="true" />
+                      <span>{t('common:language')}</span>
+                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => void applyLanguagePreference(value as Language)}>
+                        {languages.map((language) => (
+                          <DropdownMenuRadioItem key={language.code} value={language.code}>{language.label}</DropdownMenuRadioItem>
+                        ))}
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setConfirmSignOutOpen(true)}>
+                    <LogOut className="size-4" aria-hidden="true" />
+                    <span>{t('common:signOut')}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          {title ? <>
+            <SidebarSeparator orientation="vertical" className="mr-2 h-4" />
+            <span className="truncate text-sm font-medium">{title}</span>
+          </> : null}
+        </header>
+        <div className="flex min-w-0 flex-1 flex-col">{children}</div>
+      </SidebarInset>
       <ToastLayer />
       <SignOutConfirmDialog open={confirmSignOutOpen} onConfirm={onLogout} onClose={() => setConfirmSignOutOpen(false)} />
-    </div>
+    </SidebarProvider>
   )
 }
 
@@ -110,12 +164,14 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
   /** Shows the admin-console entry in the sidebar when the session is an admin. */
   isAdmin?: boolean
+  title?: ReactNode
+  appearancePreference: AppearancePreference
   onFilterChange: (filter: VaultFilter) => void
   onNavigate: (path: string) => void
   onLock: () => void
@@ -129,49 +185,74 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, 
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
+      title={title}
+      appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
-      nav={<>
-        <div className="sidebar-section-label">{t('vault:yourVault')}</div>
-        <nav className="sidebar-nav" aria-label={t('vault:navigation')}>
-          <button type="button" className={`sidebar-link ${filter === 'all' ? 'is-active' : ''}`} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
-            <span className="nav-icon" aria-hidden="true"><LayoutGrid size={15} aria-hidden="true" /></span><span>{t('vault:allItems')}</span><span className="nav-count">{itemCount}</span>
-          </button>
-          <button type="button" className={`sidebar-link ${filter === 'favorites' ? 'is-active' : ''}`} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
-            <span className="nav-icon nav-star" aria-hidden="true"><Star size={12} aria-hidden="true" /></span><span>{t('vault:favorites')}</span>
-          </button>
-          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/generator`)}>
-            <span className="nav-icon" aria-hidden="true"><Sparkles size={15} aria-hidden="true" /></span><span>{t('vault:generator.title')}</span>
-          </button>
-          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-            <span className="nav-icon" aria-hidden="true"><Settings size={15} aria-hidden="true" /></span><span>{t('settings:title')}</span>
-          </button>
-          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
-            <span className="nav-icon" aria-hidden="true"><Check size={15} aria-hidden="true" /></span><span>{t('vault:mcpConfirmations.title')}</span>
-          </button>
-          {isAdmin ? (
-            <button type="button" className="sidebar-link" onClick={() => onNavigate('/admin')}>
-              <span className="nav-icon" aria-hidden="true"><Lock size={15} aria-hidden="true" /></span><span>{t('admin:header.navigation')}</span>
-            </button>
-          ) : null}
-        </nav>
-      </>}
+      nav={
+        <SidebarGroup>
+          <SidebarGroupLabel>{t('vault:yourVault')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive={filter === 'all'} tooltip={t('vault:allItems')} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
+                  <LayoutGrid />
+                  <span>{t('vault:allItems')}</span>
+                  <SidebarMenuBadge>{itemCount}</SidebarMenuBadge>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive={filter === 'favorites'} tooltip={t('vault:favorites')} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
+                  <Star />
+                  <span>{t('vault:favorites')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={t('vault:generator.title')} onClick={() => onNavigate(`/users/${user.id}/generator`)}>
+                  <Sparkles />
+                  <span>{t('vault:generator.title')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={t('settings:title')} onClick={() => onNavigate(`/users/${user.id}/settings`)}>
+                  <Settings />
+                  <span>{t('settings:title')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={t('vault:mcpConfirmations.title')} onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
+                  <Check />
+                  <span>{t('vault:mcpConfirmations.title')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {isAdmin ? (
+                <SidebarMenuItem>
+                  <SidebarMenuButton tooltip={t('admin:header.navigation')} onClick={() => onNavigate('/admin')}>
+                    <Lock />
+                    <span>{t('admin:header.navigation')}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ) : null}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      }
       bottom={
-        <div className="sidebar-lock-card">
-          <span className="sidebar-lock-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span>
-          <strong>{t('vault:autoLockTitle')}</strong>
-          <span>{t('vault:autoLockDescription')}</span>
+        <div className="rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
+          <span className="mb-1.5 flex items-center gap-1.5 font-semibold text-foreground">
+            <Lock className="size-3.5" aria-hidden="true" />
+            {t('vault:autoLockTitle')}
+          </span>
+          {t('vault:autoLockDescription')}
         </div>
       }
-      menu={(requestSignOut) => (<>
-        <DropdownMenuItem className="profile-menu-item" onClick={onLock}>
-          <span aria-hidden="true"><Lock size={15} aria-hidden="true" /></span>{t('vault:lockVault')}
+      menu={() => (<>
+        <DropdownMenuItem onClick={onLock}>
+          <Lock className="size-4" aria-hidden="true" />
+          <span>{t('vault:lockVault')}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="profile-menu-item" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-          <span aria-hidden="true"><Settings size={15} aria-hidden="true" /></span>{t('settings:title')}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="profile-menu-divider" />
-        <DropdownMenuItem className="profile-menu-item" onClick={requestSignOut}>
-          <span aria-hidden="true"><LogOut size={15} aria-hidden="true" /></span>{t('common:signOut')}
+        <DropdownMenuItem onClick={() => onNavigate(`/users/${user.id}/settings`)}>
+          <Settings className="size-4" aria-hidden="true" />
+          <span>{t('settings:title')}</span>
         </DropdownMenuItem>
       </>)}
     >

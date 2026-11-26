@@ -1,10 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { ArrowLeft, ChevronRight, Database, LayoutGrid, LogOut, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
 import { Button } from '../components/ui/button'
-import { DropdownMenuItem, DropdownMenuSeparator } from '../components/ui/dropdown-menu'
+import { DropdownMenuItem } from '../components/ui/dropdown-menu'
+import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../components/ui/sidebar'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
@@ -64,18 +65,6 @@ function errorText(error: unknown, t: AdminTFunction): string {
   }
   if (error instanceof Error && error.name === 'AbortError') return ''
   return t('loadFailed')
-}
-
-function navLink(active: boolean) {
-  return active
-    ? 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-border bg-muted px-[11px] text-left text-xs font-[650] text-primary max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[12px]'
-    : 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-transparent bg-transparent px-[11px] text-left text-xs font-[560] text-muted-foreground hover:bg-muted hover:text-foreground max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[12px]'
-}
-
-function navIcon(active: boolean) {
-  return active
-    ? 'w-[18px] text-center text-[15px] text-primary max-[760px]:w-auto max-[760px]:text-[13px]'
-    : 'w-[18px] text-center text-[15px] text-muted-foreground max-[760px]:w-auto max-[760px]:text-[13px]'
 }
 
 type SettingsDraft = Partial<Record<AdminSettingKey, string | boolean>>
@@ -151,8 +140,9 @@ function sourceLabel(source: string, t: AdminTFunction): string {
   return t('settings.sourceDefault')
 }
 
-export function Console({ user, onNavigate, getAccessToken, refreshAccessToken, currentUserId, onAppearanceChange, onLogout }: {
+export function Console({ user, appearancePreference, onNavigate, getAccessToken, refreshAccessToken, currentUserId, onAppearanceChange, onLogout }: {
   user: VaultIdentity
+  appearancePreference: AppearancePreference
   onNavigate: (path: string) => void
   getAccessToken: () => string | null
   /** Shared token refresher (the vault adapter's); the admin client calls it on 401. */
@@ -592,35 +582,33 @@ export function Console({ user, onNavigate, getAccessToken, refreshAccessToken, 
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
+      appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
-      nav={<>
-        <p className="sidebar-section-label">{t('header.navigation')}</p>
-        <nav aria-label={t('header.navigation')} className="mt-3 grid gap-[5px] max-[760px]:mt-0 max-[760px]:grid-cols-4 max-[760px]:gap-1.5">
-          {sections.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={navLink(section === item)}
-              aria-current={section === item ? 'page' : undefined}
-              onClick={() => setSection(item)}
-            >
-              <span className={navIcon(section === item)} aria-hidden="true">{item === 'overview' ? <LayoutGrid size={15} aria-hidden="true" /> : item === 'users' ? <UsersIcon size={15} aria-hidden="true" /> : item === 'settings' ? <Settings size={15} aria-hidden="true" /> : <ScrollText size={15} aria-hidden="true" />}</span>
-              {t(`navigation.${item}`)}
-            </button>
-          ))}
-        </nav>
-      </>}
+      nav={
+        <SidebarGroup>
+          <SidebarGroupLabel>{t('header.navigation')}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sections.map((item) => (
+                <SidebarMenuItem key={item}>
+                  <SidebarMenuButton isActive={section === item} tooltip={t(`navigation.${item}`)} onClick={() => setSection(item)}>
+                    {item === 'overview' ? <LayoutGrid /> : item === 'users' ? <UsersIcon /> : item === 'settings' ? <Settings /> : <ScrollText />}
+                    <span>{t(`navigation.${item}`)}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      }
       bottom={<>
-        <div className="flex items-start gap-2 rounded-[9px] border border-border bg-muted p-2.5 text-[12px] leading-[1.55] text-muted-foreground max-[760px]:hidden"><span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" /><span>{t('authentication.loginPasswordOnly')}</span></div>
-        <button className="mt-4 inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent px-[5px] py-2 text-left text-[12px] text-muted-foreground hover:text-(--blue) max-[760px]:hidden" type="button" onClick={() => onNavigate('/')}><span aria-hidden="true"><ArrowLeft size={12} aria-hidden="true" /></span>{t('header.backToSite')}</button>
+        <div className="flex items-start gap-2 rounded-[9px] border border-border bg-muted p-2.5 text-[12px] leading-[1.55] text-muted-foreground"><span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" /><span>{t('authentication.loginPasswordOnly')}</span></div>
+        <button className="mt-4 inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent px-[5px] py-2 text-left text-[12px] text-muted-foreground hover:text-(--blue)" type="button" onClick={() => onNavigate('/')}><span aria-hidden="true"><ArrowLeft size={12} aria-hidden="true" /></span>{t('header.backToSite')}</button>
       </>}
-      menu={(requestSignOut) => (<>
-        <DropdownMenuItem className="profile-menu-item" onClick={() => onNavigate(`/users/${user.id}`)}>
-          <span aria-hidden="true"><LayoutGrid size={15} aria-hidden="true" /></span>{t('header.backToVault')}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="profile-menu-divider" />
-        <DropdownMenuItem className="profile-menu-item" onClick={requestSignOut}>
-          <span aria-hidden="true"><LogOut size={15} aria-hidden="true" /></span>{t('common:signOut')}
+      menu={() => (<>
+        <DropdownMenuItem onClick={() => onNavigate(`/users/${user.id}`)}>
+          <LayoutGrid className="size-4" aria-hidden="true" />
+          <span>{t('header.backToVault')}</span>
         </DropdownMenuItem>
       </>)}
     >
