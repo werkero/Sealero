@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Check, Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
 import type { VaultIdentity } from '../client/contracts'
@@ -27,14 +28,12 @@ export function Unlock({ user, onUnlock, onBackToLogin, onNavigate, onAppearance
     <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card unlock-card" aria-labelledby="unlock-title">
         <button className="back-button" type="button" onClick={onBackToLogin}><span aria-hidden="true">←</span>{t('auth:backToLogin')}</button>
-        <div className="auth-card-mark lock-mark" aria-hidden="true"><span>⌑</span></div>
-        <p className="eyebrow">{t('auth:unlockEyebrow')}</p>
         <h1 id="unlock-title">{t('auth:unlockTitle')}</h1>
         <p className="auth-subtitle">{t('auth:unlockSubtitle')}</p>
-        <div className="account-chip"><span className="account-avatar">{user.email.slice(0, 1).toUpperCase()}</span><span>{user.email}</span><span className="account-chip-check">✓</span></div>
+        <div className="account-chip"><span className="account-avatar">{user.email.slice(0, 1).toUpperCase()}</span><span>{user.email}</span><span className="account-chip-check"><Check size={14} aria-hidden="true" /></span></div>
         <form className="auth-form" onSubmit={submit}>
           <label className="field-label" htmlFor="master-password">{t('auth:masterPasswordLabel')}</label>
-          <div className="password-input-wrap">
+          <div className="password-input-wrap password-input-wrap--icon">
             <input
               className="text-input"
               id="master-password"
@@ -48,12 +47,15 @@ export function Unlock({ user, onUnlock, onBackToLogin, onNavigate, onAppearance
               autoFocus
             />
             <button className="input-action" type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? t('common:hide') : t('common:show')}>
-              {passwordVisible ? t('common:hide') : t('common:show')}
+              {passwordVisible ? (
+                <EyeOff size={18} aria-hidden="true" />
+              ) : (
+                <Eye size={18} aria-hidden="true" />
+              )}
             </button>
           </div>
-          <p className="field-hint">{t('auth:masterPasswordHint')}</p>
           {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-          <button className="button button-primary button-full" type="submit">{t('auth:unlockButton')}<span aria-hidden="true">→</span></button>
+          <button className="button button-primary button-full" type="submit">{t('auth:unlockButton')}</button>
         </form>
       </section>
     </AuthShell>

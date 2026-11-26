@@ -29,6 +29,8 @@ interface PendingOperation {
 export function useVaultSession(client: VaultClient) {
   const [user, setUser] = useState<VaultIdentity | null>(null)
   const [isUnlocked, setIsUnlocked] = useState(false)
+  /** True once the startup session-restore attempt has finished (restored or not). */
+  const [sessionChecked, setSessionChecked] = useState(false)
   /** Cached admin-role probe result for this login session; false until proven. */
   const [isAdmin, setIsAdmin] = useState(false)
   const [items, setItems] = useState<VaultListItem[]>([])
@@ -59,6 +61,37 @@ export function useVaultSession(client: VaultClient) {
   const finishOperation = useCallback((operation: PendingOperation) => {
     if (pendingRef.current === operation) pendingRef.current = null
   }, [])
+
+  /**
+   * Restores the login identity after a page refresh: the refresh token
+   * lives in its HttpOnly cookie, so a fresh access token is fetched first
+   * and GET /v1/auth/me supplies the identity. A missing, expired, or
+   * revoked refresh token fails here and the session simply stays logged
+   * out — never an error to the user. The vault stays locked: the master
+   * password and DEK live only in memory and are never restored.
+   */
+  const restoreSession = useCallback(async () => {
+    const operation = beginOperation()
+    try {
+      await client.refreshAccessToken(operation.controller.signal)
+      if (!isCurrent(operation)) return false
+      const identity = await client.getCurrentUser(operation.controller.signal)
+      if (!isCurrent(operation)) return false
+      setUser(identity)
+      const admin = await probeAdminAccess(
+        { getAccessToken: client.getAccessToken },
+        operation.controller.signal,
+      )
+      if (isCurrent(operation)) setIsAdmin(admin)
+      return true
+    } catch {
+      if (!isCurrent(operation)) return false
+      return false
+    } finally {
+      finishOperation(operation)
+      setSessionChecked(true)
+    }
+  }, [beginOperation, client, finishOperation, isCurrent])
 
   const login = useCallback(async (email: string, loginPassword: string) => {
     cancelPending()
@@ -224,5 +257,5 @@ export function useVaultSession(client: VaultClient) {
     client.lock()
   }, [cancelPending, client])
 
-  return { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
+  return { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
 }

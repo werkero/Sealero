@@ -227,6 +227,20 @@ export class AuthService {
     this.notifyFailure = options.onNotificationFailure ?? (() => undefined);
   }
 
+  /**
+   * Returns the login identity for GET /v1/auth/me (System Design §5.1):
+   * only {id, email} for the JWT's own account. The caller already passed
+   * the per-request revocation check, so a missing row here only means the
+   * account was deleted after the token was issued.
+   */
+  async getCurrentUser(userId: string): Promise<{ readonly id: string; readonly email: string }> {
+    const user = await this.store.findUserById(userId);
+    if (user === null) {
+      throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');
+    }
+    return user;
+  }
+
   async register(
     emailInput: string,
     loginPassword: string,
@@ -270,6 +284,12 @@ export class AuthService {
         if (!allowRegistration) return;
         const requireVerification = emailVerificationRequired;
         const userId = await transaction.insertUser(email, passwordHash, requireVerification ? null : now);
+        if (userId) {
+          // Roles are granted whether or not email verification is required:
+          // the first user is the admin even on deployments with verification
+          // off. A duplicate email inserts nothing, so no roles are granted.
+          await transaction.grantRegistrationRoles(userId, now);
+        }
         if (!userId || !requireVerification) return;
         const verification = await this.createCodeWithinTransaction(transaction, email, 'verify', now);
         await this.sendAuthCodeWithinTransaction('verification_code', () =>

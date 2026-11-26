@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Check, ChevronDown, Copy, LayoutGrid, Lock, LogOut, Settings, Sparkles, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
@@ -47,7 +48,7 @@ function VaultHeader({ user, onNavigate, onLogout }: { user: VaultIdentity; onNa
         <button className="profile-button" type="button" onClick={onLogout} aria-label={t('common:signOut')} title={t('common:signOut')}>
           <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
           <span className="profile-email">{user.email}</span>
-          <span className="profile-chevron" aria-hidden="true">⌄</span>
+          <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
         </button>
       </div>
     </header>
@@ -74,33 +75,33 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, 
           <div className="sidebar-section-label">{t('vault:yourVault')}</div>
           <nav className="sidebar-nav">
             <button type="button" className={`sidebar-link ${filter === 'all' ? 'is-active' : ''}`} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
-              <span className="nav-icon" aria-hidden="true">▦</span><span>{t('vault:allItems')}</span><span className="nav-count">{itemCount}</span>
+              <span className="nav-icon" aria-hidden="true"><LayoutGrid size={15} aria-hidden="true" /></span><span>{t('vault:allItems')}</span><span className="nav-count">{itemCount}</span>
             </button>
             <button type="button" className={`sidebar-link ${filter === 'favorites' ? 'is-active' : ''}`} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
-              <span className="nav-icon nav-star" aria-hidden="true">★</span><span>{t('vault:favorites')}</span>
+              <span className="nav-icon nav-star" aria-hidden="true"><Star size={12} aria-hidden="true" /></span><span>{t('vault:favorites')}</span>
             </button>
             <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/generator`)}>
-              <span className="nav-icon" aria-hidden="true">✦</span><span>{t('vault:generator.title')}</span>
+              <span className="nav-icon" aria-hidden="true"><Sparkles size={15} aria-hidden="true" /></span><span>{t('vault:generator.title')}</span>
             </button>
             <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-              <span className="nav-icon" aria-hidden="true">◈</span><span>{t('settings:title')}</span>
+              <span className="nav-icon" aria-hidden="true"><Settings size={15} aria-hidden="true" /></span><span>{t('settings:title')}</span>
             </button>
             <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
-              <span className="nav-icon" aria-hidden="true">✓</span><span>{t('vault:mcpConfirmations.title')}</span>
+              <span className="nav-icon" aria-hidden="true"><Check size={15} aria-hidden="true" /></span><span>{t('vault:mcpConfirmations.title')}</span>
             </button>
             {isAdmin ? (
               <button type="button" className="sidebar-link" onClick={() => onNavigate('/admin')}>
-                <span className="nav-icon" aria-hidden="true">⌑</span><span>{t('admin:header.navigation')}</span>
+                <span className="nav-icon" aria-hidden="true"><Lock size={15} aria-hidden="true" /></span><span>{t('admin:header.navigation')}</span>
               </button>
             ) : null}
           </nav>
           <div className="sidebar-bottom">
             <div className="sidebar-lock-card">
-              <span className="sidebar-lock-icon" aria-hidden="true">◈</span>
+              <span className="sidebar-lock-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span>
               <strong>{t('vault:autoLockTitle')}</strong>
               <span>{t('vault:autoLockDescription')}</span>
             </div>
-            <button className="sidebar-sign-out" type="button" onClick={onLogout}><span aria-hidden="true">↗</span>{t('common:signOut')}</button>
+            <button className="sidebar-sign-out" type="button" onClick={onLogout}><span aria-hidden="true"><LogOut size={12} aria-hidden="true" /></span>{t('common:signOut')}</button>
           </div>
         </aside>
         <main className="vault-main">{children}</main>
@@ -133,7 +134,7 @@ export function SecretRow({ label, value, maskedValue, visible, onToggle, onCopy
 }
 
 export function CopyIcon() {
-  return <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="6.1" y="6.1" width="9.4" height="11.1" rx="2" /><path d="M12.8 3H5.5A2.5 2.5 0 0 0 3 5.5v8.2" /></svg>
+  return <Copy size={15} strokeWidth={1.5} aria-hidden="true" />
 }
 
 function ToastLayer() {
@@ -183,7 +184,7 @@ function AppShell() {
   const getAccessToken = useCallback(() => vaultClient.getAccessToken?.() ?? null, [vaultClient])
   /** Shared token refresher: the vault adapter deduplicates concurrent refreshes. */
   const refreshAccessToken = useCallback((signal?: AbortSignal) => vaultClient.refreshAccessToken(signal), [vaultClient])
-  const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
+  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
   const copyTimers = useRef<number[]>([])
   const copyGenerationRef = useRef(0)
   const [clipboardQueue] = useState(createClipboardOperationQueue)
@@ -201,6 +202,16 @@ function AppShell() {
 
   useAutoLock(isUnlocked, lockVault)
 
+  // Restore the login identity once on startup: the refresh token survives
+  // a page refresh in its HttpOnly cookie, but the user lived only in
+  // React state. A failed restore simply stays logged out, silently.
+  const restoreRef = useRef(false)
+  useEffect(() => {
+    if (restoreRef.current) return
+    restoreRef.current = true
+    void restoreSession()
+  }, [restoreSession])
+
   useEffect(() => {
     document.documentElement.lang = activeI18n.resolvedLanguage ?? 'en'
   }, [activeI18n.resolvedLanguage])
@@ -212,6 +223,10 @@ function AppShell() {
   }, [pathname, protectedRoute, t, activeI18n.resolvedLanguage])
 
   useEffect(() => {
+    // Wait for the startup restore before redirecting: without this, a
+    // refresh on a vault page would bounce to /login while the session was
+    // still being restored from the refresh-token cookie.
+    if (!sessionChecked) return
     if (protectedRoute && !user) {
       navigate('/login', true)
       return
@@ -225,7 +240,7 @@ function AppShell() {
     if (protectedRoute && protectedRoute.screen !== 'unlock' && protectedRoute.screen !== 'setup' && user && !isUnlocked) {
       navigate(`/users/${user.id}/unlock`, true)
     }
-  }, [isUnlocked, navigate, protectedRoute, user])
+  }, [isUnlocked, navigate, protectedRoute, sessionChecked, user])
 
   useEffect(() => {
     const itemId = protectedRoute?.itemId
@@ -363,6 +378,13 @@ function AppShell() {
       if (generation === copyGenerationRef.current) window.dispatchEvent(new CustomEvent('sealero:toast', { detail: t('common:copyFailed') }))
     }
   }, [clipboardQueue, t])
+
+  // While the startup restore is pending, a protected route shows a loading
+  // line instead of flashing the login page for a session that is about to
+  // be restored. Public routes (landing, login, register) render at once.
+  if (protectedRoute && !sessionChecked) {
+    return <div className="detail-loading" role="status" aria-live="polite">{t('vault:loadingEntry')}</div>
+  }
 
   return (
     <AppRoutes

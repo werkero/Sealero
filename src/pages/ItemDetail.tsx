@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ArrowUpRight, Info, KeyRound, Lock, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
 import { PasswordHealthInline } from '../features/password-security/PasswordSecurity'
@@ -85,9 +86,9 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
           <div className="detail-title-copy">
             <p className="eyebrow">{t('vault:detailEyebrow')}</p>
             <h1>{item.name}</h1>
-            <a href={item.url} target="_blank" rel="noreferrer" className="detail-website">{hostname(item.url)}<span aria-hidden="true">↗</span></a>
+            <a href={item.url} target="_blank" rel="noreferrer" className="detail-website">{hostname(item.url)}<span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span></a>
           </div>
-          {item.favorite ? <span className="detail-favorite-pill">★ {t('vault:favorite')}</span> : null}
+          {item.favorite ? <span className="detail-favorite-pill"><Star size={10} aria-hidden="true" /> {t('vault:favorite')}</span> : null}
         </div>
         <div className="security-list-actions">
           <button className="security-button" type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</button>
@@ -120,7 +121,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
         </div>
         <div className="detail-grid">
           <section className="detail-card" aria-labelledby="login-details-title">
-            <div className="detail-card-heading"><div><h2 id="login-details-title">{t('vault:loginDetails')}</h2><p>{t('vault:loginDetailsSubtitle')}</p></div><span className="detail-card-lock" aria-hidden="true">◈</span></div>
+            <div className="detail-card-heading"><div><h2 id="login-details-title">{t('vault:loginDetails')}</h2><p>{t('vault:loginDetailsSubtitle')}</p></div><span className="detail-card-lock" aria-hidden="true"><Lock size={16} aria-hidden="true" /></span></div>
             <div className="detail-fields">
               <SecretRow label={t('vault:username')} value={item.username} maskedValue={item.username} onCopy={() => onCopy(item.username, t('vault:username'))} copyLabel={t('vault:username')} />
               <SecretRow
@@ -135,7 +136,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
               <PasswordHealthInline itemId={item.id} password={item.password} itemName={item.name} items={items} loadItem={loadItem} />
               <div className="detail-field detail-field-url">
                 <div className="detail-field-label">{t('vault:website')}</div>
-                <a className="detail-field-url-value" href={item.url} target="_blank" rel="noreferrer">{item.url}<span aria-hidden="true">↗</span></a>
+                <a className="detail-field-url-value" href={item.url} target="_blank" rel="noreferrer">{item.url}<span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span></a>
                 <span className="detail-field-actions"><button className="copy-button" type="button" onClick={() => onCopy(item.url, t('vault:website'))} aria-label={`${t('common:copy')} ${t('vault:website')}`}><CopyIcon /></button></span>
               </div>
               <div className="detail-field detail-note-field"><div className="detail-field-label">{t('vault:note')}</div><p>{item.note || t('vault:noNotes')}</p></div>
@@ -152,9 +153,9 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
             ) : null}
             {item.passkey ? (
               <section className="detail-card compact-detail-card" aria-labelledby="passkey-title">
-                <div className="detail-card-heading"><div><h2 id="passkey-title">{t('vault:passkey')}</h2><p>{t('vault:passkeySubtitle')}</p></div><span className="passkey-symbol" aria-hidden="true">⌑</span></div>
+                <div className="detail-card-heading"><div><h2 id="passkey-title">{t('vault:passkey')}</h2><p>{t('vault:passkeySubtitle')}</p></div><span className="passkey-symbol" aria-hidden="true"><KeyRound size={16} aria-hidden="true" /></span></div>
                 <div className="passkey-info"><span>{t('vault:relyingParty')}</span><strong>{item.passkey.rpId}</strong><span>{t('vault:credentialId')}</span><code>{item.passkey.credentialId}</code><span>{t('vault:publicKey')}</span><code className="public-key-value">{item.passkey.publicKey}</code></div>
-                <p className="security-note"><span aria-hidden="true">◈</span>{t('vault:privateKeyNeverSaved')}</p>
+                <p className="security-note"><span aria-hidden="true"><Info size={12} aria-hidden="true" /></span>{t('vault:privateKeyNeverSaved')}</p>
               </section>
             ) : null}
             {item.recoveryCodes?.length ? (
@@ -187,7 +188,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
             ) : null}
           </div>
         </div>
-        <p className="detail-footnote"><span aria-hidden="true">◈</span>{t('vault:clipboardAutoClear')}</p>
+        <p className="detail-footnote"><span aria-hidden="true"><Info size={12} aria-hidden="true" /></span>{t('vault:clipboardAutoClear')}</p>
       </div>
     </VaultLayout>
   )

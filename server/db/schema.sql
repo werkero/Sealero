@@ -20,6 +20,7 @@
 -- oauth_authorizations: add refresh_expires_at; expires_at is the current access-token expiry.
 -- Changes in v1.48: server tables 15 -> 16. New table mcp_confirmations (MCP get-one trusted confirmation records, single-use, 5-minute expiry).
 -- Changes in v1.48: oauth_auth_codes adds client_name (optional AI client name snapshot, carried into oauth_authorizations so the trusted-confirmation page can show it).
+-- Changes in v1.48: seed the three roles rows (admin, user, super_admin) idempotently, so a fresh database has roles without a separate seed step; registration also re-seeds for pre-existing databases with an empty roles table.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -118,6 +119,13 @@ CREATE TABLE roles (
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+-- Default roles (System Design v1.48 §3.1): every deployment needs exactly
+-- these three rows. Idempotent: re-running the schema never overwrites or
+-- duplicates them, and it never touches user_roles. The id column keeps its
+-- gen_random_uuid() default; only name is given here.
+INSERT INTO roles (name) VALUES ('admin'), ('user'), ('super_admin')
+ON CONFLICT (name) DO NOTHING;
 
 -- user_roles 用户角色关联表
 CREATE TABLE user_roles (

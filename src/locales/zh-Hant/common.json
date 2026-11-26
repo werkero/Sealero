@@ -4,6 +4,7 @@
   "landingEyebrow": "讓憑證管理更從容",
   "landingTitle": "把密碼，收納在一處。",
   "landingBody": "個人密碼庫，清晰、簡單，並以隱私為先。",
+  "landingEnterVaultButton": "進入保險庫",
   "faqTitle": "常見問題",
   "faqQ1": "我的資料真的私密嗎？",
   "faqA1": "是的。Sealero 是零知識架構：保險庫在離開裝置之前就已在本機加密。伺服器只保存密文，永遠無法讀取你的密碼、筆記或 TOTP 密鑰。",

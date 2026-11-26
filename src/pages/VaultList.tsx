@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronRight, Info, Search, Star, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItemInput, VaultListItem } from '../client/contracts'
 import { VaultLayout, hostname, iconTone, type VaultFilter } from '../App'
@@ -73,7 +74,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
         ) : null}
         <div className="vault-search-row">
           <div className="search-box">
-            <span className="search-glyph" aria-hidden="true">⌕</span>
+            <span className="search-glyph" aria-hidden="true"><Search size={16} aria-hidden="true" /></span>
             <label className="visually-hidden" htmlFor="vault-search">{t('vault:searchLabel')}</label>
             <input
               ref={searchInputRef}
@@ -84,7 +85,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
               onChange={(event) => setQuery(event.target.value)}
               autoComplete="off"
             />
-            {query ? <button className="search-clear" type="button" onClick={() => setQuery('')} aria-label={t('common:clearSearch')}>×</button> : <kbd>⌘ K</kbd>}
+            {query ? <button className="search-clear" type="button" onClick={() => setQuery('')} aria-label={t('common:clearSearch')}><X size={14} aria-hidden="true" /></button> : <kbd>⌘ K</kbd>}
           </div>
           <span className="search-scope">{t('vault:searchScope')}</span>
         </div>
@@ -93,22 +94,22 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
           {visibleItems.map((item) => (
             <button key={item.id} className="vault-item-row" type="button" onClick={() => onOpenItem(item.id)} aria-label={t('vault:openItem', { name: item.name })}>
               <span className={`app-icon ${iconTone(item.icon)}`}>{item.icon}</span>
-              <span className="item-row-copy"><strong>{item.name}{item.favorite ? <span className="item-favorite-mark" aria-label={t('vault:favorite')}>★</span> : null}</strong><small>{hostname(item.url)}<span className="item-row-separator">·</span>{item.username}</small></span>
+              <span className="item-row-copy"><strong>{item.name}{item.favorite ? <span className="item-favorite-mark" aria-label={t('vault:favorite')}><Star size={10} aria-hidden="true" /></span> : null}</strong><small>{hostname(item.url)}<span className="item-row-separator">·</span>{item.username}</small></span>
               <span className="item-row-category">{item.category}</span>
               <span className="item-row-updated">{t('vault:updatedRecently')}</span>
-              <span className="item-row-chevron" aria-hidden="true">›</span>
+              <span className="item-row-chevron" aria-hidden="true"><ChevronRight size={20} aria-hidden="true" /></span>
             </button>
           ))}
           {visibleItems.length === 0 ? (
             <div className="empty-state">
-              <span className="empty-state-icon" aria-hidden="true">⌕</span>
+              <span className="empty-state-icon" aria-hidden="true"><Search size={20} aria-hidden="true" /></span>
               <h2>{query ? t('vault:noResultsTitle') : t('vault:emptyTitle')}</h2>
               <p>{query ? t('vault:noResultsBody') : t('vault:emptyBody')}</p>
               {query ? <button className="text-button" type="button" onClick={() => setQuery('')}>{t('common:clearSearch')}</button> : null}
             </div>
           ) : null}
         </div>
-        <p className="list-footnote"><span aria-hidden="true">◈</span>{t('vault:searchFootnote')}</p>
+        <p className="list-footnote"><span aria-hidden="true"><Info size={12} aria-hidden="true" /></span>{t('vault:searchFootnote')}</p>
       </div>
     </VaultLayout>
   )

@@ -4,6 +4,7 @@
   "landingEyebrow": "A calmer place for your credentials",
   "landingTitle": "Your passwords, all in one place.",
   "landingBody": "A personal vault for the details you need every day, with privacy and clarity at its heart.",
+  "landingEnterVaultButton": "Enter your vault",
   "faqTitle": "Frequently asked questions",
   "faqQ1": "Is my data really private?",
   "faqA1": "Yes. Sealero is zero-knowledge: your vault is encrypted on your device before it ever leaves it. The server stores ciphertext only and can never read your passwords, notes, or TOTP secrets.",

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { ChevronRight, Database, LayoutGrid, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Brand } from '../components/Brand'
@@ -405,7 +406,7 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
               <h2 id="admin-dump-title" className={panelTitle}>{t('dump.title')}</h2>
               <p className={panelDesc}>{t('dump.description')}</p>
             </div>
-            <span className="text-[19px] text-[#8492a8]" aria-hidden="true">⌑</span>
+            <span className="text-[19px] text-[#8492a8]" aria-hidden="true"><Database size={19} aria-hidden="true" /></span>
           </div>
           <form className="mt-[17px] grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-[9px] max-[430px]:grid-cols-1" onSubmit={(event) => void downloadDump(event)}>
             <label htmlFor="admin-dump-password" className="col-span-full text-[10px] font-[560] text-[#66717f]">{t('dump.passwordLabel')}</label>
@@ -565,7 +566,7 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
           <div className="flex items-center gap-[9px]">
             <button type="button" disabled={auditCursorStack.length < 2 || auditLoading} onClick={auditPreviousPage} aria-label={t('audit.previousPage')} className={pagerButton}>‹</button>
             <span>{auditPage === null ? '—' : `${t('audit.totalCount', { count: auditPage.total_count })}`}</span>
-            <button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} className={pagerButton}>›</button>
+            <button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} className={pagerButton}><ChevronRight size={16} aria-hidden="true" /></button>
           </div>
         </div>
       </section>
@@ -592,7 +593,7 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
                 aria-current={section === item ? 'page' : undefined}
                 onClick={() => setSection(item)}
               >
-                <span className={navIcon(section === item)} aria-hidden="true">{item === 'overview' ? '▦' : item === 'users' ? '◎' : item === 'settings' ? '◈' : '≡'}</span>
+                <span className={navIcon(section === item)} aria-hidden="true">{item === 'overview' ? <LayoutGrid size={15} aria-hidden="true" /> : item === 'users' ? <UsersIcon size={15} aria-hidden="true" /> : item === 'settings' ? <Settings size={15} aria-hidden="true" /> : <ScrollText size={15} aria-hidden="true" />}</span>
                 {t(`navigation.${item}`)}
               </button>
             ))}

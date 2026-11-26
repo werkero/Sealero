@@ -17,6 +17,7 @@ import {
   parseKdfParams,
   parseOverviewJson,
   randomBytes,
+  recoveryKeyFileContent,
   unwrapDek,
   validateRecoveryKey,
   wrapDekForServer,
@@ -241,6 +242,17 @@ test('generateRecoveryKey produces 24 valid BIP39 words that validate', async ()
   assert.notEqual(first, second)
   assert.equal(await validateRecoveryKey(first), first)
   assert.equal(await validateRecoveryKey(second), second)
+})
+
+test('recoveryKeyFileContent numbers one word per line and nothing else', async () => {
+  assert.equal(recoveryKeyFileContent('alpha beta gamma'), '1. alpha\n2. beta\n3. gamma\n')
+  assert.equal(recoveryKeyFileContent(''), '')
+  const key = await generateRecoveryKey()
+  const words = key.split(' ')
+  const lines = recoveryKeyFileContent(key).split('\n')
+  assert.deepEqual(lines.slice(0, 24), words.map((word, index) => `${index + 1}. ${word}`))
+  assert.equal(lines[24], '')
+  assert.equal(lines.length, 25)
 })
 
 test('wrapDekForServer round-trips through unwrapDek with the server AAD', async () => {

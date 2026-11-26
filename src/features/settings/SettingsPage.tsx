@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { isLanguage, languages } from '../../i18n-config'
 import i18n from '../../i18n'
@@ -367,11 +368,11 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
 
       <section className="settings-section" aria-labelledby="settings-health-title">
         <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">✳</span><div><h2 id="settings-health-title">{t('settings:healthTitle')}</h2><p>{t('settings:healthDescription')}</p></div></div>
-        <div className="settings-card settings-row-card"><div><strong>{t('vault:health.title')}</strong><span>{t('settings:healthLocal')}</span></div><button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}<span aria-hidden="true">→</span></button></div>
+        <div className="settings-card settings-row-card"><div><strong>{t('vault:health.title')}</strong><span>{t('settings:healthLocal')}</span></div><button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}</button></div>
       </section>
 
       <section className="settings-section" aria-labelledby="settings-autolock-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◈</span><div><h2 id="settings-autolock-title">{t('settings:autoLockTitle')}</h2><p>{t('settings:autoLockDescription')}</p></div></div>
+        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title">{t('settings:autoLockTitle')}</h2><p>{t('settings:autoLockDescription')}</p></div></div>
         <div className="settings-card settings-policy-grid"><div><span>{t('settings:backgroundLabel')}</span><strong>{t('settings:oneMinute')}</strong></div><div><span>{t('settings:idleLabel')}</span><strong>{t('settings:fiveMinutes')}</strong></div></div>
       </section>
 

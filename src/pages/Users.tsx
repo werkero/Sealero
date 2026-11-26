@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { AdminApiError, type AdminClient } from '../client/admin'
@@ -360,7 +361,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
           <div className="flex items-center gap-[9px]">
             <button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={pagerButton}>‹</button>
             <span>{list === null ? '—' : `${list.total_count}`}</span>
-            <button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} className={pagerButton}>›</button>
+            <button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} className={pagerButton}><ChevronRight size={16} aria-hidden="true" /></button>
           </div>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Check, TriangleExclamationPoint } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultListItem } from '../client/contracts'
 import {
@@ -96,7 +97,7 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, g
         {confirmations === null ? (
           loadError ? (
             <div className="empty-state">
-              <span className="empty-state-icon" aria-hidden="true">⚠</span>
+              <span className="empty-state-icon" aria-hidden="true"><TriangleExclamationPoint size={20} aria-hidden="true" /></span>
               <h2>{t('vault:mcpConfirmations.loadFailed')}</h2>
               <button className="text-button" type="button" onClick={() => void load()}>{t('vault:mcpConfirmations.retry')}</button>
             </div>
@@ -105,7 +106,7 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, g
           )
         ) : confirmations.length === 0 ? (
           <div className="empty-state">
-            <span className="empty-state-icon" aria-hidden="true">✓</span>
+            <span className="empty-state-icon" aria-hidden="true"><Check size={20} aria-hidden="true" /></span>
             <h2>{t('vault:mcpConfirmations.emptyTitle')}</h2>
             <p>{t('vault:mcpConfirmations.emptyBody')}</p>
           </div>

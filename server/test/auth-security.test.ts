@@ -346,3 +346,49 @@ describe('authenticated sensitive password operations', () => {
     expect(retryAfter).toBeGreaterThan(0);
   });
 });
+
+describe('GET /v1/auth/me', () => {
+  async function getMe(harness: Harness, token: string | null): Promise<Response> {
+    const headers = new Headers();
+    if (token !== null) headers.set('authorization', `Bearer ${token}`);
+    return harness.app.fetch(new Request('https://api.sealero.test/v1/auth/me', { headers }));
+  }
+
+  it('returns only {id, email} for the current JWT', async () => {
+    const harness = await createHarness();
+    const response = await getMe(harness, harness.token());
+    expect(response.status).toBe(200);
+    const body = await response.json() as Record<string, unknown>;
+    expect(Object.keys(body).sort()).toEqual(['email', 'id']);
+    expect(body).toEqual({ id: USER_ID, email: EMAIL });
+  });
+
+  it('returns 401 without an access token', async () => {
+    const harness = await createHarness();
+    const response = await getMe(harness, null);
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ code: 'unauthorized' });
+  });
+
+  it('returns 401 when the token device is revoked', async () => {
+    const harness = await createHarness();
+    await harness.database.query(
+      'UPDATE devices SET revoked_at = $2 WHERE id = $1',
+      [DEVICE_ID, NOW],
+    );
+    const response = await getMe(harness, harness.token());
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ code: 'device_revoked' });
+  });
+
+  it('returns 403 when the account is disabled', async () => {
+    const harness = await createHarness();
+    await harness.database.query(
+      'UPDATE users SET disabled_at = $2 WHERE id = $1',
+      [USER_ID, NOW],
+    );
+    const response = await getMe(harness, harness.token());
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({ code: 'account_disabled' });
+  });
+});

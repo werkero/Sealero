@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
+import { ArrowUpRight } from 'lucide-react'
 import { motion, MotionConfig, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
+import type { VaultIdentity } from '../client/contracts'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { FooterStatus } from '../features/api-health/FooterStatus'
 
@@ -50,7 +52,7 @@ function TypewriterTitle({ text, onDone }: { text: string; onDone: () => void })
   )
 }
 
-function PublicHeader({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
+function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIdentity | null; onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
   return (
     <header className="public-header">
@@ -58,15 +60,21 @@ function PublicHeader({ onNavigate, onAppearanceChange }: { onNavigate: (path: s
       <div className="public-header-actions">
         <ThemeToggle onAppearanceChange={onAppearanceChange} />
         <LanguageSelector />
-        <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
-          {t('auth:loginTitle')}
-        </a>
+        {user ? (
+          <button type="button" className="theme-toggle" aria-label={t('common:landingEnterVaultButton')} title={t('common:landingEnterVaultButton')} onClick={() => onNavigate(`/users/${user.id}`)}>
+            <span className="profile-avatar" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</span>
+          </button>
+        ) : (
+          <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
+            {t('auth:loginTitle')}
+          </a>
+        )}
       </div>
     </header>
   )
 }
 
-function Pricing({ onNavigate }: { onNavigate: (path: string) => void }) {
+function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate: (path: string) => void }) {
   const { t } = useTranslation('common')
   return (
     <motion.section
@@ -104,12 +112,13 @@ function Pricing({ onNavigate }: { onNavigate: (path: string) => void }) {
             rel="noreferrer"
           >
             {t('pricingOpenSource')}
-            <span aria-hidden="true">↗</span>
+            <span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span>
           </a>
-          <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-            {t('pricingFreeCta')}
-            <span aria-hidden="true">→</span>
-          </a>
+          {user ? null : (
+            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+              {t('pricingFreeCta')}
+            </a>
+          )}
         </motion.article>
         <motion.article
           className="pricing-card pricing-card-pro"
@@ -129,10 +138,11 @@ function Pricing({ onNavigate }: { onNavigate: (path: string) => void }) {
             <li>{t('pricingProF3')}</li>
             <li>{t('pricingProF4')}</li>
           </ul>
-          <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-            {t('pricingProCta')}
-            <span aria-hidden="true">→</span>
-          </a>
+          {user ? null : (
+            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+              {t('pricingProCta')}
+            </a>
+          )}
         </motion.article>
       </div>
       <p className="pricing-note">{t('pricingNote')}</p>
@@ -210,7 +220,7 @@ function PublicFooter({ onNavigate }: { onNavigate: (path: string) => void }) {
   )
 }
 
-export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
+export default function Landing({ user, onNavigate, onAppearanceChange }: { user: VaultIdentity | null; onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
   const reduceMotion = useReducedMotion()
   const title = t('common:landingTitle')
@@ -228,7 +238,7 @@ export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate
   return (
     <MotionConfig reducedMotion="user">
       <div className="public-shell">
-        <PublicHeader onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
+        <PublicHeader user={user} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
         <main className="landing-main">
           <section className="landing-copy" aria-labelledby="landing-title">
             <motion.div
@@ -263,14 +273,19 @@ export default function Landing({ onNavigate, onAppearanceChange }: { onNavigate
               animate={titleDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{ duration: 0.5, ease: 'easeOut', delay: 0.12 }}
             >
-              <a className="button button-primary" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-                {t('auth:createAccount')}
-                <span aria-hidden="true">→</span>
-              </a>
+              {user ? (
+                <a className="button button-primary" href={`/users/${user.id}`} onClick={(event) => { event.preventDefault(); onNavigate(`/users/${user.id}`) }}>
+                  {t('common:landingEnterVaultButton')}
+                </a>
+              ) : (
+                <a className="button button-primary" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+                  {t('auth:createAccount')}
+                </a>
+              )}
             </motion.div>
           </section>
         </main>
-        <Pricing onNavigate={onNavigate} />
+        <Pricing user={user} onNavigate={onNavigate} />
         <Faq />
         <PublicFooter onNavigate={onNavigate} />
       </div>

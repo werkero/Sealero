@@ -61,6 +61,13 @@ export interface VaultClient {
    * falls back to the unlock page.
    */
   hasVaultKey(signal?: AbortSignal): Promise<boolean>
+  /**
+   * Reads the current login identity (GET /v1/auth/me, System Design §5.1).
+   * Used to restore the session after a page refresh: refresh the access
+   * token first, then call this. It returns only {id, email}; the vault
+   * stays locked until the user unlocks with the master password.
+   */
+  getCurrentUser(signal?: AbortSignal): Promise<VaultIdentity>
   verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
   resendVerification(email: string, signal?: AbortSignal): Promise<void>
   /**

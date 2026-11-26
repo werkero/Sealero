@@ -84,6 +84,16 @@ export function createSensitiveAuthRoutes(
   const routes = new Hono<AuthenticatedEnvironment>();
   const allowInsecureHttp = options.allowInsecureHttp ?? false;
 
+  routes.get('/me', async (context) => {
+    try {
+      requireHttps(context, allowInsecureHttp);
+      const identity = await service.getCurrentUser(context.get('auth').sub);
+      return context.json({ id: identity.id, email: identity.email });
+    } catch (error) {
+      return authErrorResponse(context, error);
+    }
+  });
+
   routes.post('/request-delete-code', async (context) => {
     try {
       requireHttps(context, allowInsecureHttp);

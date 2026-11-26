@@ -654,6 +654,37 @@ class SqlAuthTransaction implements AuthTransaction {
     return true;
   }
 
+  async ensureDefaultRoles(): Promise<void> {
+    await this.connection.query(
+      `INSERT INTO roles (name) VALUES ('admin'), ('user'), ('super_admin')
+       ON CONFLICT (name) DO NOTHING`,
+    );
+  }
+
+  async grantRegistrationRoles(userId: string, assignedAt: Date): Promise<boolean> {
+    // Backfill for databases created before schema.sql seeded roles: without
+    // these rows the grants below would silently grant nothing.
+    await this.ensureDefaultRoles();
+    // Serialize the first-user check. SHARE ROW EXCLUSIVE conflicts with
+    // itself (the same lock lockSettingsForUpdate uses), so a concurrent
+    // registration waits here until this transaction commits, and its count
+    // then sees this user. Plain INSERTs are not blocked (ROW EXCLUSIVE
+    // does not conflict), only the role decision waits.
+    await this.connection.query('LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE');
+    const count = await first<{ total_count: string | number | bigint }>(this.connection,
+      'SELECT COUNT(*)::bigint AS total_count FROM users');
+    if (count === null) throw new Error('User count query returned no row.');
+    const isFirstUser = adminInteger(count.total_count) === 1;
+    const roleNames = isFirstUser ? ['super_admin', 'admin'] : ['user'];
+    await this.connection.query(
+      `INSERT INTO user_roles (user_id, role_id, assigned_at, assigned_by)
+       SELECT $1, r.id, $2, NULL FROM roles r WHERE r.name = ANY($3::text[])
+       ON CONFLICT (user_id, role_id) DO NOTHING`,
+      [userId, assignedAt, roleNames],
+    );
+    return isFirstUser;
+  }
+
   async removeAdminRole(userId: string): Promise<boolean> {
     const result = await this.connection.query<{ user_id: string }>(
       `DELETE FROM user_roles ur USING roles r
@@ -1171,6 +1202,12 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
       `SELECT id, email, login_password_hash, disabled_at, email_verified_at
        FROM users WHERE email = $1`, [email]);
     return row ? mapUser(row) : null;
+  }
+
+  async findUserById(userId: string): Promise<{ readonly id: string; readonly email: string } | null> {
+    const row = await first<{ id: string; email: string }>(this.database,
+      'SELECT id, email FROM users WHERE id = $1', [userId]);
+    return row === null ? null : { id: row.id, email: row.email };
   }
 
   async hasAdminRole(userId: string): Promise<boolean> {

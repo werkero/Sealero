@@ -290,6 +290,17 @@ async function countRows(harness: Harness, table: 'devices' | 'refresh_tokens' |
   return Number(result.rows[0]?.count ?? '0');
 }
 
+async function rolesOf(harness: Harness, email: string): Promise<string[]> {
+  const result = await harness.database.query<{ name: string }>(
+    `SELECT r.name FROM users u
+     JOIN user_roles ur ON ur.user_id = u.id
+     JOIN roles r ON r.id = ur.role_id
+     WHERE u.email = $1 ORDER BY r.name`,
+    [email],
+  );
+  return result.rows.map((row) => row.name);
+}
+
 async function expectUnauthorized(operation: Promise<unknown>): Promise<void> {
   await expect(operation).rejects.toMatchObject({ status: 401 });
 }
@@ -476,6 +487,105 @@ describe('authentication routes and account-enumeration resistance', () => {
     );
     expect(Number(failureLogs.rows[0]?.count)).toBe(3);
   });
+});
+
+describe('first-user admin and default roles (System Design v1.48 §3.1)', () => {
+  it('grants super_admin + admin to the first registered user and user to the second', async () => {
+    const harness = await createHarness();
+    const app = appFor(harness);
+
+    const first = await postJson(app, '/v1/auth/register', {
+      email: 'first@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(first.status).toBe(202);
+    expect(await rolesOf(harness, 'first@example.test')).toEqual(['admin', 'super_admin']);
+
+    const second = await postJson(app, '/v1/auth/register', {
+      email: 'second@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(second.status).toBe(202);
+    expect(await rolesOf(harness, 'second@example.test')).toEqual(['user']);
+    // The second registration must not touch the first user's roles.
+    expect(await rolesOf(harness, 'first@example.test')).toEqual(['admin', 'super_admin']);
+  });
+
+  it('still grants admin to the first user when email verification is off', async () => {
+    const harness = await createHarness();
+    await harness.database.query(
+      "INSERT INTO server_settings (key, value) VALUES ('require_email_verification', 'false')",
+    );
+    const app = appFor(harness);
+
+    const first = await postJson(app, '/v1/auth/register', {
+      email: 'first@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(first.status).toBe(202);
+    expect(await rolesOf(harness, 'first@example.test')).toEqual(['admin', 'super_admin']);
+    const verified = await harness.database.query<{ email_verified_at: Date | string | null }>(
+      "SELECT email_verified_at FROM users WHERE email = 'first@example.test'",
+    );
+    expect(verified.rows[0]?.email_verified_at).not.toBeNull();
+  });
+
+  it('does not grant roles twice for a duplicate registration', async () => {
+    const harness = await createHarness();
+    const app = appFor(harness);
+    const registration = { email: 'dup@example.test', login_password: TEST_PASSWORD };
+
+    expect((await postJson(app, '/v1/auth/register', registration)).status).toBe(202);
+    expect((await postJson(app, '/v1/auth/register', registration)).status).toBe(202);
+    expect(await countRows(harness, 'users')).toBe(1);
+    expect(await rolesOf(harness, 'dup@example.test')).toEqual(['admin', 'super_admin']);
+    const roleRows = await harness.database.query<{ count: string }>(
+      "SELECT COUNT(*)::text AS count FROM user_roles",
+    );
+    expect(Number(roleRows.rows[0]?.count)).toBe(2);
+  });
+
+  it('re-seeds roles and still grants admin when the roles table is empty', async () => {
+    const harness = await createHarness();
+    // Simulate a database created before schema.sql seeded roles.
+    await harness.database.query('DELETE FROM roles');
+    const app = appFor(harness);
+
+    const first = await postJson(app, '/v1/auth/register', {
+      email: 'first@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(first.status).toBe(202);
+    expect(await rolesOf(harness, 'first@example.test')).toEqual(['admin', 'super_admin']);
+    const roles = await harness.database.query<{ name: string }>(
+      'SELECT name FROM roles ORDER BY name',
+    );
+    expect(roles.rows.map((row) => row.name)).toEqual(['admin', 'super_admin', 'user']);
+  });
+
+  it('grants super_admin to exactly one user when two register at the same time', async () => {
+    const harness = await createHarness();
+    const app = appFor(harness);
+
+    const [first, second] = await Promise.all([
+      postJson(app, '/v1/auth/register', { email: 'race-a@example.test', login_password: TEST_PASSWORD }),
+      postJson(app, '/v1/auth/register', { email: 'race-b@example.test', login_password: TEST_PASSWORD }),
+    ]);
+    expect(first.status).toBe(202);
+    expect(second.status).toBe(202);
+
+    const admins = await harness.database.query<{ email: string }>(
+      `SELECT u.email FROM users u
+       JOIN user_roles ur ON ur.user_id = u.id
+       JOIN roles r ON r.id = ur.role_id
+       WHERE r.name = 'super_admin'`,
+    );
+    expect(admins.rows).toHaveLength(1);
+    const adminEmail = admins.rows[0]!.email;
+    expect(await rolesOf(harness, adminEmail)).toEqual(['admin', 'super_admin']);
+    const otherEmail = adminEmail === 'race-a@example.test' ? 'race-b@example.test' : 'race-a@example.test';
+    expect(await rolesOf(harness, otherEmail)).toEqual(['user']);
+  }, 120000);
 });
 
 describe('device binding and access JWT contract', () => {

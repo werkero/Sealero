@@ -121,6 +121,17 @@ export interface AuthTransaction {
   findUsersForUpdate(userIds: readonly string[]): Promise<readonly AuthUser[]>;
   setUserDisabledAt(userId: string, disabledAt: Date | null): Promise<boolean>;
   grantAdminRole(userId: string, assignedBy: string, assignedAt: Date): Promise<boolean>;
+  /** Inserts the three default roles when missing; safe to call on any database. */
+  ensureDefaultRoles(): Promise<void>;
+  /**
+   * Grants the roles a newly registered account gets (System Design §3.1):
+   * super_admin + admin when this user is the only user in the database,
+   * otherwise user. Runs inside the registration transaction: it re-seeds
+   * roles for pre-existing databases and serializes the first-user check
+   * with a table lock, so two simultaneous first registrations cannot both
+   * become super_admin. Returns true when this user was the first user.
+   */
+  grantRegistrationRoles(userId: string, assignedAt: Date): Promise<boolean>;
   removeAdminRole(userId: string): Promise<boolean>;
   revokeUserDevice(userId: string, deviceId: string, revokedAt: Date): Promise<boolean>;
   updatePasswordHash(userId: string, expectedHash: string, newHash: string): Promise<boolean>;
@@ -223,6 +234,8 @@ export interface AuthTransaction {
 
 export interface AuthStore {
   findUserByEmail(email: string): Promise<AuthUser | null>;
+  /** Non-locking identity read for GET /v1/auth/me; null when the account is gone. */
+  findUserById(userId: string): Promise<{ readonly id: string; readonly email: string } | null>;
   getAccessOwnerStatus(userId: string, deviceId: string): Promise<AccessOwnerStatus | null>;
   transaction<T>(callback: (transaction: AuthTransaction) => Promise<T>): Promise<T>;
 }

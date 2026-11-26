@@ -180,10 +180,10 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 }
 
 export function AppRoutes(props: AppRoutesProps) {
-  const { vaultClient, onSessionLogin, onNavigate, onLogin, onAppearanceChange } = props
+  const { vaultClient, onSessionLogin, onNavigate, onLogin, onAppearanceChange, user } = props
   return (
     <Routes>
-      <Route path="/" element={<Landing onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
+      <Route path="/" element={<Landing user={user} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/terms" element={<LegalPage doc="terms" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/privacy" element={<LegalPage doc="privacy" onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
       <Route path="/login" element={<Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />

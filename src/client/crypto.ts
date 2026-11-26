@@ -279,6 +279,17 @@ export async function validateRecoveryKey(input: string): Promise<string> {
 }
 
 /**
+ * Renders a recovery key as the downloadable text file: one numbered word
+ * per line (`1. abandon` ... `24. zoo`), nothing else. The file is the
+ * user's own copy of the key; the server never sees it.
+ */
+export function recoveryKeyFileContent(recoveryKey: string): string {
+  const words = normalizeRecoveryKey(recoveryKey).split(' ').filter((word) => word.length > 0)
+  if (words.length === 0) return ''
+  return words.map((word, index) => `${index + 1}. ${word}`).join('\n') + '\n'
+}
+
+/**
  * Derive the 32-byte recovery wrapping key from the recovery words
  * (Argon2id, same parameters as the KEK, §7.1). The salt is the fresh
  * 16-byte salt stored in the new wrapping entry.

@@ -246,6 +246,27 @@ describe('server schema contract (System Design v1.48 §§3.1, 4.1)', () => {
     expect(normalizedSchema).toContain('CREATE INDEX mcp_confirmations_expires_idx ON mcp_confirmations(expires_at)');
   });
 
+  it('seeds the three default roles idempotently (System Design v1.48 §3.1)', async () => {
+    expect(normalizedSchema).toContain(
+      "INSERT INTO roles (name) VALUES ('admin'), ('user'), ('super_admin') ON CONFLICT (name) DO NOTHING",
+    );
+    const database = new PGlite({ extensions: { pgcrypto } });
+    try {
+      await database.exec(schema);
+      const roles = await database.query<{ name: string }>('SELECT name FROM roles ORDER BY name');
+      expect(roles.rows.map((row) => row.name)).toEqual(['admin', 'super_admin', 'user']);
+      // Re-running the seed must neither duplicate rows nor fail.
+      await database.query(
+        `INSERT INTO roles (name) VALUES ('admin'), ('user'), ('super_admin')
+         ON CONFLICT (name) DO NOTHING`,
+      );
+      const again = await database.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM roles');
+      expect(Number(again.rows[0]?.count)).toBe(3);
+    } finally {
+      await database.close();
+    }
+  });
+
   it('keeps updated_at triggers, including permanent-tombstone NULL handling', () => {
     const actualTriggers = [...schema.matchAll(/CREATE TRIGGER\s+([a-z_]+)/g)]
       .map(([, name]) => name!)

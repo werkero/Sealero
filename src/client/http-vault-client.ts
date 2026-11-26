@@ -361,6 +361,17 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       }
     },
 
+    async getCurrentUser(signal?: AbortSignal): Promise<VaultIdentity> {
+      throwIfAborted(signal)
+      if (!accessToken) throw new VaultApiError('unauthorized', 401)
+      const identity = await request<{ id?: unknown; email?: unknown }>('/v1/auth/me', { method: 'GET' }, signal)
+      if (typeof identity.id !== 'string' || !identity.id || typeof identity.email !== 'string' || !identity.email) {
+        throw new VaultApiError('unauthorized', 401)
+      }
+      userId = identity.id
+      return { id: identity.id, email: identity.email }
+    },
+
     async verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void> {
       throwIfAborted(signal)
       const response = await fetch(`${baseUrl}/v1/auth/verify-email`, {
