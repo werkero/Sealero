@@ -90,6 +90,18 @@ describe('VaultLayout profile menu and sign-out confirm', () => {
     expect(html).not.toContain('vault-header');
   });
 
+  it('collapses cleanly: full brand and bottom slot hide, icon-only brand shows, no section label', async () => {
+    const html = await renderVaultLayout();
+    // Full brand hides when the rail collapses; the icon-only brand takes its place.
+    expect(html).toContain('group-data-[collapsible=icon]:hidden');
+    expect(html).toContain('group-data-[collapsible=icon]:flex');
+    // The section label under the logo is gone.
+    expect(html).not.toContain('Your vault');
+    // Content area shares the sidebar background.
+    expect(html).toContain('data-slot="sidebar-inset"');
+    expect(html.split('bg-sidebar').length - 1).toBeGreaterThanOrEqual(2);
+  });
+
   it('renders the profile control as a menu button, with menu and confirm dialog closed', async () => {
     const html = await renderVaultLayout();
     // Avatar shows the first letter of the email.

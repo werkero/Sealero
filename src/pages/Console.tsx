@@ -5,7 +5,7 @@ import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
 import { Button } from '../components/ui/button'
 import { DropdownMenuItem } from '../components/ui/dropdown-menu'
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../components/ui/sidebar'
+import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../components/ui/sidebar'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
@@ -586,7 +586,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       onAppearanceChange={onAppearanceChange}
       nav={
         <SidebarGroup>
-          <SidebarGroupLabel>{t('header.navigation')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sections.map((item) => (

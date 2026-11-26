@@ -1,4 +1,4 @@
-export function Brand({ onNavigate }: { onNavigate: (path: string) => void }) {
+export function Brand({ onNavigate, iconOnly }: { onNavigate: (path: string) => void; iconOnly?: boolean }) {
   return (
     <a
       className="wordmark"
@@ -10,7 +10,7 @@ export function Brand({ onNavigate }: { onNavigate: (path: string) => void }) {
       }}
     >
       <img className="wordmark-logo" src="/sealero-logo.svg" alt="" aria-hidden="true" />
-      sealero<span className="wordmark-period">.</span>
+      {iconOnly ? null : <>sealero<span className="wordmark-period">.</span></>}
     </a>
   )
 }

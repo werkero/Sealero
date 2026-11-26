@@ -8,7 +8,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 import { Button } from './components/ui/button'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger } from './components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger } from './components/ui/sidebar'
 import { applyLanguagePreference } from './features/settings/preferences'
 import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
@@ -75,13 +75,18 @@ export function BackendShell({ user, nav, bottom, menu, title, appearancePrefere
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <Brand onNavigate={onNavigate} />
+          <div className="group-data-[collapsible=icon]:hidden">
+            <Brand onNavigate={onNavigate} />
+          </div>
+          <div className="hidden justify-center group-data-[collapsible=icon]:flex">
+            <Brand onNavigate={onNavigate} iconOnly />
+          </div>
         </SidebarHeader>
         <SidebarContent>
           {nav}
         </SidebarContent>
         <SidebarFooter>
-          {bottom}
+          {bottom ? <div className="group-data-[collapsible=icon]:hidden">{bottom}</div> : null}
           <SidebarMenu>
             <SidebarMenuItem>
               <DropdownMenu>
@@ -132,7 +137,7 @@ export function BackendShell({ user, nav, bottom, menu, title, appearancePrefere
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <SidebarInset className="bg-sidebar">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           {title ? <>
@@ -190,7 +195,6 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
       onAppearanceChange={onAppearanceChange}
       nav={
         <SidebarGroup>
-          <SidebarGroupLabel>{t('vault:yourVault')}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
