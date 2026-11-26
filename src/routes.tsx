@@ -15,9 +15,10 @@ import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
 import { Register } from './pages/Register'
 import { Unlock } from './pages/Unlock'
+import { VaultSetup } from './pages/VaultSetup'
 import { VaultList } from './pages/VaultList'
 
-export type RouteScreen = 'vault' | 'unlock' | 'generator' | 'settings' | 'health' | 'confirmations'
+export type RouteScreen = 'vault' | 'unlock' | 'setup' | 'generator' | 'settings' | 'health' | 'confirmations'
 
 export interface RouteMatch {
   userId: string
@@ -28,6 +29,9 @@ export interface RouteMatch {
 function matchProtectedPath(pathname: string): RouteMatch | null {
   const unlock = matchPath('/users/:userId/unlock', pathname)
   if (unlock?.params.userId) return { userId: unlock.params.userId, itemId: null, screen: 'unlock' }
+
+  const setup = matchPath('/users/:userId/setup', pathname)
+  if (setup?.params.userId) return { userId: setup.params.userId, itemId: null, screen: 'setup' }
 
   const item = matchPath('/users/:userId/items/:itemId', pathname)
   if (item?.params.userId && item?.params.itemId) return { userId: item.params.userId, itemId: item.params.itemId, screen: 'vault' }
@@ -97,6 +101,20 @@ function UnlockRoute(props: AppRoutesProps) {
     return <Unlock user={user} onUnlock={onUnlock} onBackToLogin={onLogout} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
   }
   return <Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
+}
+
+/**
+ * Vault setup for a logged-in account with no vault key yet. Like the
+ * admin console it needs only the login session — never a vault unlock,
+ * since there is no master password yet to unlock with.
+ */
+function SetupRoute(props: AppRoutesProps) {
+  const { userId } = useParams()
+  const { user, vaultClient, onNavigate, onAppearanceChange } = props
+  if (user && userId === user.id) {
+    return <VaultSetup user={user} vaultClient={vaultClient} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
+  }
+  return <Login onLogin={props.onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
 }
 
 /**
@@ -173,6 +191,7 @@ export function AppRoutes(props: AppRoutesProps) {
       <Route path="/admin" element={<AdminRoute {...props} />} />
       <Route path="/users/:userId" element={<VaultRoute {...props} screen="vault" />} />
       <Route path="/users/:userId/unlock" element={<UnlockRoute {...props} />} />
+      <Route path="/users/:userId/setup" element={<SetupRoute {...props} />} />
       <Route path="/users/:userId/items/:itemId" element={<VaultRoute {...props} screen="vault" />} />
       <Route path="/users/:userId/generator" element={<VaultRoute {...props} screen="generator" />} />
       <Route path="/users/:userId/settings" element={<VaultRoute {...props} screen="settings" />} />

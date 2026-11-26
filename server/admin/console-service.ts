@@ -28,7 +28,7 @@ import {
 const DEFAULT_SETTINGS: AdminSettings = {
   server_name: 'Sealero',
   allow_registration: true,
-  require_email_verification: false,
+  require_email_verification: true,
   max_vault_size_mb: 100,
   smtp_host: null,
   smtp_port: null,
@@ -277,11 +277,15 @@ function validateSmtpCombination(effective: EffectiveSettings): void {
   const hasCompleteSmtp = smtpTriplet.every((value) => value !== null);
   const hasAnySmtp = smtpTriplet.some((value) => value !== null);
 
+  // A partially configured SMTP triplet is the more specific error and is
+  // reported first, whether or not verification is required; otherwise the
+  // smtp_incomplete branch would be unreachable now that verification is
+  // on by default. No SMTP at all with verification on is smtp_not_configured.
+  if (hasAnySmtp && !hasCompleteSmtp) {
+    throw new ApiError(400, 'smtp_incomplete', 'The smtp_host, smtp_port, and smtp_from settings must be configured together.');
+  }
   if (settings.require_email_verification && !hasCompleteSmtp) {
     throw new ApiError(400, 'smtp_not_configured', 'SMTP must be configured before email verification is required.');
-  }
-  if (!settings.require_email_verification && hasAnySmtp && !hasCompleteSmtp) {
-    throw new ApiError(400, 'smtp_incomplete', 'The smtp_host, smtp_port, and smtp_from settings must be configured together.');
   }
   if (settings.smtp_user !== null && !effective.smtpPassConfigured) {
     throw new ApiError(400, 'smtp_incomplete', 'The smtp_user setting requires smtp_pass to be configured.');

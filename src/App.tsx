@@ -207,7 +207,7 @@ function AppShell() {
 
   useEffect(() => {
     const isAdminPath = pathname === '/admin' || pathname === '/admin/'
-    const pageTitle = isAdminPath ? t('admin:header.console') : protectedRoute?.screen === 'unlock' ? t('auth:unlockTitle') : protectedRoute?.screen === 'generator' ? t('vault:generator.title') : protectedRoute?.screen === 'settings' ? t('settings:title') : protectedRoute?.screen === 'health' ? t('vault:health.title') : protectedRoute?.screen === 'confirmations' ? t('vault:mcpConfirmations.title') : protectedRoute?.itemId ? t('vault:detailEyebrow') : protectedRoute ? t('vault:vaultHeading') : pathname === '/login' ? t('auth:loginTitle') : t('common:landingTitle')
+    const pageTitle = isAdminPath ? t('admin:header.console') : protectedRoute?.screen === 'unlock' ? t('auth:unlockTitle') : protectedRoute?.screen === 'setup' ? t('auth:setupVaultTitle') : protectedRoute?.screen === 'generator' ? t('vault:generator.title') : protectedRoute?.screen === 'settings' ? t('settings:title') : protectedRoute?.screen === 'health' ? t('vault:health.title') : protectedRoute?.screen === 'confirmations' ? t('vault:mcpConfirmations.title') : protectedRoute?.itemId ? t('vault:detailEyebrow') : protectedRoute ? t('vault:vaultHeading') : pathname === '/login' ? t('auth:loginTitle') : t('common:landingTitle')
     document.title = `${pageTitle} · Sealero`
   }, [pathname, protectedRoute, t, activeI18n.resolvedLanguage])
 
@@ -220,7 +220,9 @@ function AppShell() {
       navigate(isUnlocked ? `/users/${user.id}` : `/users/${user.id}/unlock`, true)
       return
     }
-    if (protectedRoute && protectedRoute.screen !== 'unlock' && user && !isUnlocked) {
+    // The setup page is exempt like unlock: it is for accounts with no
+    // vault key yet, so there is nothing to unlock.
+    if (protectedRoute && protectedRoute.screen !== 'unlock' && protectedRoute.screen !== 'setup' && user && !isUnlocked) {
       navigate(`/users/${user.id}/unlock`, true)
     }
   }, [isUnlocked, navigate, protectedRoute, user])
@@ -261,7 +263,14 @@ function AppShell() {
   const handleLogin = async (email: string, loginPassword: string): Promise<string | null> => {
     try {
       const identity = await login(email, loginPassword)
-      if (identity) navigate(`/users/${identity.id}/unlock`)
+      if (identity) {
+        // Never ask for a master password that was never set: accounts
+        // whose registration never reached the master-password step have
+        // no vault key, and go straight to vault setup instead of unlock.
+        // Any check failure falls back to unlock (its previous behavior).
+        const hasKey = await vaultClient.hasVaultKey().catch(() => null)
+        navigate(hasKey === false ? `/users/${identity.id}/setup` : `/users/${identity.id}/unlock`)
+      }
       return null
     } catch (error) {
       if (error instanceof VaultApiError) {
@@ -274,8 +283,9 @@ function AppShell() {
 
   /**
    * Returns the auth-copy key of the failure, or null when unlock succeeded.
-   * The Unlock page renders the mapped copy; 404 means no vault key exists
-   * yet, 403 means the consent gate blocked the request.
+   * The Unlock page renders the mapped copy; 403 means the consent gate
+   * blocked the request. A 404 means no vault key exists yet, which is not
+   * an unlock failure to display — it redirects to vault setup instead.
    */
   const handleUnlock = async (masterPassword: string): Promise<string | null> => {
     if (!user) return 'unlockFailed'
@@ -286,7 +296,10 @@ function AppShell() {
     } catch (error) {
       if (error instanceof VaultApiError) {
         if (error.code === 'invalid_master_password') return 'unlockWrongPassword'
-        if (error.status === 404) return 'unlockNoVault'
+        if (error.status === 404) {
+          navigate(`/users/${user.id}/setup`)
+          return null
+        }
         if (error.status === 403) return 'unlockConsentRequired'
       }
       return 'unlockFailed'

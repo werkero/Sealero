@@ -158,7 +158,7 @@ describe('admin settings and audit APIs', () => {
       settings: {
         server_name: 'Environment Sealero',
         allow_registration: true,
-        require_email_verification: false,
+        require_email_verification: true,
         max_vault_size_mb: 100,
         smtp_host: null,
         smtp_port: null,
@@ -313,7 +313,14 @@ describe('admin settings and audit APIs', () => {
       "ALTER TABLE audit_logs ADD CONSTRAINT reject_settings_update CHECK (action <> 'settings_update')",
     );
 
-    const failed = await put(harness, '/v1/admin/settings', { server_name: 'Must rollback' });
+    // Verification is on by default, so the update must carry complete SMTP
+    // to pass validation and reach the audit insert that is meant to fail.
+    const failed = await put(harness, '/v1/admin/settings', {
+      server_name: 'Must rollback',
+      smtp_host: 'smtp.example.test',
+      smtp_port: 587,
+      smtp_from: 'noreply@example.test',
+    });
     expect(failed.status).toBe(500);
     expect(await errorCode(failed)).toBe('internal_error');
     const rows = await harness.database.query<{ count: string }>('SELECT COUNT(*)::text AS count FROM server_settings');

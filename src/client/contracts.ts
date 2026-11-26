@@ -44,11 +44,23 @@ export interface VaultClient {
    * Registration (System Design §5.1). Creates the account; the server
    * response is generic by design (anti-enumeration) and reveals neither
    * whether the email already exists nor whether registration is open.
-   * The caller proceeds to `verifyEmail` afterwards; when the server has
-   * email verification disabled, `verifyEmail` throws `email_verification_disabled`
-   * and the caller skips that step.
+   * It does report the global `emailVerificationRequired` setting, which
+   * is the same for every email: when false the caller skips the
+   * verification step and proceeds to set the master password. When the
+   * setting changes mid-flow, `verifyEmail` throws
+   * `email_verification_disabled` and the caller skips that step.
    */
-  register(email: string, loginPassword: string, signal?: AbortSignal): Promise<void>
+  register(email: string, loginPassword: string, signal?: AbortSignal): Promise<{ emailVerificationRequired: boolean }>
+  /**
+   * Whether the current user (JWT only, never another account) already has
+   * a wrapped DEK on the server. GET /v1/vault-key answers 200 when one
+   * exists and 404 when none was ever uploaded; a 403 `consent_required`
+   * is resolved by submitting the current consent first and retrying once,
+   * because vault setup submits that consent anyway. Other errors (for
+   * example 403 `email_verification_required`) are thrown so the caller
+   * falls back to the unlock page.
+   */
+  hasVaultKey(signal?: AbortSignal): Promise<boolean>
   verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
   resendVerification(email: string, signal?: AbortSignal): Promise<void>
   /**

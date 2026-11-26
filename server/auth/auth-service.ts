@@ -231,7 +231,7 @@ export class AuthService {
     emailInput: string,
     loginPassword: string,
     metadata: LoginRequestMetadata,
-  ): Promise<typeof GENERIC_REGISTRATION_RESPONSE> {
+  ): Promise<typeof GENERIC_REGISTRATION_RESPONSE & { readonly email_verification_required: boolean }> {
     const email = normalizeEmail(emailInput);
     if (!validEmail(email)) throw new AuthServiceError(400, 'invalid_request', 'A valid email and login password are required.');
     requirePassword(loginPassword);
@@ -259,11 +259,16 @@ export class AuthService {
 
     // Hash regardless of registration availability or duplicate email so the external response is uniform.
     const passwordHash = await hashLoginPassword(loginPassword);
+    // The flag is the global setting, read even when registration is closed
+    // or the email already exists, so the response stays uniform: it reveals
+    // nothing about this email, only whether verification is required at all.
+    let emailVerificationRequired = true;
     try {
       await this.store.transaction(async (transaction) => {
         const allowRegistration = databaseBoolean(await transaction.getSetting('allow_registration'), true, false);
+        emailVerificationRequired = databaseBoolean(await transaction.getSetting('require_email_verification'), true, true);
         if (!allowRegistration) return;
-        const requireVerification = databaseBoolean(await transaction.getSetting('require_email_verification'), false, true);
+        const requireVerification = emailVerificationRequired;
         const userId = await transaction.insertUser(email, passwordHash, requireVerification ? null : now);
         if (!userId || !requireVerification) return;
         const verification = await this.createCodeWithinTransaction(transaction, email, 'verify', now);
@@ -273,7 +278,7 @@ export class AuthService {
     } catch (error) {
       if (!(error instanceof AuthCodeNotificationFailure)) throw error;
     }
-    return GENERIC_REGISTRATION_RESPONSE;
+    return { ...GENERIC_REGISTRATION_RESPONSE, email_verification_required: emailVerificationRequired };
   }
 
   async verifyEmail(emailInput: string, code: string): Promise<{ readonly status: 200; readonly code: 'email_verified'; readonly message: string }> {
@@ -284,7 +289,7 @@ export class AuthService {
 
     const now = this.clock.now();
     const result = await this.store.transaction<CodeOperationResult>(async (transaction) => {
-      const verificationEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), false, true);
+      const verificationEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), true, true);
       if (!verificationEnabled) return 'disabled';
 
       const user = await transaction.findUserByEmailForUpdate(email);
@@ -324,7 +329,7 @@ export class AuthService {
     let result: boolean | 'disabled' | 'rate_limited' | null;
     try {
       result = await this.store.transaction<boolean | 'disabled' | 'rate_limited' | null>(async (transaction) => {
-        const verificationEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), false, true);
+        const verificationEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), true, true);
         if (!verificationEnabled) return 'disabled';
 
         const emailCount = await transaction.incrementRateLimit(emailWindow);
@@ -381,7 +386,7 @@ export class AuthService {
     let result: boolean | 'disabled' | 'rate_limited' | null;
     try {
       result = await this.store.transaction<boolean | 'disabled' | 'rate_limited' | null>(async (transaction) => {
-        const recoveryEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), false, true);
+        const recoveryEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), true, true);
         if (!recoveryEnabled) return 'disabled';
 
         const emailCount = await transaction.incrementRateLimit(emailWindow);
@@ -434,7 +439,7 @@ export class AuthService {
 
     const now = this.clock.now();
     const result = await this.store.transaction<CodeOperationResult>(async (transaction) => {
-      const recoveryEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), false, true);
+      const recoveryEnabled = databaseBoolean(await transaction.getSetting('require_email_verification'), true, true);
       if (!recoveryEnabled) return 'disabled';
 
       const user = await transaction.findUserByEmailForUpdate(email);

@@ -1548,7 +1548,7 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
     if (row === null) return null;
     return {
       emailVerifiedAt: row.email_verified_at,
-      requireEmailVerification: row.require_email_verification === 'true',
+      requireEmailVerification: row.require_email_verification !== 'false',
       hasCurrentPrivacyConsent: row.has_current_privacy_consent,
     };
   }

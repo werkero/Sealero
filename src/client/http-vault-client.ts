@@ -317,7 +317,7 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       return { id: sub, email: email.trim() }
     },
 
-    async register(email: string, loginPassword: string, signal?: AbortSignal): Promise<void> {
+    async register(email: string, loginPassword: string, signal?: AbortSignal): Promise<{ emailVerificationRequired: boolean }> {
       throwIfAborted(signal)
       const response = await fetch(`${baseUrl}/v1/auth/register`, {
         method: 'POST',
@@ -329,6 +329,35 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       if (!response.ok) {
         const code = await readErrorCode(response)
         throw new VaultApiError(code ?? 'register_failed', response.status)
+      }
+      // A server that predates the flag is treated as verification on, so
+      // the verification step is shown and the disabled fallback still applies.
+      const body = (await response.json()) as { email_verification_required?: unknown }
+      return { emailVerificationRequired: body.email_verification_required !== false }
+    },
+
+    async hasVaultKey(signal?: AbortSignal): Promise<boolean> {
+      throwIfAborted(signal)
+      if (!accessToken || !userId) throw new VaultApiError('unauthorized', 401)
+      try {
+        await fetchVaultKey(signal)
+        return true
+      } catch (error) {
+        if (error instanceof VaultApiError && error.status === 404) return false
+        if (error instanceof VaultApiError && error.status === 403 && error.code === 'consent_required') {
+          // Vault setup submits this consent anyway; accept it here so the
+          // existence check can complete, then retry once.
+          const policyVersion = await client.fetchPolicyVersion(signal)
+          await client.submitConsent(policyVersion, signal)
+          try {
+            await fetchVaultKey(signal)
+            return true
+          } catch (retryError) {
+            if (retryError instanceof VaultApiError && retryError.status === 404) return false
+            throw retryError
+          }
+        }
+        throw error
       }
     },
 

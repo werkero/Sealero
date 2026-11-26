@@ -369,6 +369,38 @@ describe('authentication routes and account-enumeration resistance', () => {
     expect(Number(limited.rows[0]?.count)).toBe(1);
   });
 
+  it('reports whether email verification is required in the generic registration response', async () => {
+    const harness = await createHarness();
+    const app = appFor(harness);
+
+    // No setting stored: the default (on) applies.
+    const byDefault = await postJson(app, '/v1/auth/register', {
+      email: 'default@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(byDefault.status).toBe(202);
+    expect(await byDefault.json()).toMatchObject({
+      code: 'registration_received',
+      email_verification_required: true,
+    });
+
+    // Verification off: the same generic response reports false, so the
+    // client can skip the verification step without learning anything
+    // about this email.
+    await harness.database.query(
+      "INSERT INTO server_settings (key, value) VALUES ('require_email_verification', 'false')",
+    );
+    const whenOff = await postJson(app, '/v1/auth/register', {
+      email: 'off@example.test',
+      login_password: TEST_PASSWORD,
+    });
+    expect(whenOff.status).toBe(202);
+    expect(await whenOff.json()).toMatchObject({
+      code: 'registration_received',
+      email_verification_required: false,
+    });
+  });
+
   it('rejects login passwords shorter than 8 characters with invalid_login_password', async () => {
     const harness = await createHarness();
     const app = appFor(harness);

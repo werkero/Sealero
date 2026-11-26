@@ -1,7 +1,7 @@
 export const ADMIN_SETTING_FIELDS = [
   { key: 'server_name', kind: 'string', defaultValue: 'Sealero', constraintKey: 'constraints.serverName' },
   { key: 'allow_registration', kind: 'boolean', defaultValue: true, constraintKey: 'constraints.boolean' },
-  { key: 'require_email_verification', kind: 'boolean', defaultValue: false, constraintKey: 'constraints.boolean' },
+  { key: 'require_email_verification', kind: 'boolean', defaultValue: true, constraintKey: 'constraints.boolean' },
   { key: 'max_vault_size_mb', kind: 'integer', defaultValue: 100, constraintKey: 'constraints.maxVaultSize' },
   { key: 'smtp_host', kind: 'nullable-string', defaultValue: null, constraintKey: 'constraints.smtpHost' },
   { key: 'smtp_port', kind: 'nullable-integer', defaultValue: null, constraintKey: 'constraints.smtpPort' },

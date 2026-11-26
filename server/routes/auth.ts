@@ -131,7 +131,11 @@ export function createAuthRoutes(service: AuthService, options: AuthRouteOptions
         ipAddress: requestIp(context.req.raw.headers),
         userAgent: context.req.header('user-agent') ?? null,
       });
-      return context.json({ code: result.code, message: result.message }, result.status);
+      return context.json({
+        code: result.code,
+        message: result.message,
+        email_verification_required: result.email_verification_required,
+      }, result.status);
     } catch (error) {
       return authErrorResponse(context, error);
     }
