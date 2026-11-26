@@ -17,7 +17,6 @@
   "overview": {
     "eyebrow": "Opérations",
     "title": "Vue d’ensemble de la console",
-    "description": "État du serveur et activité agrégée. Aucun contenu de coffre utilisateur n’est accessible ici.",
     "metricsLabel": "Indicateurs du serveur",
     "totalUsers": "Nombre total d’utilisateurs",
     "todayNewUsers": "Nouveaux utilisateurs aujourd’hui",
@@ -29,7 +28,6 @@
     "allDevices": "Appareils enregistrés",
     "livePool": "Pool de connexions en temps réel",
     "cleanupTitle": "Nettoyage des tombstones",
-    "cleanupDescription": "Heure et résultat du dernier nettoyage ; la conservation est fixée à 30 jours.",
     "lastCleanup": "Dernier nettoyage",
     "cleanupStatus": "Dernier résultat",
     "cleanupNever": "Aucun nettoyage effectué pour l’instant",
@@ -39,20 +37,16 @@
   "settings": {
     "eyebrow": "Configuration",
     "title": "Paramètres serveur",
-    "description": "Seules les clés de la liste autorisée documentée sont configurables. Les valeurs sont chargées depuis le serveur ; la source indique où chaque valeur est définie.",
     "whitelistCount": "13 clés autorisées",
     "builtInDefault": "Valeur de repli intégrée : {{value}}",
     "notConfigured": "Non configuré",
     "writeOnly": "Écriture seule · jamais affiché",
     "clearOverride": "Effacer la surcharge",
-    "nullClearNote": "Une fois disponible, l’effacement d’une valeur gérée enverra explicitement null ; une chaîne vide ne sert jamais à effacer un paramètre.",
     "saveChanges": "Enregistrer les modifications",
     "tombstoneRetention": "Conservation des tombstones",
-    "tombstoneRetentionDescription": "Durée fixe, exclue de la liste des paramètres modifiables.",
     "days": "jours",
     "fixedReadOnly": "Fixe · lecture seule",
     "smtpPasswordStatus": "État du mot de passe SMTP",
-    "smtpPasswordStatusDescription": "Seul l’état configuré peut être affiché ; la valeur n’est jamais renvoyée ni réaffichée.",
     "saved": "Paramètres enregistrés.",
     "saveFailed": "Impossible d’enregistrer les paramètres.",
     "sourceDb": "Enregistré en base de données",
@@ -91,7 +85,6 @@
   "dump": {
     "eyebrow": "Base de données",
     "title": "Export chiffré de la base de données",
-    "description": "Télécharge un export chiffré de la base ; n’exporte aucun coffre utilisateur.",
     "passwordLabel": "Saisissez à nouveau le mot de passe du compte",
     "download": "Télécharger l’export chiffré",
     "loginPasswordNote": "Le mot de passe de connexion sert uniquement à vérifier ce téléchargement et n’est jamais stocké. Le mot de passe maître n’est pas accepté ici.",
@@ -103,7 +96,6 @@
   "audit": {
     "eyebrow": "Traçabilité",
     "title": "Journal d’audit",
-    "description": "Les actions d’administration ne sont affichées qu’en métadonnées ; l’historique de connexion est séparé.",
     "actorFilter": "ID utilisateur de l’acteur",
     "targetFilter": "ID utilisateur cible",
     "actionFilter": "Action",
@@ -131,7 +123,6 @@
   "users": {
     "eyebrow": "Comptes et accès",
     "title": "Gestion des utilisateurs",
-    "description": "Rechercher des comptes, consulter leurs appareils et connexions, puis gérer les accès. Aucun contenu de coffre n’est affiché.",
     "filtersLabel": "Filtres de la liste",
     "searchLabel": "E-mail",
     "searchPlaceholder": "Rechercher un e-mail",
@@ -154,7 +145,6 @@
       "user": "Utilisateur"
     },
     "applyFilters": "Appliquer les filtres",
-    "listMeta": "Filtres combinés avec AND · Comptes les plus récents en premier · Pagination par curseur (100 par défaut, 500 max.)",
     "columns": {
       "email": "E-mail",
       "created_at": "Inscription",
@@ -194,14 +184,10 @@
       "remove_admin": "Retirer le rôle admin"
     },
     "deleteRequirement": "La suppression est irréversible : double confirmation et nouvelle saisie du mot de passe de connexion admin requises, jamais le mot de passe principal.",
-    "roleGuardrail": "Le rôle super-admin ne peut être attribué ni transféré. Les protections contre les actions sur soi-même et le super-admin restent applicables.",
-    "vaultGuardrail": "Aucune entrée de coffre, nom, URL, longueur de mot de passe ou valeur secrète n’est affiché ; aucun coffre utilisateur ne peut être exporté.",
     "noUsers": "Aucun utilisateur ne correspond à ces filtres.",
     "selectUserHint": "Sélectionnez un utilisateur dans la liste pour voir les détails du profil.",
     "devicesEmpty": "Aucun appareil enregistré pour ce compte.",
-    "devicesDescription": "Tous les appareils sont triés par date d’enregistrement.",
     "loginHistoryEmpty": "Aucun historique de connexion pour ce compte.",
-    "loginHistoryDescription": "Journal de connexion séparé, le plus récent d’abord, avec son propre curseur.",
     "actionDone": "Action terminée.",
     "actionFailed": "Échec de l’action.",
     "wrongPassword": "Le mot de passe de connexion est incorrect.",

@@ -17,7 +17,6 @@
   "overview": {
     "eyebrow": "Betrieb",
     "title": "Konsolenübersicht",
-    "description": "Serverstatus und aggregierte Aktivitäten. Tresorinhalte von Nutzern sind hier nicht verfügbar.",
     "metricsLabel": "Serverübersicht-Kennzahlen",
     "totalUsers": "Nutzer insgesamt",
     "todayNewUsers": "Neue Nutzer heute",
@@ -29,7 +28,6 @@
     "allDevices": "Registrierte Geräte",
     "livePool": "Aktueller Verbindungspool",
     "cleanupTitle": "Tombstone-Bereinigung",
-    "cleanupDescription": "Zeitpunkt und Ergebnis der letzten Bereinigung; die Aufbewahrung ist fest auf 30 Tage gesetzt.",
     "lastCleanup": "Letzte Bereinigung",
     "cleanupStatus": "Letztes Ergebnis",
     "cleanupNever": "Noch keine Bereinigung ausgeführt",
@@ -39,20 +37,16 @@
   "settings": {
     "eyebrow": "Konfiguration",
     "title": "Servereinstellungen",
-    "description": "Nur die dokumentierten Allowlist-Schlüssel sind konfigurierbar. Werte werden vom Server geladen; die Quelle zeigt, wo jeder Wert gesetzt ist.",
     "whitelistCount": "13 erlaubte Schlüssel",
     "builtInDefault": "Eingebauter Rückfallwert: {{value}}",
     "notConfigured": "Nicht konfiguriert",
     "writeOnly": "Nur Schreiben · wird nie angezeigt",
     "clearOverride": "Überschreibung entfernen",
-    "nullClearNote": "Beim Entfernen eines verwalteten Werts wird explizit null gesendet; eine leere Zeichenfolge löscht keine Einstellung.",
     "saveChanges": "Änderungen speichern",
     "tombstoneRetention": "Tombstone-Aufbewahrung",
-    "tombstoneRetentionDescription": "Feste Frist; nicht Teil der bearbeitbaren Einstellungs-Allowlist.",
     "days": "Tage",
     "fixedReadOnly": "Fest · schreibgeschützt",
     "smtpPasswordStatus": "SMTP-Passwortstatus",
-    "smtpPasswordStatusDescription": "Nur der Konfigurationsstatus darf angezeigt werden; der Wert wird nie zurückgegeben oder angezeigt.",
     "saved": "Einstellungen gespeichert.",
     "saveFailed": "Einstellungen konnten nicht gespeichert werden.",
     "sourceDb": "In Datenbank gespeichert",
@@ -91,7 +85,6 @@
   "dump": {
     "eyebrow": "Datenbank",
     "title": "Verschlüsselter Datenbank-Dump",
-    "description": "Lädt einen verschlüsselten Datenbank-Dump herunter. Tresore von Nutzern werden nicht exportiert.",
     "passwordLabel": "Gib das Konto-Login-Passwort erneut ein",
     "download": "Verschlüsselten Dump herunterladen",
     "loginPasswordNote": "Das Anmeldepasswort wird nur zur Bestätigung dieses Downloads gesendet und nie gespeichert. Das Master-Passwort wird hier nicht akzeptiert.",
@@ -103,7 +96,6 @@
   "audit": {
     "eyebrow": "Nachvollziehbarkeit",
     "title": "Prüfprotokoll",
-    "description": "Admin-Aktionen werden nur als Metadaten angezeigt; Anmeldeverläufe sind ein separates Protokoll.",
     "actorFilter": "Akteur-Nutzer-ID",
     "targetFilter": "Ziel-Nutzer-ID",
     "actionFilter": "Aktion",
@@ -131,7 +123,6 @@
   "users": {
     "eyebrow": "Konten und Zugriff",
     "title": "Nutzerverwaltung",
-    "description": "Konten suchen, Geräte und Anmeldeverlauf prüfen und Zugriffe verwalten. Tresorinhalte werden niemals angezeigt.",
     "filtersLabel": "Filter der Nutzerliste",
     "searchLabel": "E-Mail",
     "searchPlaceholder": "E-Mail suchen",
@@ -154,7 +145,6 @@
       "user": "Nutzer"
     },
     "applyFilters": "Filter anwenden",
-    "listMeta": "Filter werden mit UND verknüpft · Neueste Konten zuerst · Cursor-Seiten (Standard 100, maximal 500)",
     "columns": {
       "email": "E-Mail",
       "created_at": "Registriert",
@@ -194,14 +184,10 @@
       "remove_admin": "Adminrechte entziehen"
     },
     "deleteRequirement": "Löschen ist unwiderruflich: doppelte Bestätigung und erneute Eingabe des Admin-Anmeldepassworts erforderlich, niemals des Master-Passworts.",
-    "roleGuardrail": "Superadmin-Rechte können weder vergeben noch übertragen werden. Schutzregeln für eigene Konten und Superadmins gelten weiterhin.",
-    "vaultGuardrail": "Tresoreinträge, Namen, URLs, Passwortlängen oder geheime Werte werden nie angezeigt; Nutzertresore können nicht exportiert werden.",
     "noUsers": "Keine Benutzer für diese Filter.",
     "selectUserHint": "Wählen Sie einen Benutzer aus der Liste, um Profildetails zu sehen.",
     "devicesEmpty": "Für dieses Konto sind keine Geräte registriert.",
-    "devicesDescription": "Alle Geräte sind nach Registrierungszeit sortiert.",
     "loginHistoryEmpty": "Keine Anmeldeprotokolle für dieses Konto.",
-    "loginHistoryDescription": "Separates Anmeldeprotokoll, neueste zuerst, mit eigenem Cursor.",
     "actionDone": "Aktion abgeschlossen.",
     "actionFailed": "Aktion fehlgeschlagen.",
     "wrongPassword": "Das Anmeldepasswort ist falsch.",

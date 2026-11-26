@@ -68,11 +68,11 @@
 }
 
 :root[data-theme="dark"] .api-health-card {
-  border-color: #343946;
-  background: #191b22;
-  color: #e4e8ef;
+  border-color: oklch(0.345 0.024 268.6);
+  background: oklch(0.205 0.012 270.8);
+  color: oklch(0.955 0.006 264.5);
 }
 
 :root[data-theme="dark"] .api-health-card__details {
-  color: #a4adba;
+  color: oklch(0.774 0.022 261.8);
 }

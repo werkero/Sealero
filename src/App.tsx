@@ -241,7 +241,7 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
         </SidebarGroup>
       }
       bottom={
-        <div className="rounded-lg border border-border bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
+        <div className="rounded-lg bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
           <span className="mb-1.5 flex items-center gap-1.5 font-semibold text-foreground">
             <Lock className="size-3.5" aria-hidden="true" />
             {t('vault:autoLockTitle')}

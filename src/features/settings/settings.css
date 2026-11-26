@@ -73,7 +73,7 @@
   border: 1px solid var(--line);
   border-radius: 9px;
   background: var(--surface);
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 14px;
 }
 .settings-section-heading h2 {
@@ -85,7 +85,7 @@
 }
 .settings-section-heading p {
   margin: 4px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -136,7 +136,7 @@
 .settings-row-leading span,
 .settings-card-topline p,
 .cloud-provider-row span {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.45;
 }
@@ -155,7 +155,7 @@
   border-radius: 999px;
   background: var(--surface-soft);
   padding: 5px 9px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   font-weight: 620;
 }
@@ -198,7 +198,7 @@
 }
 .settings-unavailable-card p {
   margin-top: 4px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -227,7 +227,7 @@
 .import-preview-heading p {
   max-width: 650px;
   margin: 5px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.55;
 }
@@ -245,7 +245,7 @@
 }
 .settings-file-name {
   overflow-wrap: anywhere;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .settings-file-name strong {
@@ -264,7 +264,7 @@
   border-radius: 10px;
   background: var(--surface-soft);
   padding: 10px 12px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.55;
 }
@@ -293,7 +293,7 @@
 }
 .import-mapping > p {
   margin: 5px 0 12px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -310,7 +310,7 @@
 }
 .import-mapping-grid label span,
 .import-preview-resolution label span {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .import-mapping-grid select,
@@ -353,7 +353,7 @@
   border-radius: 999px;
   background: var(--surface-soft);
   padding: 5px 9px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .import-preview-list {
@@ -387,7 +387,7 @@
 .import-preview-main > span,
 .import-preview-main small {
   overflow-wrap: anywhere;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .import-preview-main small {
@@ -416,7 +416,7 @@
 }
 .import-result-pill.is-same {
   background: var(--surface-soft);
-  color: var(--muted);
+  color: var(--muted-text);
 }
 .backup-restore-divider {
   height: 1px;
@@ -446,7 +446,7 @@
 }
 .settings-cloud-intro {
   margin: 0 0 12px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   line-height: 1.55;
 }
@@ -472,7 +472,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface-soft);
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .cloud-provider-row > div {
@@ -501,7 +501,7 @@
 }
 .cloud-webdav-form label > span,
 .export-dialog-form label > span {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .cloud-webdav-form input,
@@ -542,7 +542,7 @@
 }
 .cloud-policy-grid span,
 .settings-policy-grid span {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .cloud-policy-grid strong,
@@ -579,7 +579,7 @@
   font-size: 13px;
 }
 .settings-preference-row > div:first-child span {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 .settings-select-control select {
@@ -598,7 +598,7 @@
   border-radius: 7px;
   background: transparent;
   padding: 0 10px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   cursor: pointer;
 }

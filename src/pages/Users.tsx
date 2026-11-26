@@ -21,7 +21,7 @@ import {
 } from '../features/admin/contract'
 
 const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
-const panel = 'mt-[17px] min-w-0 rounded-xl border border-border bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panel = 'mt-[17px] min-w-0 rounded-xl bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
 const panelDesc = 'mt-1.5 text-[12px] leading-[1.6] text-muted-foreground'
 const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'
@@ -29,8 +29,8 @@ const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-bord
 const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60'
 const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
 const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
-const usersTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-2.5 py-2.5 text-[12px] font-[630] text-muted-foreground'
-const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg border border-border'
+const usersTh = 'h-auto whitespace-nowrap bg-muted px-2.5 py-2.5 text-[12px] font-[630] text-muted-foreground'
+const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg'
 const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
 const statusText = 'mt-2.5 text-[12px] leading-[1.55] text-muted-foreground'
 
@@ -295,7 +295,6 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
         <div>
           <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('users.eyebrow')}</p>
           <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('users.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('users.description')}</p>
         </div>
         <span className={pill}>{list === null ? '—' : `${list.total_count}`}</span>
       </div>
@@ -351,27 +350,26 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
             </TableHeader>
             <TableBody>
               {listLoading && list === null ? (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
               ) : list !== null && list.users.length > 0 ? list.users.map((user) => (
                 <TableRow key={user.id} className={selectedId === user.id ? 'bg-muted hover:bg-transparent' : 'hover:bg-transparent'}>
-                  <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[12px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.device_count}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[12px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.device_count}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
                 </TableRow>
               )) : (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-between gap-3 text-[12px] leading-[1.5] text-muted-foreground">
-          <span>{t('users.listMeta')}</span>
+        <div className="mt-[14px] flex items-center justify-end gap-3 text-[12px] leading-[1.5] text-muted-foreground">
           <div className="flex items-center gap-[9px]">
             <Button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
             <span>{list === null ? '—' : `${list.total_count}`}</span>
@@ -416,7 +414,6 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id="admin-user-devices-title" className={panelTitle}>{t('users.devicesTitle')}</h2>
-              <p className={panelDesc}>{t('users.devicesDescription')}</p>
             </div>
           </div>
           <div className={tableWrap}>
@@ -424,17 +421,17 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_DEVICE_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.deviceColumns.${column}`)}</TableHead>)}<TableHead scope="col" className={usersTh}><span className="sr-only">{t('users.revokeDevice')}</span></TableHead></TableRow></TableHeader>
               <TableBody>
                 {detail === null ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : detail.devices.length === 0 ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
                 ) : detail.devices.map((device) => (
                   <TableRow key={device.id} className="hover:bg-transparent">
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_name}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_type}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_name}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_type}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">
                       <Button type="button" disabled={device.revoked_at !== null || pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={device.revoked_at !== null || pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
                     </TableCell>
                   </TableRow>
@@ -448,7 +445,6 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id="admin-user-login-title" className={panelTitle}>{t('users.loginHistoryTitle')}</h2>
-              <p className={panelDesc}>{t('users.loginHistoryDescription')}</p>
             </div>
           </div>
           <div className={tableWrap}>
@@ -456,18 +452,18 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_LOGIN_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.loginColumns.${column}`)}</TableHead>)}</TableRow></TableHeader>
               <TableBody>
                 {detail === null ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : loginHistory.length === 0 ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
                 ) : loginHistory.map((entry) => (
                   <TableRow key={entry.id} className="hover:bg-transparent">
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.result}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{entry.result}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -534,8 +530,6 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
         ) : null}
         {actionMessage ? <p className={statusText} role="status">{actionMessage}</p> : null}
         <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.deleteRequirement')}</p>
-        <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.roleGuardrail')}</p>
-        <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.vaultGuardrail')}</p>
       </section>
     </>
   )

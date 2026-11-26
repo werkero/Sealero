@@ -60,7 +60,7 @@ export function useAutoLock(enabled: boolean, onLock: () => void) {
       armIdleTimer(IDLE_LOCK_MS)
     }
 
-    const activityEvents: (keyof WindowEventMap)[] = ['pointerdown', 'keydown', 'scroll', 'touchstart']
+    const activityEvents: (keyof WindowEventMap)[] = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart']
     for (const eventName of activityEvents) {
       window.addEventListener(eventName, handleActivity, { passive: true })
     }

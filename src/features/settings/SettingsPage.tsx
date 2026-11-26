@@ -259,7 +259,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
       </div>
 
       <section className="settings-section" aria-labelledby="settings-account-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◉</span><div><h2 id="settings-account-title">{t('settings:accountTitle')}</h2><p>{t('settings:accountDescription')}</p></div></div>
+        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◉</span><div><h2 id="settings-account-title">{t('settings:accountTitle')}</h2></div></div>
         <div className="settings-card settings-account-card">
           <div className="settings-account-avatar" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
           <div className="settings-account-copy"><strong>{user.email}</strong><small>{t('settings:accountId')} · {user.id}</small></div>
@@ -267,7 +267,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
       </section>
 
       <section className="settings-section" aria-labelledby="settings-server-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">⌘</span><div><h2 id="settings-server-title">{t('settings:serverTitle')}</h2><p>{t('settings:serverDescription')}</p></div></div>
+        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">⌘</span><div><h2 id="settings-server-title">{t('settings:serverTitle')}</h2></div></div>
         <div className="settings-card settings-row-card">
           <div className="settings-row-leading"><span className="settings-cloud-mark" aria-hidden="true">S</span><div><strong>{t('settings:officialCloud')}</strong><span>{t('settings:v1ReadOnly')}</span></div></div>
           <span className="settings-readonly-pill">{t('settings:readOnly')}</span>
@@ -275,8 +275,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
       </section>
 
       <section className="settings-section" aria-labelledby="settings-device-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">▣</span><div><h2 id="settings-device-title">{t('settings:devicesTitle')}</h2><p>{t('settings:devicesDescription')}</p></div></div>
-        <div className="settings-card settings-unavailable-card"><span className="settings-unavailable-icon" aria-hidden="true">⌁</span><div><strong>{t('settings:devicesUnavailable')}</strong><p>{t('settings:devicesUnavailableDescription')}</p></div></div>
+        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">▣</span><div><h2 id="settings-device-title">{t('settings:devicesTitle')}</h2></div></div>
       </section>
 
       <section className="settings-section" aria-labelledby="settings-import-title">

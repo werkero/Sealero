@@ -26,15 +26,14 @@ import {
 } from '../features/admin/contract'
 
 const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
-const panel = 'mt-[17px] min-w-0 rounded-xl border border-border bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panel = 'mt-[17px] min-w-0 rounded-xl bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
-const panelDesc = 'mt-1.5 text-[12px] leading-[1.6] text-muted-foreground'
 const actionButton = 'min-h-[38px] rounded-[7px] border border-border bg-muted px-[13px] text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
 const enabledButton = 'min-h-[38px] cursor-pointer rounded-[7px] border border-primary/30 bg-primary/10 px-[13px] text-[12px] font-semibold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
 const filterInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-[7px] text-[12px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
 const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'
 const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
-const auditTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-[11px] py-2.5 text-[12px] font-[630] text-muted-foreground'
+const auditTh = 'h-auto whitespace-nowrap bg-muted px-[11px] py-2.5 text-[12px] font-[630] text-muted-foreground'
 const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
 const statusText = 'mt-[9px] text-[12px] leading-[1.55] text-muted-foreground'
 
@@ -368,7 +367,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
           <div>
             <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('overview.eyebrow')}</p>
             <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('overview.title')}</h1>
-            <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('overview.description')}</p>
           </div>
           <Button type="button" disabled={overviewLoading} onClick={() => void loadOverview()} className={overviewLoading ? actionButton : enabledButton}>{overviewLoading ? t('loading') : t('retry')}</Button>
         </div>
@@ -389,7 +387,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id="admin-cleanup-title" className={panelTitle}>{t('overview.cleanupTitle')}</h2>
-              <p className={panelDesc}>{t('overview.cleanupDescription')}</p>
             </div>
             <span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" />
           </div>
@@ -404,7 +401,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
             <div>
               <p className="m-0 mb-1.5 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('dump.eyebrow')}</p>
               <h2 id="admin-dump-title" className={panelTitle}>{t('dump.title')}</h2>
-              <p className={panelDesc}>{t('dump.description')}</p>
             </div>
             <span className="text-[19px] text-muted-foreground" aria-hidden="true"><Database size={19} aria-hidden="true" /></span>
           </div>
@@ -425,7 +421,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
         <div>
           <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('settings.eyebrow')}</p>
           <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('settings.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('settings.description')}</p>
         </div>
         <span className={pill}>{t('settings.whitelistCount')}</span>
       </div>
@@ -440,7 +435,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
               const source = settingsResponse.sources[field.key]
               const draftValue = settingsDraft[field.key]
               return (
-                <article className="grid min-h-[94px] grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-[15px] border-b border-border px-0.5 py-[13px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
+                <article className="grid min-h-[94px] grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-[15px] px-0.5 py-[13px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
                   <div>
                     <h2 className="m-0 text-[12px] font-[650] text-foreground">{t(`fields.${field.key}`)}</h2>
                     <code className="mt-1 inline-block font-[ui-monospace,SFMono-Regular,Menlo,monospace] text-[12px] text-muted-foreground">{field.key}</code>
@@ -493,7 +488,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
             })}
           </div>
           <div className="flex items-center justify-between gap-[14px] pt-[14px] max-[430px]:flex-col max-[430px]:items-start">
-            <p className="m-0 text-[12px] leading-[1.55] text-muted-foreground">{settingsMessage || t('settings.nullClearNote')}</p>
+            {settingsMessage ? <p className="m-0 text-[12px] leading-[1.55] text-muted-foreground">{settingsMessage}</p> : null}
             <Button type="button" disabled={settingsSaving} onClick={() => void saveSettings()} className={settingsSaving ? actionButton : enabledButton}>{settingsSaving ? t('loading') : t('settings.saveChanges')}</Button>
           </div>
         </section>
@@ -502,7 +497,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       <section className={`${panel} flex items-center justify-between gap-4 max-[760px]:flex-wrap max-[760px]:items-start`} aria-labelledby="admin-retention-title">
         <div>
           <h2 id="admin-retention-title" className={panelTitle}>{t('settings.tombstoneRetention')}</h2>
-          <p className={panelDesc}>{t('settings.tombstoneRetentionDescription')}</p>
         </div>
         <strong className="ml-auto whitespace-nowrap text-[15px] font-[650] text-muted-foreground max-[760px]:ml-0">30 {t('settings.days')}</strong>
         <span className="whitespace-nowrap text-[12px] text-muted-foreground">{t('settings.fixedReadOnly')}</span>
@@ -510,7 +504,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       <section className={`${panel} flex items-center justify-between gap-4 max-[760px]:flex-wrap max-[760px]:items-start`} aria-labelledby="admin-smtp-title">
         <div>
           <h2 id="admin-smtp-title" className={panelTitle}>{t('settings.smtpPasswordStatus')}</h2>
-          <p className={panelDesc}>{t('settings.smtpPasswordStatusDescription')}</p>
         </div>
         <strong className="text-[12px] font-[550]">{settingsResponse === null ? '—' : settingsResponse.smtp_pass_configured ? t('settings.smtpConfigured') : t('settings.smtpNotConfigured')}</strong>
       </section>
@@ -523,7 +516,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
         <div>
           <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('audit.eyebrow')}</p>
           <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('audit.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('audit.description')}</p>
         </div>
       </div>
 
@@ -549,17 +541,17 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
             </TableRow></TableHeader>
             <TableBody>
               {auditLoading && auditPage === null ? (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere border-b border-border px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
               ) : auditPage !== null && auditPage.items.length > 0 ? auditPage.items.map((row) => (
                 <TableRow key={row.id} className="hover:bg-transparent">
-                  <TableCell className="whitespace-nowrap border-b border-border px-[11px] py-3 text-[12px] text-muted-foreground">{formatDateTime(row.created_at)}</TableCell>
-                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[12px] text-muted-foreground">{row.actor_user_id ?? '—'}</TableCell>
-                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[12px] text-muted-foreground">{row.target_user_id ?? '—'}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-[11px] py-3 text-[12px] text-muted-foreground">{row.action}</TableCell>
-                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[12px] text-muted-foreground">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</TableCell>
+                  <TableCell className="whitespace-nowrap px-[11px] py-3 text-[12px] text-muted-foreground">{formatDateTime(row.created_at)}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{row.actor_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{row.target_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-nowrap px-[11px] py-3 text-[12px] text-muted-foreground">{row.action}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</TableCell>
                 </TableRow>
               )) : (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere border-b border-border px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('audit.noRows')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('audit.noRows')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>

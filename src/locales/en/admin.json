@@ -17,7 +17,6 @@
   "overview": {
     "eyebrow": "Operations",
     "title": "Console overview",
-    "description": "Server health and aggregate activity. No user vault contents are available here.",
     "metricsLabel": "Server overview metrics",
     "totalUsers": "Total users",
     "todayNewUsers": "New users today",
@@ -29,7 +28,6 @@
     "allDevices": "Registered devices",
     "livePool": "Live connection pool",
     "cleanupTitle": "Tombstone cleanup",
-    "cleanupDescription": "Last cleanup time and result; the retention period is fixed at 30 days.",
     "lastCleanup": "Last cleanup",
     "cleanupStatus": "Last result",
     "cleanupNever": "No cleanup has run yet",
@@ -39,20 +37,16 @@
   "settings": {
     "eyebrow": "Configuration",
     "title": "Server settings",
-    "description": "Only the documented allowlist is configurable. Values are loaded from the server; the source shows where each value is set.",
     "whitelistCount": "13 allowed keys",
     "builtInDefault": "Built-in fallback: {{value}}",
     "notConfigured": "Not configured",
     "writeOnly": "Write-only · never displayed",
     "clearOverride": "Clear override",
-    "nullClearNote": "When enabled, clearing a managed value sends explicit null; an empty string is never used to clear a setting.",
     "saveChanges": "Save changes",
     "tombstoneRetention": "Tombstone retention",
-    "tombstoneRetentionDescription": "Fixed retention period; it is not part of the editable settings allowlist.",
     "days": "days",
     "fixedReadOnly": "Fixed · read-only",
     "smtpPasswordStatus": "SMTP password status",
-    "smtpPasswordStatusDescription": "Only whether a password is configured may be shown; its value is never returned or echoed.",
     "saved": "Settings saved.",
     "saveFailed": "Could not save settings.",
     "sourceDb": "Saved in database",
@@ -91,7 +85,6 @@
   "dump": {
     "eyebrow": "Database",
     "title": "Encrypted database dump",
-    "description": "Downloads an encrypted database dump. It does not export any user's vault.",
     "passwordLabel": "Re-enter your account login password",
     "download": "Download encrypted dump",
     "loginPasswordNote": "The login password is sent only to verify this download and is never stored. The master password is not accepted here.",
@@ -103,7 +96,6 @@
   "audit": {
     "eyebrow": "Accountability",
     "title": "Audit log",
-    "description": "Admin actions are shown as metadata only; login history is a separate log.",
     "actorFilter": "Actor user ID",
     "targetFilter": "Target user ID",
     "actionFilter": "Action",
@@ -131,7 +123,6 @@
   "users": {
     "eyebrow": "Directory",
     "title": "User management",
-    "description": "Search accounts, inspect devices and login history, and manage access. Vault entries and contents are never shown.",
     "filtersLabel": "User list filters",
     "searchLabel": "Email",
     "searchPlaceholder": "Search email",
@@ -154,7 +145,6 @@
       "user": "User"
     },
     "applyFilters": "Apply filters",
-    "listMeta": "Filters combine with AND · Newest accounts first · Cursor paging (100 default, 500 max)",
     "columns": {
       "email": "Email",
       "created_at": "Registered",
@@ -194,14 +184,10 @@
       "remove_admin": "Remove admin"
     },
     "deleteRequirement": "Deletion is irreversible: confirm twice and re-enter the administrator login password. Never use the master password.",
-    "roleGuardrail": "Super-admin cannot be assigned or transferred. Restricted self-actions and super-admin protections still apply.",
-    "vaultGuardrail": "Vault entries, item names, URLs, password lengths and secret values are never shown; user vaults cannot be exported.",
     "noUsers": "No users match these filters.",
     "selectUserHint": "Select a user from the list to inspect profile details.",
     "devicesEmpty": "No devices registered for this account.",
-    "devicesDescription": "All devices are ordered by registration time.",
     "loginHistoryEmpty": "No login records for this account.",
-    "loginHistoryDescription": "Separate login log, newest first with its own cursor.",
     "actionDone": "Action completed.",
     "actionFailed": "Action failed.",
     "wrongPassword": "The login password is incorrect.",

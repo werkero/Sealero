@@ -5,7 +5,7 @@
 :root {
   --ink: #171a21;
   --ink-soft: #414958;
-  --muted: #707886;
+  --muted-text: #707886;
   --subtle: #9299a5;
   --line: #e9ebef;
   --line-strong: #dfe3e8;
@@ -156,7 +156,7 @@ button {
   border-radius: 9px;
   background: transparent;
   padding: 0;
-  color: var(--muted);
+  color: var(--muted-text);
   cursor: pointer;
 }
 
@@ -203,7 +203,7 @@ button {
   align-items: center;
   gap: 9px;
   margin: 0 0 18px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.075em;
@@ -244,7 +244,7 @@ button {
 .landing-description {
   max-width: 610px;
   margin: clamp(24px, 3vw, 36px) auto 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: clamp(17px, 1.8vw, 20px);
   line-height: 1.65;
 }
@@ -285,7 +285,7 @@ button {
 
 .section-subtitle {
   margin: 12px auto 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 16px;
   line-height: 1.6;
 }
@@ -376,7 +376,7 @@ button {
 
 .ai-point p {
   margin: 4px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 15px;
   line-height: 1.6;
 }
@@ -444,7 +444,7 @@ button {
 /* The icon is counter-rotated against the grid's 45-degree spin and stretched
    along the tilted axis so it reads upright on the cube top. */
 .ai-cube-icon {
-  color: var(--muted);
+  color: var(--muted-text);
   display: flex;
   transform: scaleY(1.9) rotate(-45deg);
   transition: color 200ms ease;
@@ -514,7 +514,7 @@ button {
 
 .pricing-period {
   margin-left: 6px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 14px;
   font-weight: 500;
   letter-spacing: 0;
@@ -522,13 +522,13 @@ button {
 
 .pricing-yearly {
   margin: 8px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 13px;
 }
 
 .pricing-desc {
   margin: 12px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 14px;
   line-height: 1.6;
 }
@@ -627,7 +627,7 @@ button {
 .faq-item p {
   max-width: 680px;
   margin: 0 0 22px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -650,7 +650,7 @@ button {
 .public-footer {
   width: 100%;
   padding: 32px 0 40px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -753,7 +753,7 @@ button {
 }
 
 .footer-copyright {
-  color: var(--muted);
+  color: var(--muted-text);
 }
 
 .legal-main {
@@ -778,7 +778,7 @@ button {
 
 .legal-updated {
   margin: 12px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 13px;
 }
 
@@ -1013,7 +1013,7 @@ button {
   border: 0;
   background: none;
   padding: 5px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
   font-weight: 580;
   transform: translateY(-50%);
@@ -1037,7 +1037,7 @@ button {
 
 .auth-switch {
   margin: 20px 0 0;
-  color: var(--muted);
+  color: var(--muted-text);
   text-align: center;
   font-size: 12px;
 }
@@ -1064,7 +1064,7 @@ button {
 }
 
 .consent-text {
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 13px;
   line-height: 1.6;
   cursor: pointer;
@@ -1264,7 +1264,7 @@ button {
 
 .vault-title-row .eyebrow {
   margin-bottom: 8px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 
@@ -1288,7 +1288,7 @@ button {
   justify-items: end;
   gap: 2px;
   padding-bottom: 3px;
-  color: var(--muted);
+  color: var(--muted-text);
   font-size: 12px;
 }
 
@@ -2321,14 +2321,14 @@ button {
 }
 
 :root[data-theme="dark"] {
-    --ink: #eef0f4;
-    --ink-soft: #c2c9d4;
-    --muted: #aeb6c4;
-    --line: #343946;
-    --line-strong: #3c424f;
-    --page: #15171d;
-    --surface: #1b1e25;
-    --surface-soft: #20242d;
+    --ink: oklch(0.955 0.006 264.5);
+    --ink-soft: oklch(0.865 0.01 264.5);
+    --muted-text: oklch(0.774 0.022 261.8);
+    --line: oklch(0.345 0.024 268.6);
+    --line-strong: oklch(0.39 0.024 268.6);
+    --page: oklch(0.205 0.012 270.8);
+    --surface: oklch(0.235 0.014 267.0);
+    --surface-soft: oklch(0.260 0.018 266.3);
     --blue: #4479f5;
     --blue-hover: #5c91ff;
     --blue-soft: #111f44;
@@ -2338,8 +2338,8 @@ button {
 :root[data-theme="dark"] body,
 :root[data-theme="dark"] #root,
 :root[data-theme="dark"] .auth-shell {
-    background: #15171d;
-    color: #e8ebf1;
+    background: oklch(0.205 0.012 270.8);
+    color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .wordmark-logo,
 :root[data-theme="dark"] .landing-logo img {
@@ -2350,7 +2350,7 @@ button {
 :root[data-theme="dark"] .auth-card h1,
 :root[data-theme="dark"] .vault-title-row h1,
 :root[data-theme="dark"] .detail-title-copy h1 {
-    color: #f2f4f8;
+    color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .public-header,
 :root[data-theme="dark"] .auth-header,
@@ -2358,7 +2358,7 @@ button {
 :root[data-theme="dark"] .vault-item-row,
 :root[data-theme="dark"] .detail-field,
 :root[data-theme="dark"] .recovery-row {
-    border-color: #2b2f38;
+    border-color: oklch(0.345 0.024 268.6);
   }
 :root[data-theme="dark"] .language-control select,
 :root[data-theme="dark"] .text-link,
@@ -2372,23 +2372,23 @@ button {
 :root[data-theme="dark"] .detail-metadata > span,
 :root[data-theme="dark"] .passkey-info strong,
 :root[data-theme="dark"] .passkey-info code {
-    color: #c2c9d4;
+    color: oklch(0.865 0.01 264.5);
   }
 :root[data-theme="dark"] .auth-card,
 :root[data-theme="dark"] .detail-card {
-    border-color: #303540;
-    background: #1b1e25;
+    border-color: oklch(0.345 0.024 268.6);
+    background: oklch(0.235 0.014 267.0);
     box-shadow: 0 18px 52px rgb(0 0 0 / 24%);
   }
 
 :root[data-theme="dark"] .recovery-words li {
-    border-color: #303540;
-    background: #23262f;
-    color: #e5e9f0;
+    border-color: oklch(0.345 0.024 268.6);
+    background: oklch(0.260 0.018 266.3);
+    color: oklch(0.955 0.006 264.5);
   }
 
 :root[data-theme="dark"] .recovery-word-index {
-    color: #8f98a7;
+    color: oklch(0.774 0.022 261.8);
   }
 
 :root[data-theme="dark"] .auth-info {
@@ -2400,9 +2400,9 @@ button {
 :root[data-theme="dark"] .search-box kbd,
 :root[data-theme="dark"] .detail-metadata i,
 :root[data-theme="dark"] .mnemonic-word {
-    border-color: #343946;
-    background: #20232b;
-    color: #dce1e9;
+    border-color: oklch(0.345 0.024 268.6);
+    background: oklch(0.235 0.014 267.0);
+    color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .text-input::placeholder,
 :root[data-theme="dark"] .search-box input::placeholder,
@@ -2415,20 +2415,20 @@ button {
 :root[data-theme="dark"] .passkey-info > span,
 :root[data-theme="dark"] .list-footnote,
 :root[data-theme="dark"] .detail-footnote {
-    color: #8f98a7;
+    color: oklch(0.774 0.022 261.8);
   }
 :root[data-theme="dark"] .search-clear,
 :root[data-theme="dark"] .quiet-button:hover,
 :root[data-theme="dark"] .copy-button:hover,
 :root[data-theme="dark"] .word-copy:hover {
-    background: #272d38;
+    background: oklch(0.260 0.018 266.3);
   }
 
 :root[data-theme="dark"] .detail-card {
     box-shadow: none;
   }
 :root[data-theme="dark"] .vault-item-row:hover {
-    background: #1d2430;
+    background: oklch(0.260 0.018 266.3);
   }
 :root[data-theme="dark"] .item-row-copy small,
 :root[data-theme="dark"] .detail-website,
@@ -2456,14 +2456,14 @@ button {
   }
 :root[data-theme="dark"] .security-note,
 :root[data-theme="dark"] .totp-badge {
-    border-color: #343946;
-    background: #22252d;
-    color: #aeb7c6;
+    border-color: oklch(0.345 0.024 268.6);
+    background: oklch(0.235 0.014 267.0);
+    color: oklch(0.774 0.022 261.8);
   }
 :root[data-theme="dark"] .toast-message {
-    border-color: #3a414e;
-    background: #242832;
-    color: #e3e8f0;
+    border-color: oklch(0.345 0.024 268.6);
+    background: oklch(0.260 0.018 266.3);
+    color: oklch(0.955 0.006 264.5);
   }
 
 :root[data-theme="dark"] .lock-mark {

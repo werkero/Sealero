@@ -94,40 +94,40 @@
 }
 
 /* shadcn/ui dark theme tokens: same data-theme system as app.css.
-   Surfaces match the existing dark palette (#15171d page, #1b1e25 card,
-   #20242d muted, #343946 border); --primary is the brand blue lifted
-   one step (#4479F5) so it stays readable on dark backgrounds. */
+   Surfaces use the backend's dark palette (oklch); --primary is the
+   brand blue lifted one step (#4479F5) so it stays readable on dark
+   backgrounds. The landing and auth pages follow this same palette. */
 [data-theme="dark"] {
-  --background: #15171d;
-  --foreground: #eef0f4;
-  --card: #1b1e25;
-  --card-foreground: #eef0f4;
-  --popover: #1b1e25;
-  --popover-foreground: #eef0f4;
-  --primary: #4479f5;
-  --primary-foreground: #15171d;
-  --secondary: #20242d;
-  --secondary-foreground: #eef0f4;
-  --muted: #20242d;
-  --muted-foreground: #aeb6c4;
-  --accent: #20242d;
-  --accent-foreground: #eef0f4;
-  --border: #343946;
-  --input: #343946;
-  --ring: #4479f5;
+  --background: oklch(0.205 0.012 270.8);
+  --foreground: oklch(0.955 0.006 264.5);
+  --card: oklch(0.235 0.014 267.0);
+  --card-foreground: oklch(0.955 0.006 264.5);
+  --popover: oklch(0.235 0.014 267.0);
+  --popover-foreground: oklch(0.955 0.006 264.5);
+  --primary: oklch(0.608 0.195 264.0);
+  --primary-foreground: oklch(0.205 0.012 270.8);
+  --secondary: oklch(0.260 0.018 266.3);
+  --secondary-foreground: oklch(0.955 0.006 264.5);
+  --muted: oklch(0.260 0.018 266.3);
+  --muted-foreground: oklch(0.774 0.022 261.8);
+  --accent: oklch(0.260 0.018 266.3);
+  --accent-foreground: oklch(0.955 0.006 264.5);
+  --border: oklch(0.345 0.024 268.6);
+  --input: oklch(0.345 0.024 268.6);
+  --ring: oklch(0.608 0.195 264.0);
   --chart-1: oklch(0.785 0.115 274.713);
   --chart-2: oklch(0.585 0.233 277.117);
   --chart-3: oklch(0.511 0.262 276.966);
   --chart-4: oklch(0.457 0.24 277.023);
   --chart-5: oklch(0.398 0.195 277.366);
-  --sidebar: #15171d;
-  --sidebar-foreground: #eef0f4;
-  --sidebar-primary: #4479f5;
-  --sidebar-primary-foreground: #f2f4f8;
-  --sidebar-accent: #20242d;
-  --sidebar-accent-foreground: #eef0f4;
-  --sidebar-border: #343946;
-  --sidebar-ring: #4479f5;
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.608 0.195 264.0);
+  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
 * {

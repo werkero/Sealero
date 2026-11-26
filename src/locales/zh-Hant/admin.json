@@ -17,7 +17,6 @@
   "overview": {
     "eyebrow": "營運",
     "title": "控制台總覽",
-    "description": "查看伺服器狀態與彙總活動。此處不會提供任何使用者保險庫內容。",
     "metricsLabel": "伺服器總覽指標",
     "totalUsers": "使用者總數",
     "todayNewUsers": "今日新增使用者",
@@ -29,7 +28,6 @@
     "allDevices": "已登記裝置",
     "livePool": "即時連線池",
     "cleanupTitle": "墓碑清理",
-    "cleanupDescription": "上次清理時間與結果；保留期固定為 30 天。",
     "lastCleanup": "上次清理",
     "cleanupStatus": "上次結果",
     "cleanupNever": "尚未執行過清理",
@@ -39,20 +37,16 @@
   "settings": {
     "eyebrow": "設定",
     "title": "伺服器設定",
-    "description": "僅可設定文件中列出的白名單鍵。值從伺服器載入；來源標明每個值的設定位置。",
     "whitelistCount": "13 個允許鍵",
     "builtInDefault": "內建回退值：{{value}}",
     "notConfigured": "未設定",
     "writeOnly": "僅寫入 · 永不顯示",
     "clearOverride": "清除覆寫值",
-    "nullClearNote": "啟用後，清除管理設定會明確傳送 null；不會以空字串清除設定。",
     "saveChanges": "儲存變更",
     "tombstoneRetention": "墓碑保留期",
-    "tombstoneRetentionDescription": "保留期固定，不屬於可編輯設定白名單。",
     "days": "天",
     "fixedReadOnly": "固定 · 唯讀",
     "smtpPasswordStatus": "SMTP 密碼狀態",
-    "smtpPasswordStatusDescription": "只能顯示是否已設定，永不返回或回顯密碼值。",
     "saved": "設定已儲存。",
     "saveFailed": "無法儲存設定。",
     "sourceDb": "已存入資料庫",
@@ -91,7 +85,6 @@
   "dump": {
     "eyebrow": "資料庫",
     "title": "加密資料庫 dump",
-    "description": "下載加密資料庫 dump；不會匯出任何使用者的保險庫。",
     "passwordLabel": "重新輸入帳號登入密碼",
     "download": "下載加密 dump",
     "loginPasswordNote": "登入密碼僅用於驗證本次下載，絕不會被儲存。此處不接受主密碼。",
@@ -103,7 +96,6 @@
   "audit": {
     "eyebrow": "可追溯性",
     "title": "稽核記錄",
-    "description": "管理員操作只顯示中繼資料；登入歷史屬於獨立記錄。",
     "actorFilter": "操作者使用者 ID",
     "targetFilter": "目標使用者 ID",
     "actionFilter": "操作",
@@ -131,7 +123,6 @@
   "users": {
     "eyebrow": "使用者與存取",
     "title": "使用者管理",
-    "description": "搜尋帳號、檢視裝置與登入記錄並管理存取權限。此處永不顯示保險庫項目內容。",
     "filtersLabel": "使用者清單篩選",
     "searchLabel": "電子郵件",
     "searchPlaceholder": "搜尋電子郵件",
@@ -154,7 +145,6 @@
       "user": "一般使用者"
     },
     "applyFilters": "套用篩選",
-    "listMeta": "篩選條件以 AND 組合 · 註冊時間由新到舊 · 游標分頁（預設 100，最多 500）",
     "columns": {
       "email": "電子郵件",
       "created_at": "註冊時間",
@@ -194,14 +184,10 @@
       "remove_admin": "取消管理員"
     },
     "deleteRequirement": "刪除不可復原：必須再次確認並重新輸入管理員登入密碼；不得使用主密碼。",
-    "roleGuardrail": "不得指派或轉移超級管理員身分；本人操作限制與超級管理員保護仍適用。",
-    "vaultGuardrail": "此處永不顯示保險庫項目、項目名稱、網址、密碼長度或秘密值，也不能匯出使用者保險庫。",
     "noUsers": "沒有符合篩選條件的使用者。",
     "selectUserHint": "從清單中選擇一位使用者以查看資料詳情。",
     "devicesEmpty": "此帳號未註冊任何裝置。",
-    "devicesDescription": "全部裝置按註冊時間排序。",
     "loginHistoryEmpty": "此帳號暫無登入記錄。",
-    "loginHistoryDescription": "獨立的登入記錄，最新在前，有自己的遊標。",
     "actionDone": "操作已完成。",
     "actionFailed": "操作失敗。",
     "wrongPassword": "登入密碼不正確。",
