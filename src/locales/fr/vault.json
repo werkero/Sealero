@@ -5,7 +5,7 @@
   "allItems": "Tous les éléments",
   "favorites": "Favoris",
   "autoLockTitle": "Verrouillage automatique activé",
-  "autoLockDescription": "Verrouillage après 1 minute en arrière-plan ou 5 minutes d’inactivité.",
+  "autoLockDescription": "Verrouillage après 15 minutes d’inactivité. Actualiser la page ne verrouille pas le coffre.",
   "collectionEyebrow": "Votre collection",
   "collectionSubtitle": "Vos identifiants enregistrés, disponibles quand vous en avez besoin.",
   "itemsLabel": "éléments",

@@ -3,10 +3,11 @@ import { ChevronRight, Info, Search, Star, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItemInput, VaultListItem } from '../client/contracts'
 import { VaultLayout, hostname, iconTone, type VaultFilter } from '../App'
+import type { AppearancePreference } from '../features/settings/preferences'
 import { Button } from '../components/ui/button'
 import { ItemEditor } from './ItemEditor'
 
-export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout }: {
+export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, onAppearanceChange }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
@@ -15,6 +16,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   onCreateItem: (input: VaultItemInput) => Promise<unknown>
   onLock: () => void
   onLogout: () => void
+  onAppearanceChange: (preference: AppearancePreference) => void
 }) {
   const { t } = useTranslation(['common', 'vault'])
   const [query, setQuery] = useState('')
@@ -47,7 +49,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
       <div className="vault-content">
         <div className="vault-title-row">
           <div>

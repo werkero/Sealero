@@ -2,7 +2,8 @@
   "header": {
     "console": "Console d’administration",
     "navigation": "Administration",
-    "backToSite": "Retour au site"
+    "backToSite": "Retour au site",
+    "backToVault": "Retour au coffre"
   },
   "authentication": {
     "loginPasswordOnly": "L’API admin nécessite un compte administrateur authentifié ; une suppression sensible exige le mot de passe de connexion du compte, jamais le mot de passe principal."

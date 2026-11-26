@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { hasExceededHiddenLockDuration } from '../src/hooks/auto-lock-policy.ts'
+import { hasIdleExpired, IDLE_LOCK_MS, remainingIdleMs } from '../src/hooks/auto-lock-policy.ts'
 import { clearClipboardIfStillCurrent, createClipboardOperationQueue } from '../src/features/password-security/clipboard.ts'
 import { buildDetailJson, decryptBlock, encryptBlock, importDek, parseDetailJson } from '../src/client/crypto.ts'
 
-test('a monotonic hidden duration locks at exactly 60 seconds but not before', () => {
-  assert.equal(hasExceededHiddenLockDuration(1_000, 60_999), false)
-  assert.equal(hasExceededHiddenLockDuration(1_000, 61_000), true)
-  assert.equal(hasExceededHiddenLockDuration(1_000, 90_000), true)
+test('idle lock fires at exactly 15 minutes but not before', () => {
+  assert.equal(IDLE_LOCK_MS, 15 * 60_000)
+  assert.equal(hasIdleExpired(1_000, 1_000 + 15 * 60_000 - 1), false)
+  assert.equal(hasIdleExpired(1_000, 1_000 + 15 * 60_000), true)
+  assert.equal(hasIdleExpired(1_000, 1_000 + 16 * 60_000), true)
+  assert.equal(remainingIdleMs(1_000, 1_000 + 60_000), 14 * 60_000)
 })
 
 test('clipboard expiry clears only the same still-current app copy', async () => {

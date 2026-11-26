@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Check, KeyRound, ShieldCheck, Sparkles } from 'lucide-react'
 import { motion, MotionConfig, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
@@ -74,32 +74,101 @@ function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIde
   )
 }
 
+const AI_DEMO_PHASE_MS = [1800, 2000, 2800]
+
 function AiCall() {
   const { t } = useTranslation('common')
+  const reduceMotion = useReducedMotion()
+  const [phase, setPhase] = useState(0)
+  useEffect(() => {
+    if (reduceMotion) {
+      setPhase(2)
+      return
+    }
+    const timer = setTimeout(() => setPhase((phase + 1) % 3), AI_DEMO_PHASE_MS[phase])
+    return () => clearTimeout(timer)
+  }, [phase, reduceMotion])
+
+  const points = [
+    { icon: Sparkles, title: t('aiCallPoint1Title'), body: t('aiCallPoint1Body') },
+    { icon: ShieldCheck, title: t('aiCallPoint2Title'), body: t('aiCallPoint2Body') },
+    { icon: KeyRound, title: t('aiCallPoint3Title'), body: t('aiCallPoint3Body') },
+  ]
+
   return (
     <motion.section
-      className="landing-section ai-section"
+      className="ai-screen"
       aria-labelledby="ai-title"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      <h2 id="ai-title">{t('aiCallTitle')}</h2>
-      <p className="section-subtitle">{t('aiCallDescription')}</p>
-      <div className="pricing-grid ai-grid">
-        <article className="pricing-card">
-          <h3>{t('aiCallPoint1Title')}</h3>
-          <p className="pricing-desc">{t('aiCallPoint1Body')}</p>
-        </article>
-        <article className="pricing-card">
-          <h3>{t('aiCallPoint2Title')}</h3>
-          <p className="pricing-desc">{t('aiCallPoint2Body')}</p>
-        </article>
-        <article className="pricing-card">
-          <h3>{t('aiCallPoint3Title')}</h3>
-          <p className="pricing-desc">{t('aiCallPoint3Body')}</p>
-        </article>
+      <div className="ai-screen-inner">
+        <div className="ai-copy">
+          <h2 id="ai-title">{t('aiCallTitle')}</h2>
+          <p className="section-subtitle">{t('aiCallDescription')}</p>
+          <ul className="ai-points">
+            {points.map((point, index) => (
+              <li key={point.title} className={index === phase ? 'ai-point ai-point--active' : 'ai-point'}>
+                <span className="ai-point-icon" aria-hidden="true">
+                  <point.icon size={20} />
+                </span>
+                <div>
+                  <h3>{point.title}</h3>
+                  <p>{point.body}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="ai-demo">
+          <div className="ai-demo-header">
+            <Sparkles size={16} aria-hidden="true" />
+            <span>{t('aiDemoTitle')}</span>
+            <span className="ai-live-dot" aria-hidden="true" />
+          </div>
+          <motion.div
+            className="ai-bubble ai-bubble--ai"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          >
+            {t('aiDemoAsk')}
+          </motion.div>
+          {phase >= 1 && (
+            <motion.div
+              className="ai-confirm"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              <Check size={16} aria-hidden="true" />
+              <span>{t('aiDemoApproved')}</span>
+            </motion.div>
+          )}
+          {phase >= 2 && (
+            <>
+              <motion.div
+                className="ai-bubble ai-bubble--done"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                {t('aiDemoDone')}
+              </motion.div>
+              <motion.div
+                className="ai-password-chip"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+              >
+                <KeyRound size={14} aria-hidden="true" />
+                <span aria-hidden="true">••••••••</span>
+              </motion.div>
+            </>
+          )}
+        </div>
       </div>
     </motion.section>
   )

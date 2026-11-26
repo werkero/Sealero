@@ -2,7 +2,8 @@
   "header": {
     "console": "Admin-Konsole",
     "navigation": "Administration",
-    "backToSite": "Zur Website"
+    "backToSite": "Zur Website",
+    "backToVault": "Zurück zum Tresor"
   },
   "authentication": {
     "loginPasswordOnly": "Die Admin-API erfordert ein authentifiziertes Administratorkonto; für sensible Kontolöschungen ist das Konto-Anmeldepasswort erforderlich, niemals das Master-Passwort."

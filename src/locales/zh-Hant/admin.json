@@ -2,7 +2,8 @@
   "header": {
     "console": "管理控制台",
     "navigation": "管理後台",
-    "backToSite": "返回網站"
+    "backToSite": "返回網站",
+    "backToVault": "返回保險庫"
   },
   "authentication": {
     "loginPasswordOnly": "管理 API 需要已驗證的管理員帳號；敏感的帳號刪除操作須驗證帳號登入密碼，不能使用主密碼。"

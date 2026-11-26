@@ -71,8 +71,7 @@ button {
 }
 
 .public-header,
-.auth-header,
-.vault-header {
+.auth-header {
   min-height: 88px;
   display: flex;
   align-items: center;
@@ -101,8 +100,7 @@ button {
   color: var(--blue);
 }
 
-.public-header-actions,
-.vault-header-actions {
+.public-header-actions {
   display: flex;
   align-items: center;
   gap: 26px;
@@ -300,8 +298,190 @@ button {
   text-align: left;
 }
 
-.ai-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.ai-screen {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: clamp(48px, 8vw, 96px) clamp(20px, 5vw, 64px);
+  box-sizing: border-box;
+}
+
+.ai-screen-inner {
+  width: min(100%, 1200px);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+.ai-copy h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+}
+
+.ai-copy .section-subtitle {
+  margin: 12px 0 0;
+}
+
+.ai-points {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.ai-point {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  opacity: 0.55;
+  transition: opacity 200ms ease;
+}
+
+.ai-point--active {
+  opacity: 1;
+}
+
+.ai-point-icon {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.ai-point--active .ai-point-icon {
+  background: var(--blue);
+  color: #fff;
+}
+
+.ai-point h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.ai-point p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.ai-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  padding: 20px;
+  box-shadow: 0 12px 32px rgb(23 26 33 / 14%);
+}
+
+.ai-demo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.ai-demo-header > svg {
+  color: var(--blue);
+}
+
+.ai-live-dot {
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: #15966a;
+  animation: ai-pulse 2s ease-out infinite;
+}
+
+@keyframes ai-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(21 150 106 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgb(21 150 106 / 0);
+  }
+}
+
+.ai-bubble {
+  max-width: 88%;
+  padding: 12px 16px;
+  border-radius: 16px;
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.ai-bubble--ai {
+  align-self: flex-start;
+  border-bottom-left-radius: 6px;
+  background: var(--surface-soft);
+}
+
+.ai-bubble--done {
+  align-self: flex-end;
+  border-bottom-right-radius: 6px;
+  background: var(--blue);
+  color: #fff;
+}
+
+.ai-confirm {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.ai-confirm > svg {
+  flex: none;
+  margin-top: 2px;
+  color: #15966a;
+}
+
+.ai-password-chip {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 900px) {
+  .ai-screen-inner {
+    grid-template-columns: 1fr;
+  }
 }
 
 .pricing-card {
@@ -628,6 +808,10 @@ button {
   line-height: 1.75;
 }
 
+.legal-back-home {
+  margin-top: 40px;
+}
+
 .button {
   display: inline-flex;
   min-height: 48px;
@@ -690,7 +874,7 @@ button {
   background: #fffbef;
   padding: 7px 12px;
   color: #7c5a1b;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -735,7 +919,7 @@ button {
 
 .auth-card .eyebrow {
   margin-bottom: 8px;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .auth-card h1 {
@@ -776,7 +960,7 @@ button {
 
 .small-link {
   color: var(--blue);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .text-input {
@@ -838,7 +1022,7 @@ button {
   background: none;
   padding: 5px;
   color: #677181;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 580;
   transform: translateY(-50%);
   cursor: pointer;
@@ -851,7 +1035,7 @@ button {
 .field-hint {
   margin: 7px 0 0;
   color: #89909b;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -876,26 +1060,53 @@ button {
   text-decoration: underline;
 }
 
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.consent-checkbox {
+  margin-top: 2px;
+}
+
+.consent-text {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.consent-text a {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.consent-text a:hover {
+  text-decoration: underline;
+}
+
 .inline-warning {
   margin: 17px 0 0;
   border-top: 1px solid #f0f1f3;
   padding-top: 14px;
   color: #8b7350;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .auth-error {
   margin: 12px 0 0;
   color: #b3261e;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
 .auth-info {
   margin: 12px 0 0;
   color: #2e7d32;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -923,7 +1134,7 @@ button {
 
 .recovery-word-index {
   color: #89909b;
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -988,7 +1199,7 @@ button {
   border-radius: 50%;
   background: #e8effc;
   color: #355da8;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 650;
 }
 
@@ -1002,71 +1213,12 @@ button {
   margin-top: 22px;
 }
 
-/* Vault app */
-.vault-app-shell {
+/* Backend shell (vault + admin console): left sidebar + right content, no top header. */
+.backend-shell {
   min-height: 100svh;
+  display: grid;
+  grid-template-columns: 264px minmax(0, 1fr);
   background: #fff;
-}
-
-.vault-app-shell > .preview-notice {
-  min-height: 29px;
-  border: 0;
-  border-bottom: 1px solid #f1e7d0;
-  border-radius: 0;
-  padding: 4px 12px;
-  font-size: 10px;
-}
-
-.vault-header {
-  min-height: 70px;
-  border-bottom: 1px solid #eceef1;
-  padding: 0 38px;
-}
-
-.vault-header-brand,
-.vault-header-actions {
-  display: flex;
-  align-items: center;
-}
-
-.vault-header-brand {
-  gap: 16px;
-}
-
-.vault-header .wordmark {
-  font-size: 20px;
-}
-
-.header-divider {
-  width: 1px;
-  height: 22px;
-  background: #e7e9ee;
-}
-
-.vault-header-label {
-  color: #65707d;
-  font-size: 13px;
-  font-weight: 560;
-}
-
-.vault-header-actions {
-  gap: 17px;
-}
-
-.vault-session-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: #687585;
-  font-size: 11px;
-}
-
-.session-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #31a274;
-  box-shadow: 0 0 0 3px #e7f6ef;
 }
 
 .profile-button {
@@ -1094,7 +1246,7 @@ button {
 .profile-email {
   max-width: 170px;
   overflow: hidden;
-  font-size: 11px;
+  font-size: 12px;
   text-overflow: ellipsis;
 }
 
@@ -1183,24 +1335,63 @@ button {
   gap: 10px;
 }
 
-.vault-workspace {
-  min-height: calc(100svh - 99px);
-  display: grid;
-  grid-template-columns: 224px minmax(0, 1fr);
-}
-
-.vault-sidebar {
+.backend-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #eceef1;
   background: #fcfcfd;
-  padding: 27px 14px 18px;
+  padding: 28px 18px 20px;
+}
+
+.backend-sidebar-brand {
+  margin-bottom: 28px;
+  padding: 0 8px;
+}
+
+.backend-sidebar > nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.backend-sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: auto;
+}
+
+.backend-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  border-top: 1px solid #eceef1;
+  padding-top: 14px;
+}
+
+.backend-user-row .profile-menu-wrap {
+  min-width: 0;
+  flex: 1;
+}
+
+.backend-user-row .profile-button {
+  width: 100%;
+}
+
+.backend-user-row .profile-email {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-section-label {
   padding: 0 11px;
   color: #9aa0a9;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1208,22 +1399,22 @@ button {
 
 .sidebar-nav {
   display: grid;
-  gap: 4px;
-  margin-top: 12px;
+  gap: 6px;
+  margin-top: 14px;
 }
 
 .sidebar-link {
-  min-height: 39px;
+  min-height: 44px;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
-  padding: 0 10px;
+  padding: 0 12px;
   color: #58616d;
   text-align: left;
-  font-size: 12px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -1258,22 +1449,16 @@ button {
   background: rgb(255 255 255 / 72%);
   padding: 2px 7px;
   color: #7c8795;
-  font-size: 10px;
-}
-
-.sidebar-bottom {
-  display: grid;
-  gap: 17px;
-  margin-top: auto;
+  font-size: 12px;
 }
 
 .sidebar-lock-card {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   border: 1px solid #e8edf5;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fff;
-  padding: 12px 11px;
+  padding: 14px;
 }
 
 .sidebar-lock-icon {
@@ -1283,39 +1468,22 @@ button {
 
 .sidebar-lock-card strong {
   color: #495363;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 640;
 }
 
 .sidebar-lock-card span:last-child {
   color: #858e9b;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
-.sidebar-sign-out {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  border: 0;
-  background: transparent;
-  padding: 7px 10px;
-  color: #6f7885;
-  text-align: left;
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.sidebar-sign-out:hover {
-  color: #b0444c;
-}
-
-.vault-main {
+.backend-main {
   min-width: 0;
 }
 
 .vault-content {
-  width: min(100%, 1020px);
+  width: min(100%, 1120px);
   margin: 0 auto;
   padding: 42px 52px 42px;
 }
@@ -1329,7 +1497,7 @@ button {
 .vault-title-row .eyebrow {
   margin-bottom: 8px;
   color: #8a929e;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .vault-title-row h1,
@@ -1353,7 +1521,7 @@ button {
   gap: 2px;
   padding-bottom: 3px;
   color: #8a929d;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .vault-items-count strong {
@@ -1408,7 +1576,7 @@ button {
   padding: 3px 6px;
   color: #9299a5;
   font-family: inherit;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .search-clear {
@@ -1426,7 +1594,7 @@ button {
 .search-scope {
   max-width: 220px;
   color: #9ba2ac;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.4;
 }
 
@@ -1438,7 +1606,7 @@ button {
   border-bottom: 1px solid #eceef1;
   padding: 0 15px 11px 58px;
   color: #a0a6b0;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 630;
   letter-spacing: 0.07em;
 }
@@ -1528,7 +1696,7 @@ button {
 .item-row-copy small {
   overflow: hidden;
   color: #89919d;
-  font-size: 10px;
+  font-size: 12px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -1541,13 +1709,13 @@ button {
 .item-favorite-mark {
   margin-left: 6px;
   color: #e0a536;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .item-row-category,
 .item-row-updated {
   color: #77818f;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .item-row-updated {
@@ -1611,7 +1779,7 @@ button {
   gap: 8px;
   margin: 23px 0 0;
   color: #9aa1ab;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1655,7 +1823,7 @@ button {
 .detail-title-copy .eyebrow {
   margin: 0 0 5px;
   color: #89919c;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .detail-title-copy h1 {
@@ -1668,7 +1836,7 @@ button {
   gap: 5px;
   margin-top: 5px;
   color: #7c8796;
-  font-size: 11px;
+  font-size: 12px;
   text-decoration: none;
 }
 
@@ -1683,7 +1851,7 @@ button {
   background: #fffbef;
   padding: 6px 9px;
   color: #98762d;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .detail-grid {
@@ -1724,7 +1892,7 @@ button {
 .detail-card-heading p {
   margin: 5px 0 0;
   color: #8b939f;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 
@@ -1751,7 +1919,7 @@ button {
 .detail-field-label,
 .passkey-info > span {
   color: #87909d;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .detail-field-value {
@@ -1772,7 +1940,7 @@ button {
   background: transparent;
   padding: 5px 7px;
   color: #6c7786;
-  font-size: 10px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -1821,7 +1989,7 @@ button {
   gap: 5px;
   overflow-wrap: anywhere;
   color: #3c5f9d;
-  font-size: 11px;
+  font-size: 12px;
   text-decoration: none;
 }
 
@@ -1839,7 +2007,7 @@ button {
 .detail-note-field p {
   margin: 0;
   color: #5e6876;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.6;
 }
 
@@ -1855,7 +2023,7 @@ button {
   flex-wrap: wrap;
   gap: 6px;
   color: #5e6876;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .detail-metadata > span > span {
@@ -1868,7 +2036,7 @@ button {
   background: #f2f4f7;
   padding: 4px 6px;
   color: #687382;
-  font-size: 9px;
+  font-size: 12px;
   font-style: normal;
 }
 
@@ -1882,7 +2050,7 @@ button {
   background: #f7f9fc;
   padding: 4px 6px;
   color: #7484a0;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -1904,14 +2072,14 @@ button {
 .totp-countdown {
   margin-left: auto;
   color: #6f7a89;
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
 .totp-countdown small {
   margin-left: 2px;
   color: #a0a6af;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .totp-progress {
@@ -1943,7 +2111,7 @@ button {
   overflow-wrap: anywhere;
   color: #4a5564;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.55;
 }
@@ -1963,7 +2131,7 @@ button {
   background: #f6f8fb;
   padding: 8px;
   color: #778394;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.55;
 }
 
@@ -1990,7 +2158,7 @@ button {
 .recovery-code {
   color: #505b6a;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.03em;
 }
 
@@ -2000,7 +2168,7 @@ button {
   background: transparent;
   padding: 4px 6px;
   color: #64748a;
-  font-size: 9px;
+  font-size: 12px;
   cursor: pointer;
 }
 
@@ -2039,13 +2207,13 @@ button {
 .mnemonic-word > span {
   color: #a3aab5;
   text-align: center;
-  font-size: 8px;
+  font-size: 12px;
 }
 
 .mnemonic-word strong {
   overflow: hidden;
   color: #505b69;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 550;
   text-overflow: ellipsis;
 }
@@ -2069,7 +2237,7 @@ button {
   background: transparent;
   padding: 4px 0;
   color: #5874a7;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -2100,14 +2268,14 @@ button {
   background: #fff;
   padding: 11px 14px;
   color: #485669;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   box-shadow: 0 9px 28px rgb(24 38 65 / 12%);
 }
 
 @media (max-width: 900px) {
-  .vault-workspace {
-    grid-template-columns: 190px minmax(0, 1fr);
+  .backend-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
   }
 
   .vault-content {
@@ -2196,50 +2364,46 @@ button {
   .preview-notice {
     align-items: flex-start;
     justify-content: flex-start;
-    font-size: 10px;
+    font-size: 12px;
   }
 
-  .vault-header {
-    min-height: 62px;
-    padding: 0 16px;
-  }
-
-  .vault-header-brand {
-    gap: 10px;
-  }
-
-  .vault-header-label,
-  .header-divider,
-  .vault-session-label,
   .profile-email,
   .profile-chevron {
     display: none;
-  }
-
-  .vault-header-actions {
-    gap: 5px;
   }
 
   .profile-button {
     padding: 3px;
   }
 
-  .vault-workspace {
-    min-height: calc(100svh - 91px);
+  .backend-shell {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
   }
 
-  .vault-sidebar {
+  .backend-sidebar {
+    position: static;
+    height: auto;
     display: block;
     border-right: 0;
     border-bottom: 1px solid #eceef1;
-    padding: 9px 14px;
+    padding: 12px 14px;
   }
 
+  .backend-sidebar-brand,
   .sidebar-section-label,
-  .sidebar-bottom {
+  .backend-sidebar-bottom {
     display: none;
+  }
+
+  .backend-user-row {
+    margin-top: 10px;
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .backend-user-row .profile-menu-wrap {
+    flex: 0 0 auto;
   }
 
   .sidebar-nav {
@@ -2279,7 +2443,7 @@ button {
   .search-scope {
     max-width: none;
     padding-left: 2px;
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .item-list-header {
@@ -2306,7 +2470,7 @@ button {
   }
 
   .item-row-copy small {
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .detail-content {
@@ -2341,11 +2505,11 @@ button {
 
   .detail-field-value,
   .detail-field-url-value {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .detail-favorite-pill {
-    font-size: 9px;
+    font-size: 12px;
     padding: 5px 7px;
   }
 }
@@ -2437,7 +2601,7 @@ button {
   }
 
   .item-row-copy strong {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .item-row-copy small {
@@ -2463,8 +2627,8 @@ button {
 :root[data-theme="dark"] body,
 :root[data-theme="dark"] #root,
 :root[data-theme="dark"] .auth-shell,
-:root[data-theme="dark"] .vault-app-shell,
-:root[data-theme="dark"] .vault-main {
+:root[data-theme="dark"] .backend-shell,
+:root[data-theme="dark"] .backend-main {
     background: #15171d;
     color: #e8ebf1;
   }
@@ -2481,7 +2645,6 @@ button {
   }
 :root[data-theme="dark"] .public-header,
 :root[data-theme="dark"] .auth-header,
-:root[data-theme="dark"] .vault-header,
 :root[data-theme="dark"] .item-list-header,
 :root[data-theme="dark"] .vault-item-row,
 :root[data-theme="dark"] .detail-field,
@@ -2492,8 +2655,6 @@ button {
 :root[data-theme="dark"] .text-link,
 :root[data-theme="dark"] .auth-subtitle,
 :root[data-theme="dark"] .field-label,
-:root[data-theme="dark"] .vault-header-label,
-:root[data-theme="dark"] .vault-session-label,
 :root[data-theme="dark"] .profile-button,
 :root[data-theme="dark"] .sidebar-link,
 :root[data-theme="dark"] .vault-page-subtitle,
@@ -2528,9 +2689,6 @@ button {
 :root[data-theme="dark"] .auth-info {
     color: #7ec98a;
   }
-:root[data-theme="dark"] .vault-header .wordmark {
-    color: #e5e9f0;
-  }
 :root[data-theme="dark"] .account-chip,
 :root[data-theme="dark"] .text-input,
 :root[data-theme="dark"] .search-box,
@@ -2554,7 +2712,7 @@ button {
 :root[data-theme="dark"] .detail-footnote {
     color: #8f98a7;
   }
-:root[data-theme="dark"] .vault-sidebar {
+:root[data-theme="dark"] .backend-sidebar {
     border-color: #2b2f38;
     background: #191b22;
   }

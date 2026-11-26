@@ -1,6 +1,10 @@
-"""Browser regression for auto-lock after a hidden tab outlasts the threshold.
+"""Browser regression for the 15-minute idle lock with refresh persistence.
 
-Run with Vite serving the web package (for example, run `pnpm dev` from `web/`):
+The vault locks after 15 minutes without activity; time in the
+background counts as idle, and a page refresh neither locks nor resets
+the countdown. Requires a real browser run (Playwright cannot run in
+this sandbox): run with Vite serving the web package (for example, run
+`pnpm dev` from the repo root, then):
   python tests/auto_lock_browser.py http://localhost:5173
 """
 
@@ -24,45 +28,35 @@ def run(base_url: str) -> None:
         page.locator("form").first.locator("button[type=submit]").click()
         page.get_by_role("button", name="Open Gitea Workspace").wait_for()
 
+        # Controllable wall clock: the idle timer runs on Date.now().
         page.evaluate("""() => {
-          let visibilityState = document.visibilityState
           let wallClockNow = Date.now()
-          let monotonicNow = performance.now()
           Date.now = () => wallClockNow
-          Object.defineProperty(performance, 'now', {
-            configurable: true,
-            value: () => monotonicNow,
-          })
-          Object.defineProperty(document, 'visibilityState', {
-            configurable: true,
-            get: () => visibilityState,
-          })
-          window.advanceAutoLockTestClocks = ({ wallClockDeltaMs, monotonicDeltaMs }) => {
-            wallClockNow += wallClockDeltaMs
-            monotonicNow += monotonicDeltaMs
-          }
-          window.readAutoLockTestClocks = () => ({ wallClockNow, monotonicNow })
-          window.setVisibilityForAutoLockTest = (nextState) => {
-            visibilityState = nextState
-            document.dispatchEvent(new Event('visibilitychange'))
-          }
+          window.advanceAutoLockTestClock = (deltaMs) => { wallClockNow += deltaMs }
+          window.readAutoLockTestClock = () => wallClockNow
         }""")
-        page.evaluate("window.setVisibilityForAutoLockTest('hidden')")
-        page.wait_for_function("document.visibilityState === 'hidden'")
 
-        hidden_clocks = page.evaluate("window.readAutoLockTestClocks()")
-        # Simulate frozen timers: advance only the monotonic clock, while wall time moves backwards.
-        page.evaluate("window.advanceAutoLockTestClocks({ wallClockDeltaMs: -120_000, monotonicDeltaMs: 61_000 })")
-        resumed_clocks = page.evaluate("window.readAutoLockTestClocks()")
-        assert resumed_clocks["wallClockNow"] < hidden_clocks["wallClockNow"], "Expected wall clock to move backwards"
-        assert resumed_clocks["monotonicNow"] - hidden_clocks["monotonicNow"] >= 60_000, "Expected at least 60 seconds of monotonic elapsed time"
+        # 14 idle minutes: still unlocked.
+        page.evaluate("window.advanceAutoLockTestClock(14 * 60 * 1000)")
+        page.wait_for_timeout(200)
         page.get_by_role("button", name="Open Gitea Workspace").wait_for()
 
-        page.evaluate("window.setVisibilityForAutoLockTest('visible')")
-        page.wait_for_function("document.visibilityState === 'visible'")
-        page.locator("#master-password").wait_for(timeout=2_000)
-        assert "/unlock" in page.url, f"Expected an immediate lock after returning from hidden state; got {page.url}"
+        # Activity resets the window: 14 more idle minutes, still unlocked.
+        page.mouse.move(400, 300)
+        page.evaluate("window.advanceAutoLockTestClock(14 * 60 * 1000)")
+        page.wait_for_timeout(200)
+        page.get_by_role("button", name="Open Gitea Workspace").wait_for()
+
+        # 2 further idle minutes (16 since the last activity): locked.
+        page.evaluate("window.advanceAutoLockTestClock(2 * 60 * 1000)")
+        page.locator("#master-password").wait_for(timeout=5000)
+
+        # The vault is already locked, so a refresh must still show the lock screen.
+        page.reload()
+        page.locator("#master-password").wait_for(timeout=5000)
+
         browser.close()
+        print("auto-lock idle scenario passed")
 
 
 if __name__ == "__main__":

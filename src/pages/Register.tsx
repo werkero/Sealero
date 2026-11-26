@@ -6,6 +6,7 @@ import type { VaultClient } from '../client/contracts'
 import { VaultApiError } from '../client/http-vault-client'
 import type { VaultIdentity } from '../client/types'
 import type { AppearancePreference } from '../features/settings/preferences'
+import { Checkbox } from '../components/ui/checkbox'
 import { VaultSetupForm } from './VaultSetup'
 
 type RegisterStep = 'account' | 'verify' | 'master'
@@ -23,6 +24,7 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
   const [confirmLoginPassword, setConfirmLoginPassword] = useState('')
   const [code, setCode] = useState('')
   const [passwordVisible, setPasswordVisible] = useState(false)
+  const [consentAgreed, setConsentAgreed] = useState(false)
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const [infoKey, setInfoKey] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -152,8 +154,23 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                   required
                 />
               </div>
+              <div className="consent-row">
+                <Checkbox
+                  id="register-consent"
+                  className="consent-checkbox"
+                  checked={consentAgreed}
+                  onCheckedChange={(checked) => setConsentAgreed(checked === true)}
+                />
+                <label className="consent-text" htmlFor="register-consent">
+                  {t('auth:registerConsentBefore')}
+                  <a href="/terms" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/terms') }}>{t('common:termsTitle')}</a>
+                  {t('auth:registerConsentBetween')}
+                  <a href="/privacy" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/privacy') }}>{t('common:privacyTitle')}</a>
+                  {t('auth:registerConsentAfter')}
+                </label>
+              </div>
               {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-              <button className="button button-primary button-full" type="submit" disabled={busy}>{t('auth:continueButton')}</button>
+              <button className="button button-primary button-full" type="submit" disabled={busy || !consentAgreed}>{t('auth:continueButton')}</button>
             </form>
             <p className="auth-switch">{t('auth:haveAccount')} <a href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>{t('auth:loginTitle')}</a></p>
           </>

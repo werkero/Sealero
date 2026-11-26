@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
 /**
- * VaultLayout render test (profile menu + sign-out confirm), via React's
- * server renderer — no jsdom or component renderer exists in this repo, so
- * the layout is rendered to static markup and the initial (closed) state is
- * asserted on: the profile button must be a menu button, not a logout
+ * VaultLayout render test (shared backend shell + profile menu + sign-out
+ * confirm), via React's server renderer — no jsdom or component renderer
+ * exists in this repo, so the layout is rendered to static markup and the
+ * initial (closed) state is asserted on: the sidebar holds the brand and
+ * the user row, the profile button must be a menu button, not a logout
  * button, and neither the menu nor the confirm dialog may be in the
  * initial markup. Browser globals are stubbed before the dynamic import
  * because src/i18n.ts reads navigator/localStorage/document at import time.
@@ -68,6 +69,7 @@ async function renderVaultLayout(): Promise<string> {
       onNavigate={() => undefined}
       onLock={() => undefined}
       onLogout={() => undefined}
+      onAppearanceChange={() => undefined}
     >
       <div>vault body</div>
     </VaultLayout>,
@@ -75,6 +77,14 @@ async function renderVaultLayout(): Promise<string> {
 }
 
 describe('VaultLayout profile menu and sign-out confirm', () => {
+  it('renders the shared shell: brand in the sidebar, no top header, user row at the bottom', async () => {
+    const html = await renderVaultLayout();
+    expect(html).toContain('backend-sidebar');
+    expect(html).toContain('backend-sidebar-brand');
+    expect(html).toContain('backend-user-row');
+    expect(html).not.toContain('vault-header');
+  });
+
   it('renders the profile control as a menu button, with menu and confirm dialog closed', async () => {
     const html = await renderVaultLayout();
     // Avatar shows the first letter of the email.
@@ -91,10 +101,12 @@ describe('VaultLayout profile menu and sign-out confirm', () => {
     expect(html).not.toContain('Are you sure you want to sign out?');
   });
 
-  it('still offers sign out from the sidebar, without logging out on render', async () => {
+  it('offers sign out only inside the closed menu; the lock card and body render', async () => {
     const html = await renderVaultLayout();
-    expect(html).toContain('sidebar-sign-out');
-    expect(html).toContain('Sign out');
+    // The standalone sidebar sign-out button is gone: sign-out lives in the user menu.
+    expect(html).not.toContain('sidebar-sign-out');
+    expect(html).not.toContain('Sign out');
+    expect(html).toContain('sidebar-lock-card');
     expect(html).toContain('vault body');
   });
 });

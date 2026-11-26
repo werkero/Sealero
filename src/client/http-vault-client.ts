@@ -10,6 +10,7 @@ import {
   deriveKek,
   deriveRecoveryWrappingKey,
   encryptBlock,
+  fromBase64,
   importDek,
   parseDetailJson,
   parseKdfParams,
@@ -82,9 +83,12 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
   let dekKey: CryptoKey | null = null
   let dekVersion: number | null = null
   /**
-   * Session KEK + vault-key record, retained from unlock in memory only
-   * (never persisted) so auto-backup can build the KEK wrapping without
-   * asking for the master password again. Cleared on lock/logout/drop.
+   * Session KEK + vault-key record, retained from unlock in memory so
+   * auto-backup can build the KEK wrapping without asking for the
+   * master password again. Cleared on lock/logout/drop. The session
+   * layer may export DEK + KEK + record via `exportSessionUnlock` into
+   * the current tab's sessionStorage (refresh persistence); the master
+   * password itself is never retained or exported.
    */
   let kekBytes: Uint8Array | null = null
   let vaultKeyRecord: VaultKeyRecord | null = null
@@ -644,6 +648,22 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
         kekCandidate.fill(0)
         recoveryWrappingKey.fill(0)
       }
+    },
+
+    exportSessionUnlock() {
+      if (!dekBytes || !kekBytes || dekVersion === null || !vaultKeyRecord) return null
+      return { dek: toBase64(dekBytes), kek: toBase64(kekBytes), version: dekVersion, record: vaultKeyRecord }
+    },
+
+    async restoreSessionUnlock(blob) {
+      const dek = fromBase64(blob.dek)
+      const kek = fromBase64(blob.kek)
+      const key = await importDek(dek)
+      dekBytes = dek
+      dekKey = key
+      dekVersion = blob.version
+      kekBytes = kek
+      vaultKeyRecord = blob.record
     },
 
     lock() {

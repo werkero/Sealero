@@ -5,7 +5,7 @@
   "allItems": "All items",
   "favorites": "Favorites",
   "autoLockTitle": "Auto-lock is on",
-  "autoLockDescription": "Locks after 1 minute away or 5 minutes idle.",
+  "autoLockDescription": "Locks after 15 minutes idle. Refreshing the page keeps the vault unlocked.",
   "collectionEyebrow": "Your collection",
   "collectionSubtitle": "Your saved logins, ready when you need them.",
   "itemsLabel": "items",

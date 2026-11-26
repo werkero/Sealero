@@ -86,4 +86,20 @@ describe('Landing logged-in vs logged-out', () => {
     expect(html).not.toContain('Choose Pro');
     expect(html).not.toContain('Sign in');
   });
+
+  it('renders the AI screen as its own full-screen section with the demo at its first step', async () => {
+    const html = await renderLanding(null);
+    expect(html).toContain('ai-screen');
+    expect(html).toContain('Ask your AI for a password');
+    expect(html).toContain('Ask once, get your password. No copy-paste.');
+    expect(html).toContain('One authorization');
+    expect(html).toContain('You approve every time');
+    expect(html).toContain('Master password stays with you');
+    expect(html).toContain('AI assistant');
+    expect(html).toContain('Get me my GitHub password');
+    // Server render runs no effects, so the demo is at phase 0: the
+    // confirm and done steps must not be in the initial markup.
+    expect(html).not.toContain('Confirmed · valid for 5 minutes');
+    expect(html).not.toContain('Password fetched');
+  });
 });

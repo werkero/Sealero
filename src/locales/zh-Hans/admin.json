@@ -2,7 +2,8 @@
   "header": {
     "console": "管理控制台",
     "navigation": "管理后台",
-    "backToSite": "返回网站"
+    "backToSite": "返回网站",
+    "backToVault": "返回保险库"
   },
   "authentication": {
     "loginPasswordOnly": "管理 API 需要已认证的管理员账号；敏感的账号删除操作须验证账号登录密码，不能使用主密码。"

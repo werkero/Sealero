@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
 import { probeAdminAccess } from '../client/admin-status'
+import { hasIdleExpired } from './auto-lock-policy'
+import { clearLastActiveAt, clearUnlockedSession, readLastActiveAt, readUnlockedSession, saveUnlockedSession, writeLastActiveAt } from './vault-session-storage'
 
 function toListItem(item: VaultItem): VaultListItem {
   return {
@@ -38,6 +40,12 @@ export function useVaultSession(client: VaultClient) {
   const [loadingItemId, setLoadingItemId] = useState<string | null>(null)
   const generationRef = useRef(0)
   const pendingRef = useRef<PendingOperation | null>(null)
+  /** Last known user id, for clearing that user's stored unlock on lock/logout/login even after `user` state is cleared. */
+  const userIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    userIdRef.current = user?.id ?? null
+  }, [user])
 
   const cancelPending = useCallback(() => {
     generationRef.current += 1
@@ -67,8 +75,10 @@ export function useVaultSession(client: VaultClient) {
    * lives in its HttpOnly cookie, so a fresh access token is fetched first
    * and GET /v1/auth/me supplies the identity. A missing, expired, or
    * revoked refresh token fails here and the session simply stays logged
-   * out — never an error to the user. The vault stays locked: the master
-   * password and DEK live only in memory and are never restored.
+   * out — never an error to the user. The vault is then restored from
+   * this tab's sessionStorage when the 15-minute idle window has not
+   * expired; otherwise it stays locked until the user unlocks with the
+   * master password. The idle countdown is not reset by the restore.
    */
   const restoreSession = useCallback(async () => {
     const operation = beginOperation()
@@ -83,6 +93,26 @@ export function useVaultSession(client: VaultClient) {
         operation.controller.signal,
       )
       if (isCurrent(operation)) setIsAdmin(admin)
+      if (isCurrent(operation)) {
+        const blob = readUnlockedSession(identity.id)
+        const lastActiveAt = readLastActiveAt()
+        if (blob && lastActiveAt !== null && !hasIdleExpired(lastActiveAt, Date.now())) {
+          try {
+            await client.restoreSessionUnlock(blob)
+            if (!isCurrent(operation)) return false
+            const overviews = await client.list(operation.controller.signal)
+            if (!isCurrent(operation)) return false
+            setItems(overviews)
+            setIsUnlocked(true)
+          } catch {
+            clearUnlockedSession(identity.id)
+            if (isCurrent(operation)) {
+              client.lock()
+              setIsUnlocked(false)
+            }
+          }
+        }
+      }
       return true
     } catch {
       if (!isCurrent(operation)) return false
@@ -95,6 +125,8 @@ export function useVaultSession(client: VaultClient) {
 
   const login = useCallback(async (email: string, loginPassword: string) => {
     cancelPending()
+    if (userIdRef.current) clearUnlockedSession(userIdRef.current)
+    clearLastActiveAt()
     client.lock()
     setUser(null)
     setIsUnlocked(false)
@@ -139,6 +171,9 @@ export function useVaultSession(client: VaultClient) {
       if (!isCurrent(operation)) return false
       setItems(overviews)
       setIsUnlocked(true)
+      const blob = client.exportSessionUnlock()
+      if (blob) saveUnlockedSession(user.id, blob)
+      writeLastActiveAt(Date.now())
       return true
     } catch (error) {
       if (!isCurrent(operation)) return false
@@ -231,6 +266,8 @@ export function useVaultSession(client: VaultClient) {
 
   const lock = useCallback(() => {
     cancelPending()
+    if (userIdRef.current) clearUnlockedSession(userIdRef.current)
+    clearLastActiveAt()
     client.lock()
     setItems([])
     setSelectedItem(null)
@@ -240,6 +277,8 @@ export function useVaultSession(client: VaultClient) {
 
   const logout = useCallback(() => {
     cancelPending()
+    if (userIdRef.current) clearUnlockedSession(userIdRef.current)
+    clearLastActiveAt()
     client.lock()
     setItems([])
     setSelectedItem(null)

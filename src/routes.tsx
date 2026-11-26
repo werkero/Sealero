@@ -125,10 +125,10 @@ function SetupRoute(props: AppRoutesProps) {
  * sessions are sent back to their own vault instead of a dead end.
  */
 function AdminRoute(props: AppRoutesProps) {
-  const { user, isAdmin, onNavigate, getAccessToken, refreshAccessToken, onAppearanceChange } = props
+  const { user, isAdmin, onNavigate, getAccessToken, refreshAccessToken, onAppearanceChange, onLogout } = props
   if (!user) return <Navigate to="/login" replace />
   if (!isAdmin) return <Navigate to={`/users/${user.id}`} replace />
-  return <Console onNavigate={onNavigate} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} currentUserId={user.id} onAppearanceChange={onAppearanceChange} />
+  return <Console user={user} onNavigate={onNavigate} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} currentUserId={user.id} onAppearanceChange={onAppearanceChange} onLogout={onLogout} />
 }
 
 function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 'settings' | 'health' | 'confirmations' }) {
@@ -141,34 +141,34 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   }
 
   const loading = (
-    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
       <div className="detail-loading" role="status" aria-live="polite">{t('vault:loadingEntry')}</div>
     </VaultLayout>
   )
 
   if (screen === 'generator') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
         <PasswordGeneratorPage onBack={() => onNavigate(`/users/${user.id}`)} onCopy={(value, label) => onCopy(value, label)} />
       </VaultLayout>
     )
   }
   if (screen === 'settings') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
         <SettingsPage user={user} items={items} loadItem={loadHealthItem} onNavigate={onNavigate} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} />
       </VaultLayout>
     )
   }
   if (screen === 'health') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
         <SettingsHealthPage items={items} loadItem={loadHealthItem} onBack={() => onNavigate(`/users/${user.id}/settings`)} />
       </VaultLayout>
     )
   }
   if (screen === 'confirmations') {
-    return <McpConfirmations user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} />
+    return <McpConfirmations user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange} getAccessToken={getAccessToken} refreshAccessToken={refreshAccessToken} />
   }
   if (itemId) {
     if (!selectedItem || selectedItem.id !== itemId) {
@@ -176,9 +176,9 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
       if (detailLoadErrorId === itemId) return <NotFound onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
       return loading
     }
-    return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} itemCount={items.length} items={items} isAdmin={isAdmin} loadItem={loadHealthItem} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
+    return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} itemCount={items.length} items={items} isAdmin={isAdmin} loadItem={loadHealthItem} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
   }
-  return <VaultList user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onOpenItem={onOpenItem} onLock={onLock} onLogout={onLogout} onCreateItem={onCreateItem} />
+  return <VaultList user={user} items={items} isAdmin={isAdmin} onNavigate={onNavigate} onOpenItem={onOpenItem} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange} onCreateItem={onCreateItem} />
 }
 
 export function AppRoutes(props: AppRoutesProps) {

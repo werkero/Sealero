@@ -22,14 +22,26 @@ export interface VaultKeyRecord {
   wrapping_state_hash: string
 }
 
+/** Serializable unlocked session: base64 DEK + KEK, dek version, vault-key record. Stored in the current tab's sessionStorage only, so a refresh inside the idle window restores the unlock; cleared on tab close, lock, or logout. */
+export interface UnlockedSessionBlob {
+  dek: string
+  kek: string
+  version: number
+  record: VaultKeyRecord
+}
+
 /**
  * Client-side boundary for the Web vault, backed by the production HTTP
  * adapter (`./http-vault-client`). The adapter keeps the access JWT, derived
  * keys, and decrypted items in memory only; the refresh token belongs
- * exclusively in an HttpOnly, Secure, SameSite=Lax cookie. It must never
- * persist vault/session/queue data in browser storage. The master password
- * is used locally and must not be sent to the API. Only the device id is
- * persisted (localStorage) so login can reuse the server device row.
+ * exclusively in an HttpOnly, Secure, SameSite=Lax cookie. The unlocked
+ * DEK + KEK may be exported (see `exportSessionUnlock`) so the session
+ * layer can keep them in the current tab's sessionStorage — the vault
+ * stays unlocked across a refresh inside the 15-minute idle window, and
+ * the blob dies with the tab. The master password is never stored, and
+ * no vault data ever goes to localStorage, IndexedDB, or the server.
+ * Only the device id is persisted (localStorage) so login can reuse the
+ * server device row.
  *
  * `list` follows GET /v1/vault/list and decrypts overview fields only. Ciphertext
  * detail blocks may remain in adapter memory, but `getItem` decrypts only the
@@ -65,7 +77,9 @@ export interface VaultClient {
    * Reads the current login identity (GET /v1/auth/me, System Design §5.1).
    * Used to restore the session after a page refresh: refresh the access
    * token first, then call this. It returns only {id, email}; the vault
-   * stays locked until the user unlocks with the master password.
+   * is then restored from the tab's sessionStorage when the idle window
+   * has not expired, otherwise it stays locked until the user unlocks
+   * with the master password.
    */
   getCurrentUser(signal?: AbortSignal): Promise<VaultIdentity>
   verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
@@ -103,6 +117,24 @@ export interface VaultClient {
    * retained. Throws `vault_locked` when the vault is locked.
    */
   exportBackupFull(masterPassword: string, recoveryKey: string, signal?: AbortSignal): Promise<Uint8Array>
+  /**
+   * Exports the unlocked session (base64 DEK + KEK, dek version,
+   * vault-key record) for the session layer to keep in the current
+   * tab's sessionStorage, so a refresh inside the idle window restores
+   * the unlock without the master password. Returns null when the
+   * vault is locked. The KEK is included because `exportBackup` needs
+   * it; a DEK-only restore would silently break auto-backup after
+   * every refresh.
+   */
+  exportSessionUnlock(): UnlockedSessionBlob | null
+  /**
+   * Restores an unlocked session exported by `exportSessionUnlock`
+   * (sets DEK/KEK/record in memory). The caller must check the idle
+   * window first and call `list()` afterwards: its built-in
+   * dek_version check throws `dek_rotated` when the server-side key
+   * has changed since the export.
+   */
+  restoreSessionUnlock(blob: UnlockedSessionBlob): Promise<void>
   lock(): void
   logout(): Promise<void>
   /**

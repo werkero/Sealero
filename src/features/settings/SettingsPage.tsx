@@ -374,7 +374,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
 
       <section className="settings-section" aria-labelledby="settings-autolock-title">
         <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title">{t('settings:autoLockTitle')}</h2><p>{t('settings:autoLockDescription')}</p></div></div>
-        <div className="settings-card settings-policy-grid"><div><span>{t('settings:backgroundLabel')}</span><strong>{t('settings:oneMinute')}</strong></div><div><span>{t('settings:idleLabel')}</span><strong>{t('settings:fiveMinutes')}</strong></div></div>
+        <div className="settings-card settings-policy-grid"><div><span>{t('settings:idleLabel')}</span><strong>{t('settings:fifteenMinutes')}</strong></div></div>
       </section>
 
       <section className="settings-section" aria-labelledby="settings-language-title">

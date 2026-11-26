@@ -5,7 +5,7 @@
   "allItems": "全部条目",
   "favorites": "收藏",
   "autoLockTitle": "自动锁定已开启",
-  "autoLockDescription": "切到后台 1 分钟或闲置 5 分钟后锁定。",
+  "autoLockDescription": "闲置 15 分钟后锁定，刷新页面不锁定。",
   "collectionEyebrow": "你的收藏",
   "collectionSubtitle": "保存的登录信息，随时可用。",
   "itemsLabel": "条目",

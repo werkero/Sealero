@@ -20,19 +20,19 @@ import {
   type UsersResponse,
 } from '../features/admin/contract'
 
-const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[10px] font-[650] text-muted-foreground'
+const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
 const panel = 'mt-[17px] min-w-0 rounded-xl border border-border bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
-const panelDesc = 'mt-1.5 text-[10px] leading-[1.6] text-muted-foreground'
-const filterLabel = 'grid gap-[5px] text-[9px] font-[570] text-muted-foreground'
-const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[9px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
-const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-border bg-muted px-2.5 text-[9px] font-semibold text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60'
-const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-border bg-muted px-2.5 text-[9px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const panelDesc = 'mt-1.5 text-[12px] leading-[1.6] text-muted-foreground'
+const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'
+const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[12px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60'
+const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
 const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
-const usersTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-2.5 py-2.5 text-[9px] font-[630] text-muted-foreground'
+const usersTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-2.5 py-2.5 text-[12px] font-[630] text-muted-foreground'
 const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg border border-border'
-const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[10px] leading-[1.55] text-muted-foreground'
-const statusText = 'mt-2.5 text-[9px] leading-[1.55] text-muted-foreground'
+const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
+const statusText = 'mt-2.5 text-[12px] leading-[1.55] text-muted-foreground'
 
 type AdminTFunction = TFunction<'admin', undefined>
 
@@ -293,14 +293,14 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
     <>
       <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
         <div>
-          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('users.eyebrow')}</p>
+          <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('users.eyebrow')}</p>
           <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('users.title')}</h1>
           <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('users.description')}</p>
         </div>
         <span className={pill}>{list === null ? '—' : `${list.total_count}`}</span>
       </div>
 
-      {listError ? <div className={noteBox} role="alert"><strong className="text-[11px]">{listError}</strong></div> : null}
+      {listError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{listError}</strong></div> : null}
 
       <section className={panel} aria-label={t('users.title')}>
         <div className="mt-4 grid grid-cols-[minmax(170px,1.5fr)_repeat(3,minmax(105px,1fr))_auto] items-end gap-2.5 max-[760px]:grid-cols-2 max-[430px]:grid-cols-1" aria-label={t('users.filtersLabel')}>
@@ -351,26 +351,26 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
             </TableHeader>
             <TableBody>
               {listLoading && list === null ? (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
               ) : list !== null && list.users.length > 0 ? list.users.map((user) => (
                 <TableRow key={user.id} className={selectedId === user.id ? 'bg-muted hover:bg-transparent' : 'hover:bg-transparent'}>
-                  <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[9px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.device_count}</TableCell>
-                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
+                  <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[12px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{user.device_count}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
                 </TableRow>
               )) : (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-between gap-3 text-[9px] leading-[1.5] text-muted-foreground">
+        <div className="mt-[14px] flex items-center justify-between gap-3 text-[12px] leading-[1.5] text-muted-foreground">
           <span>{t('users.listMeta')}</span>
           <div className="flex items-center gap-[9px]">
             <Button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
@@ -388,7 +388,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               <p className={panelDesc}>{selectedUser === null ? t('users.selectUserHint') : selectedUser.email}</p>
             </div>
           </div>
-          {detailError ? <div className={`${noteBox} mt-3`} role="alert"><strong className="text-[11px]">{detailError}</strong></div> : null}
+          {detailError ? <div className={`${noteBox} mt-3`} role="alert"><strong className="text-[12px]">{detailError}</strong></div> : null}
           {detailLoading ? <p className={statusText} role="status">{t('loading')}</p> : null}
           {selectedUser === null ? null : (
             <dl className="mt-4 grid grid-cols-[repeat(3,minmax(0,1fr))] gap-x-4 gap-y-3 max-[760px]:grid-cols-2">
@@ -404,8 +404,8 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                 ['ciphertext_total_bytes', formatBytes(selectedUser.ciphertext_total_bytes)],
               ] as [string, string][]).map(([key, value]) => (
                 <div key={key}>
-                  <dt className="text-[9px] font-[570] text-muted-foreground">{t(`users.columns.${key}`)}</dt>
-                  <dd className="m-0 mt-1 break-all text-[10px] text-foreground">{value}</dd>
+                  <dt className="text-[12px] font-[570] text-muted-foreground">{t(`users.columns.${key}`)}</dt>
+                  <dd className="m-0 mt-1 break-all text-[12px] text-foreground">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -424,17 +424,17 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_DEVICE_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.deviceColumns.${column}`)}</TableHead>)}<TableHead scope="col" className={usersTh}><span className="sr-only">{t('users.revokeDevice')}</span></TableHead></TableRow></TableHeader>
               <TableBody>
                 {detail === null ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : detail.devices.length === 0 ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
                 ) : detail.devices.map((device) => (
                   <TableRow key={device.id} className="hover:bg-transparent">
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{device.device_name}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{device.device_type}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_name}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_type}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">
                       <Button type="button" disabled={device.revoked_at !== null || pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={device.revoked_at !== null || pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
                     </TableCell>
                   </TableRow>
@@ -456,18 +456,18 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_LOGIN_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.loginColumns.${column}`)}</TableHead>)}</TableRow></TableHeader>
               <TableBody>
                 {detail === null ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : loginHistory.length === 0 ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
                 ) : loginHistory.map((entry) => (
                   <TableRow key={entry.id} className="hover:bg-transparent">
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
-                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.result}</TableCell>
-                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.result}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[12px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -521,7 +521,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
         </div>
         {confirmAction !== null && selectedUser !== null ? (
           <div className="mt-4 grid gap-2 rounded-lg border border-border bg-muted p-3">
-            <strong className="text-[11px] text-foreground">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
+            <strong className="text-[12px] text-foreground">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
             <Label className={filterLabel}>
               {t('users.adminPasswordLabel')}
               <Input type="password" autoComplete="current-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={usersInput} />
@@ -533,9 +533,9 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
           </div>
         ) : null}
         {actionMessage ? <p className={statusText} role="status">{actionMessage}</p> : null}
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.deleteRequirement')}</p>
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.roleGuardrail')}</p>
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.vaultGuardrail')}</p>
+        <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.deleteRequirement')}</p>
+        <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.roleGuardrail')}</p>
+        <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.vaultGuardrail')}</p>
       </section>
     </>
   )

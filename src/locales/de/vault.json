@@ -5,7 +5,7 @@
   "allItems": "Alle Einträge",
   "favorites": "Favoriten",
   "autoLockTitle": "Automatische Sperre aktiv",
-  "autoLockDescription": "Sperrt nach 1 Minute im Hintergrund oder 5 Minuten Inaktivität.",
+  "autoLockDescription": "Sperrt nach 15 Minuten Inaktivität. Ein Neuladen der Seite lässt den Tresor entsperrt.",
   "collectionEyebrow": "Deine Sammlung",
   "collectionSubtitle": "Gespeicherte Logins, wenn du sie brauchst.",
   "itemsLabel": "Einträge",

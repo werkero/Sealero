@@ -5,7 +5,7 @@
   "allItems": "所有項目",
   "favorites": "我的最愛",
   "autoLockTitle": "自動鎖定已開啟",
-  "autoLockDescription": "切換至背景 1 分鐘或閒置 5 分鐘後鎖定。",
+  "autoLockDescription": "閒置 15 分鐘後鎖定，重新整理頁面不鎖定。",
   "collectionEyebrow": "你的收藏",
   "collectionSubtitle": "已儲存的登入資料，隨時可用。",
   "itemsLabel": "個項目",

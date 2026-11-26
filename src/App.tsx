@@ -41,44 +41,56 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
   )
 }
 
-function VaultHeader({ user, onNavigate, onLock, onRequestSignOut }: {
+/**
+ * Shared shell for both backends (vault + admin console): a full-height
+ * left sidebar with the brand, navigation, and a bottom user row; no top
+ * header bar. The sidebar menu differs per backend, so the caller
+ * supplies it as a function receiving `requestSignOut` (which opens the
+ * shared sign-out confirm dialog). Toasts are event-driven and render
+ * nothing when empty, so both backends can share this shell.
+ */
+export function BackendShell({ user, nav, bottom, menu, onNavigate, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
+  nav: ReactNode
+  bottom?: ReactNode
+  menu: (requestSignOut: () => void) => ReactNode
   onNavigate: (path: string) => void
-  onLock: () => void
-  onRequestSignOut: () => void
+  onLogout: () => void
+  onAppearanceChange: (preference: AppearancePreference) => void
+  children: ReactNode
 }) {
-  const { t } = useTranslation(['common', 'vault', 'settings'])
-
+  const [confirmSignOutOpen, setConfirmSignOutOpen] = useState(false)
   return (
-    <header className="vault-header">
-      <div className="vault-header-brand"><Brand onNavigate={onNavigate} /><span className="header-divider" /><span className="vault-header-label">{t('vault:vaultHeading')}</span></div>
-      <div className="vault-header-actions">
-        <LanguageSelector />
-        <div className="profile-menu-wrap">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="profile-button" type="button" aria-label={user.email} title={user.email}>
-                <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
-                <span className="profile-email">{user.email}</span>
-                <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="profile-menu" align="end">
-              <DropdownMenuItem className="profile-menu-item" onClick={onLock}>
-                <span aria-hidden="true"><Lock size={15} aria-hidden="true" /></span>{t('vault:lockVault')}
-              </DropdownMenuItem>
-              <DropdownMenuItem className="profile-menu-item" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-                <span aria-hidden="true"><Settings size={15} aria-hidden="true" /></span>{t('settings:title')}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="profile-menu-divider" />
-              <DropdownMenuItem className="profile-menu-item" onClick={onRequestSignOut}>
-                <span aria-hidden="true"><LogOut size={15} aria-hidden="true" /></span>{t('common:signOut')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="backend-shell">
+      <aside className="backend-sidebar">
+        <div className="backend-sidebar-brand"><Brand onNavigate={onNavigate} /></div>
+        {nav}
+        <div className="backend-sidebar-bottom">
+          {bottom}
         </div>
-      </div>
-    </header>
+        <div className="backend-user-row">
+          <div className="profile-menu-wrap">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="profile-button" type="button" aria-label={user.email} title={user.email}>
+                  <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
+                  <span className="profile-email">{user.email}</span>
+                  <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="profile-menu" align="end">
+                {menu(() => setConfirmSignOutOpen(true))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          <ThemeToggle onAppearanceChange={onAppearanceChange} />
+          <LanguageSelector />
+        </div>
+      </aside>
+      <main className="backend-main">{children}</main>
+      <ToastLayer />
+      <SignOutConfirmDialog open={confirmSignOutOpen} onConfirm={onLogout} onClose={() => setConfirmSignOutOpen(false)} />
+    </div>
   )
 }
 
@@ -98,7 +110,7 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, onNavigate, onLock, onLogout, children }: {
+export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
@@ -108,52 +120,63 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, 
   onNavigate: (path: string) => void
   onLock: () => void
   onLogout: () => void
+  onAppearanceChange: (preference: AppearancePreference) => void
   children: ReactNode
 }) {
   const { t } = useTranslation(['common', 'vault', 'settings', 'admin'])
-  const [confirmSignOutOpen, setConfirmSignOutOpen] = useState(false)
   return (
-    <div className="vault-app-shell">
-      <VaultHeader user={user} onNavigate={onNavigate} onLock={onLock} onRequestSignOut={() => setConfirmSignOutOpen(true)} />
-      <div className="vault-workspace">
-        <aside className="vault-sidebar" aria-label={t('vault:navigation')}>
-          <div className="sidebar-section-label">{t('vault:yourVault')}</div>
-          <nav className="sidebar-nav">
-            <button type="button" className={`sidebar-link ${filter === 'all' ? 'is-active' : ''}`} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
-              <span className="nav-icon" aria-hidden="true"><LayoutGrid size={15} aria-hidden="true" /></span><span>{t('vault:allItems')}</span><span className="nav-count">{itemCount}</span>
+    <BackendShell
+      user={user}
+      onNavigate={onNavigate}
+      onLogout={onLogout}
+      onAppearanceChange={onAppearanceChange}
+      nav={<>
+        <div className="sidebar-section-label">{t('vault:yourVault')}</div>
+        <nav className="sidebar-nav" aria-label={t('vault:navigation')}>
+          <button type="button" className={`sidebar-link ${filter === 'all' ? 'is-active' : ''}`} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
+            <span className="nav-icon" aria-hidden="true"><LayoutGrid size={15} aria-hidden="true" /></span><span>{t('vault:allItems')}</span><span className="nav-count">{itemCount}</span>
+          </button>
+          <button type="button" className={`sidebar-link ${filter === 'favorites' ? 'is-active' : ''}`} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
+            <span className="nav-icon nav-star" aria-hidden="true"><Star size={12} aria-hidden="true" /></span><span>{t('vault:favorites')}</span>
+          </button>
+          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/generator`)}>
+            <span className="nav-icon" aria-hidden="true"><Sparkles size={15} aria-hidden="true" /></span><span>{t('vault:generator.title')}</span>
+          </button>
+          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
+            <span className="nav-icon" aria-hidden="true"><Settings size={15} aria-hidden="true" /></span><span>{t('settings:title')}</span>
+          </button>
+          <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
+            <span className="nav-icon" aria-hidden="true"><Check size={15} aria-hidden="true" /></span><span>{t('vault:mcpConfirmations.title')}</span>
+          </button>
+          {isAdmin ? (
+            <button type="button" className="sidebar-link" onClick={() => onNavigate('/admin')}>
+              <span className="nav-icon" aria-hidden="true"><Lock size={15} aria-hidden="true" /></span><span>{t('admin:header.navigation')}</span>
             </button>
-            <button type="button" className={`sidebar-link ${filter === 'favorites' ? 'is-active' : ''}`} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
-              <span className="nav-icon nav-star" aria-hidden="true"><Star size={12} aria-hidden="true" /></span><span>{t('vault:favorites')}</span>
-            </button>
-            <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/generator`)}>
-              <span className="nav-icon" aria-hidden="true"><Sparkles size={15} aria-hidden="true" /></span><span>{t('vault:generator.title')}</span>
-            </button>
-            <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-              <span className="nav-icon" aria-hidden="true"><Settings size={15} aria-hidden="true" /></span><span>{t('settings:title')}</span>
-            </button>
-            <button type="button" className="sidebar-link" onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
-              <span className="nav-icon" aria-hidden="true"><Check size={15} aria-hidden="true" /></span><span>{t('vault:mcpConfirmations.title')}</span>
-            </button>
-            {isAdmin ? (
-              <button type="button" className="sidebar-link" onClick={() => onNavigate('/admin')}>
-                <span className="nav-icon" aria-hidden="true"><Lock size={15} aria-hidden="true" /></span><span>{t('admin:header.navigation')}</span>
-              </button>
-            ) : null}
-          </nav>
-          <div className="sidebar-bottom">
-            <div className="sidebar-lock-card">
-              <span className="sidebar-lock-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span>
-              <strong>{t('vault:autoLockTitle')}</strong>
-              <span>{t('vault:autoLockDescription')}</span>
-            </div>
-            <button className="sidebar-sign-out" type="button" onClick={() => setConfirmSignOutOpen(true)}><span aria-hidden="true"><LogOut size={12} aria-hidden="true" /></span>{t('common:signOut')}</button>
-          </div>
-        </aside>
-        <main className="vault-main">{children}</main>
-      </div>
-      <ToastLayer />
-      <SignOutConfirmDialog open={confirmSignOutOpen} onConfirm={onLogout} onClose={() => setConfirmSignOutOpen(false)} />
-    </div>
+          ) : null}
+        </nav>
+      </>}
+      bottom={
+        <div className="sidebar-lock-card">
+          <span className="sidebar-lock-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span>
+          <strong>{t('vault:autoLockTitle')}</strong>
+          <span>{t('vault:autoLockDescription')}</span>
+        </div>
+      }
+      menu={(requestSignOut) => (<>
+        <DropdownMenuItem className="profile-menu-item" onClick={onLock}>
+          <span aria-hidden="true"><Lock size={15} aria-hidden="true" /></span>{t('vault:lockVault')}
+        </DropdownMenuItem>
+        <DropdownMenuItem className="profile-menu-item" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
+          <span aria-hidden="true"><Settings size={15} aria-hidden="true" /></span>{t('settings:title')}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator className="profile-menu-divider" />
+        <DropdownMenuItem className="profile-menu-item" onClick={requestSignOut}>
+          <span aria-hidden="true"><LogOut size={15} aria-hidden="true" /></span>{t('common:signOut')}
+        </DropdownMenuItem>
+      </>)}
+    >
+      {children}
+    </BackendShell>
   )
 }
 

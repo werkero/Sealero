@@ -1,3 +1,4 @@
+import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
@@ -39,11 +40,11 @@ export function LegalPage({ doc, onNavigate, onAppearanceChange }: {
             </section>
           ))}
           <a
-            className="text-link"
+            className="button button-primary legal-back-home"
             href="/"
             onClick={(event) => { event.preventDefault(); onNavigate('/') }}
           >
-            ← {t('footerBackHome')}
+            <ArrowLeft size={16} aria-hidden="true" /> {t('footerBackHome')}
           </a>
         </article>
       </main>

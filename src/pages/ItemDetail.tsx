@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
 import { PasswordHealthInline } from '../features/password-security/PasswordSecurity'
 import { CopyIcon, SecretRow, VaultLayout, hostname, iconTone } from '../App'
+import type { AppearancePreference } from '../features/settings/preferences'
 import { ItemEditor } from './ItemEditor'
 import { Button } from '../components/ui/button'
 
-export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, onNavigate, onLock, onLogout, onCopy, onUpdateItem, onDeleteItem }: {
+export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, onNavigate, onLock, onLogout, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
   user: VaultIdentity
   item: VaultItem
   itemCount: number
@@ -17,6 +18,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
   onNavigate: (path: string) => void
   onLock: () => void
   onLogout: () => void
+  onAppearanceChange: (preference: AppearancePreference) => void
   onCopy: (value: string, label: string) => void
   onUpdateItem: (itemId: string, input: VaultItemInput) => Promise<VaultItem | null>
   onDeleteItem: (itemId: string) => Promise<boolean>
@@ -60,7 +62,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
 
   if (editing) {
     return (
-      <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+      <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
         <div className="detail-content">
           <button className="back-button detail-back" type="button" onClick={() => setEditing(false)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
           <ItemEditor
@@ -80,7 +82,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
   }
 
   return (
-    <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
+    <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} onAppearanceChange={onAppearanceChange}>
       <div className="detail-content">
         <button className="back-button detail-back" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
         <div className="detail-title-row">
