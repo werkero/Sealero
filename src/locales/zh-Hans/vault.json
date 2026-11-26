@@ -151,5 +151,6 @@
     "deniedMessage": "已拒绝，连接器拿不到该条目。",
     "actionFailed": "操作失败，请重试。",
     "backToVault": "返回保险库"
-  }
+  },
+  "lockVault": "锁定保险库"
 }

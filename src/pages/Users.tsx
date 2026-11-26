@@ -3,6 +3,11 @@ import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { AdminApiError, type AdminClient } from '../client/admin'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import {
   ADMIN_USER_ACTIONS,
   ADMIN_USER_DEVICE_COLUMNS,
@@ -15,19 +20,19 @@ import {
   type UsersResponse,
 } from '../features/admin/contract'
 
-const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-[#e4e9f2] bg-[#f5f7fb] px-2.5 py-1.5 text-[10px] font-[650] text-[#5c6f8e]'
-const panel = 'mt-[17px] min-w-0 rounded-xl border border-[#e8ebef] bg-white p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
-const panelTitle = 'm-0 text-sm font-[640] text-[#303947]'
-const panelDesc = 'mt-1.5 text-[10px] leading-[1.6] text-[#7c8795]'
-const filterLabel = 'grid gap-[5px] text-[9px] font-[570] text-[#687381]'
-const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-2 text-[9px] text-[#7d8794] disabled:cursor-not-allowed disabled:opacity-76'
-const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-[#dfe3e9] bg-[#f5f6f8] px-2.5 text-[9px] font-semibold text-[#5c6f8e] hover:bg-[#eef2f8] disabled:cursor-not-allowed disabled:opacity-60'
-const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-[#dfe3e9] bg-[#f5f6f8] px-2.5 text-[9px] font-semibold text-[#929aa5] disabled:cursor-not-allowed disabled:opacity-76'
-const pagerButton = 'h-[27px] w-[27px] rounded-md border border-[#e7eaee] bg-[#f8f9fa] text-[#9aa2ac] disabled:cursor-not-allowed'
-const usersTh = 'whitespace-nowrap border-b border-[#edf0f3] bg-[#fafbfc] px-2.5 py-2.5 text-[9px] font-[630] text-[#7d8794]'
-const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg border border-[#edf0f3]'
-const noteBox = 'flex flex-col gap-1 rounded-lg border border-[#e8edf4] bg-[#f8fafd] p-3 text-[10px] leading-[1.55] text-[#586a83]'
-const statusText = 'mt-2.5 text-[9px] leading-[1.55] text-[#8993a0]'
+const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[10px] font-[650] text-muted-foreground'
+const panel = 'mt-[17px] min-w-0 rounded-xl border border-border bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panelTitle = 'm-0 text-sm font-[640] text-foreground'
+const panelDesc = 'mt-1.5 text-[10px] leading-[1.6] text-muted-foreground'
+const filterLabel = 'grid gap-[5px] text-[9px] font-[570] text-muted-foreground'
+const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[9px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-border bg-muted px-2.5 text-[9px] font-semibold text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60'
+const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-border bg-muted px-2.5 text-[9px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
+const usersTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-2.5 py-2.5 text-[9px] font-[630] text-muted-foreground'
+const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg border border-border'
+const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[10px] leading-[1.55] text-muted-foreground'
+const statusText = 'mt-2.5 text-[9px] leading-[1.55] text-muted-foreground'
 
 type AdminTFunction = TFunction<'admin', undefined>
 
@@ -288,9 +293,9 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
     <>
       <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
         <div>
-          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0]">{t('users.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-[#202631]">{t('users.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-[#798391]">{t('users.description')}</p>
+          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('users.eyebrow')}</p>
+          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('users.title')}</h1>
+          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('users.description')}</p>
         </div>
         <span className={pill}>{list === null ? '—' : `${list.total_count}`}</span>
       </div>
@@ -299,69 +304,78 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
 
       <section className={panel} aria-label={t('users.title')}>
         <div className="mt-4 grid grid-cols-[minmax(170px,1.5fr)_repeat(3,minmax(105px,1fr))_auto] items-end gap-2.5 max-[760px]:grid-cols-2 max-[430px]:grid-cols-1" aria-label={t('users.filtersLabel')}>
-          <label className={`${filterLabel} max-[760px]:col-span-full max-[430px]:col-auto`}>
+          <Label className={`${filterLabel} max-[760px]:col-span-full max-[430px]:col-auto`}>
             {t('users.searchLabel')}
-            <input type="search" value={draftFilters.search} onChange={(event) => setDraftFilters((prev) => ({ ...prev, search: event.target.value }))} placeholder={t('users.searchPlaceholder')} className={usersInput} />
-          </label>
-          <label className={filterLabel}>
+            <Input type="search" value={draftFilters.search} onChange={(event) => setDraftFilters((prev) => ({ ...prev, search: event.target.value }))} placeholder={t('users.searchPlaceholder')} className={usersInput} />
+          </Label>
+          <Label className={filterLabel}>
             {t('users.statusLabel')}
-            <select value={draftFilters.status} onChange={(event) => setDraftFilters((prev) => ({ ...prev, status: event.target.value as UserFilters['status'] }))} className={usersInput}>
-              {ADMIN_USER_FILTER_OPTIONS.status.map((value) => (
-                <option key={value} value={value}>{t(`users.status.${value}`)}</option>
-              ))}
-            </select>
-          </label>
-          <label className={filterLabel}>
+            <Select value={draftFilters.status} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, status: value as UserFilters['status'] }))}>
+              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {ADMIN_USER_FILTER_OPTIONS.status.map((value) => (
+                  <SelectItem key={value} value={value}>{t(`users.status.${value}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
+          <Label className={filterLabel}>
             {t('users.verifiedLabel')}
-            <select value={draftFilters.verified} onChange={(event) => setDraftFilters((prev) => ({ ...prev, verified: event.target.value as UserFilters['verified'] }))} className={usersInput}>
-              {ADMIN_USER_FILTER_OPTIONS.verified.map((value) => (
-                <option key={value} value={value}>{t(`users.verified.${value}`)}</option>
-              ))}
-            </select>
-          </label>
-          <label className={filterLabel}>
+            <Select value={draftFilters.verified} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, verified: value as UserFilters['verified'] }))}>
+              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {ADMIN_USER_FILTER_OPTIONS.verified.map((value) => (
+                  <SelectItem key={value} value={value}>{t(`users.verified.${value}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
+          <Label className={filterLabel}>
             {t('users.roleLabel')}
-            <select value={draftFilters.role} onChange={(event) => setDraftFilters((prev) => ({ ...prev, role: event.target.value as UserFilters['role'] }))} className={usersInput}>
-              {ADMIN_USER_FILTER_OPTIONS.role.map((value) => (
-                <option key={value} value={value}>{t(`users.roles.${value}`)}</option>
-              ))}
-            </select>
-          </label>
-          <button type="button" disabled={listLoading} onClick={applyFilters} className={`${usersButton} max-[760px]:col-span-full max-[430px]:col-auto`}>{t('users.applyFilters')}</button>
+            <Select value={draftFilters.role} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, role: value as UserFilters['role'] }))}>
+              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {ADMIN_USER_FILTER_OPTIONS.role.map((value) => (
+                  <SelectItem key={value} value={value}>{t(`users.roles.${value}`)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Label>
+          <Button type="button" disabled={listLoading} onClick={applyFilters} className={`${usersButton} max-[760px]:col-span-full max-[430px]:col-auto`}>{t('users.applyFilters')}</Button>
         </div>
 
         <div className={tableWrap}>
-          <table className="w-full min-w-[970px] border-collapse text-left">
-            <thead>
-              <tr>{ADMIN_USER_LIST_COLUMNS.map((column) => <th key={column} scope="col" className={usersTh}>{t(`users.columns.${column}`)}</th>)}</tr>
-            </thead>
-            <tbody>
+          <Table className="w-full min-w-[970px] border-collapse text-left">
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">{ADMIN_USER_LIST_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.columns.${column}`)}</TableHead>)}</TableRow>
+            </TableHeader>
+            <TableBody>
               {listLoading && list === null ? (
-                <tr><td colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</td></tr>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
               ) : list !== null && list.users.length > 0 ? list.users.map((user) => (
-                <tr key={user.id} className={selectedId === user.id ? 'bg-[#f3f6fb]' : undefined}>
-                  <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[9px] font-[600] text-[#33507e] underline-offset-2 hover:underline">{user.email}</button></td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(user.created_at)}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(user.last_login_at)}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(user.email_verified_at)}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{user.is_admin ? t('common.yes') : t('common.no')}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{user.is_super_admin ? t('common.yes') : t('common.no')}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(user.disabled_at)}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{user.device_count}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatBytes(user.ciphertext_total_bytes)}</td>
-                </tr>
+                <TableRow key={user.id} className={selectedId === user.id ? 'bg-muted hover:bg-transparent' : 'hover:bg-transparent'}>
+                  <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[9px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{user.device_count}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
+                </TableRow>
               )) : (
-                <tr><td colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</td></tr>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-between gap-3 text-[9px] leading-[1.5] text-[#8a94a1]">
+        <div className="mt-[14px] flex items-center justify-between gap-3 text-[9px] leading-[1.5] text-muted-foreground">
           <span>{t('users.listMeta')}</span>
           <div className="flex items-center gap-[9px]">
-            <button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={pagerButton}>‹</button>
+            <Button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
             <span>{list === null ? '—' : `${list.total_count}`}</span>
-            <button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} className={pagerButton}><ChevronRight size={16} aria-hidden="true" /></button>
+            <Button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} className={`${pagerButton} px-0`}><ChevronRight size={16} aria-hidden="true" /></Button>
           </div>
         </div>
       </section>
@@ -390,8 +404,8 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                 ['ciphertext_total_bytes', formatBytes(selectedUser.ciphertext_total_bytes)],
               ] as [string, string][]).map(([key, value]) => (
                 <div key={key}>
-                  <dt className="text-[9px] font-[570] text-[#687381]">{t(`users.columns.${key}`)}</dt>
-                  <dd className="m-0 mt-1 break-all text-[10px] text-[#343d4a]">{value}</dd>
+                  <dt className="text-[9px] font-[570] text-muted-foreground">{t(`users.columns.${key}`)}</dt>
+                  <dd className="m-0 mt-1 break-all text-[10px] text-foreground">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -406,27 +420,27 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
             </div>
           </div>
           <div className={tableWrap}>
-            <table className="w-full min-w-[650px] border-collapse text-left">
-              <thead><tr>{ADMIN_USER_DEVICE_COLUMNS.map((column) => <th key={column} scope="col" className={usersTh}>{t(`users.deviceColumns.${column}`)}</th>)}<th scope="col" className={usersTh}><span className="sr-only">{t('users.revokeDevice')}</span></th></tr></thead>
-              <tbody>
+            <Table className="w-full min-w-[650px] border-collapse text-left">
+              <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_DEVICE_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.deviceColumns.${column}`)}</TableHead>)}<TableHead scope="col" className={usersTh}><span className="sr-only">{t('users.revokeDevice')}</span></TableHead></TableRow></TableHeader>
+              <TableBody>
                 {detail === null ? (
-                  <tr><td colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</td></tr>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : detail.devices.length === 0 ? (
-                  <tr><td colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</td></tr>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
                 ) : detail.devices.map((device) => (
-                  <tr key={device.id}>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{device.device_name}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{device.device_type}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(device.created_at)}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(device.last_login_at)}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(device.revoked_at)}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">
-                      <button type="button" disabled={device.revoked_at !== null || pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={device.revoked_at !== null || pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</button>
-                    </td>
-                  </tr>
+                  <TableRow key={device.id} className="hover:bg-transparent">
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{device.device_name}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{device.device_type}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">
+                      <Button type="button" disabled={device.revoked_at !== null || pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={device.revoked_at !== null || pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </section>
 
@@ -438,29 +452,29 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
             </div>
           </div>
           <div className={tableWrap}>
-            <table className="w-full min-w-[650px] border-collapse text-left">
-              <thead><tr>{ADMIN_USER_LOGIN_COLUMNS.map((column) => <th key={column} scope="col" className={usersTh}>{t(`users.loginColumns.${column}`)}</th>)}</tr></thead>
-              <tbody>
+            <Table className="w-full min-w-[650px] border-collapse text-left">
+              <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_LOGIN_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.loginColumns.${column}`)}</TableHead>)}</TableRow></TableHeader>
+              <TableBody>
                 {detail === null ? (
-                  <tr><td colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</td></tr>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.selectUserHint')}</TableCell></TableRow>
                 ) : loginHistory.length === 0 ? (
-                  <tr><td colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] break-anywhere border-b border-[#f0f2f4] px-2.5 py-3 text-center text-[9px] text-[#9099a5] max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</td></tr>
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere border-b border-border px-2.5 py-3 text-center text-[9px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
                 ) : loginHistory.map((entry) => (
-                  <tr key={entry.id}>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{formatDateTime(entry.created_at)}</td>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.device_name ?? '—'}</td>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.device_id ?? '—'}</td>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.ip_address ?? '—'}</td>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.user_agent ?? '—'}</td>
-                    <td className="whitespace-nowrap border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.result}</td>
-                    <td className="break-all border-b border-[#f0f2f4] px-2.5 py-3 text-[9px] text-[#5f6977]">{entry.failure_code ?? '—'}</td>
-                  </tr>
+                  <TableRow key={entry.id} className="hover:bg-transparent">
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
+                    <TableCell className="whitespace-nowrap border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.result}</TableCell>
+                    <TableCell className="whitespace-normal break-all border-b border-border px-2.5 py-3 text-[9px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
           {detail !== null && loginHistoryHasMore ? (
-            <button type="button" disabled={loginHistoryLoading} onClick={() => void loadMoreLoginHistory()} className={`${usersButton} mt-3`}>{loginHistoryLoading ? t('loading') : t('users.showMore')}</button>
+            <Button type="button" disabled={loginHistoryLoading} onClick={() => void loadMoreLoginHistory()} className={`${usersButton} mt-3`}>{loginHistoryLoading ? t('loading') : t('users.showMore')}</Button>
           ) : detail !== null && loginHistory.length > 0 ? <p className={statusText}>{t('users.noMoreRecords')}</p> : null}
         </section>
       </div>
@@ -481,7 +495,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               (action === 'make_admin' && selectedUser?.is_admin === true) ||
               (action === 'remove_admin' && (selectedUser?.is_admin !== true || isSelf || selectedUser?.is_super_admin === true))
             return (
-              <button
+              <Button
                 key={action}
                 type="button"
                 disabled={disabled}
@@ -493,35 +507,35 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                 className={disabled ? disabledUsersButton : usersButton}
               >
                 {t(`users.actions.${action}`)}
-              </button>
+              </Button>
             )
           })}
-          <button
+          <Button
             type="button"
             disabled={selectedUser === null || pendingAction !== null}
             onClick={() => { setConfirmAction('revoke_all_devices'); setConfirmPassword(''); setActionMessage('') }}
             className={selectedUser === null || pendingAction !== null ? disabledUsersButton : usersButton}
           >
             {t('users.revokeAllDevices')}
-          </button>
+          </Button>
         </div>
         {confirmAction !== null && selectedUser !== null ? (
-          <div className="mt-4 grid gap-2 rounded-lg border border-[#edf0f4] bg-[#fafbfc] p-3">
-            <strong className="text-[11px] text-[#343d4a]">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
-            <label className={filterLabel}>
+          <div className="mt-4 grid gap-2 rounded-lg border border-border bg-muted p-3">
+            <strong className="text-[11px] text-foreground">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
+            <Label className={filterLabel}>
               {t('users.adminPasswordLabel')}
-              <input type="password" autoComplete="current-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={usersInput} />
-            </label>
+              <Input type="password" autoComplete="current-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={usersInput} />
+            </Label>
             <div className="flex gap-2">
-              <button type="button" disabled={confirmPassword === '' || pendingAction !== null} onClick={() => void runPasswordAction()} className={confirmPassword === '' || pendingAction !== null ? disabledUsersButton : usersButton}>{pendingAction !== null ? t('loading') : t('confirm')}</button>
-              <button type="button" disabled={pendingAction !== null} onClick={() => { setConfirmAction(null); setConfirmPassword('') }} className={usersButton}>{t('cancel')}</button>
+              <Button type="button" disabled={confirmPassword === '' || pendingAction !== null} onClick={() => void runPasswordAction()} className={confirmPassword === '' || pendingAction !== null ? disabledUsersButton : usersButton}>{pendingAction !== null ? t('loading') : t('confirm')}</Button>
+              <Button type="button" disabled={pendingAction !== null} onClick={() => { setConfirmAction(null); setConfirmPassword('') }} className={usersButton}>{t('cancel')}</Button>
             </div>
           </div>
         ) : null}
         {actionMessage ? <p className={statusText} role="status">{actionMessage}</p> : null}
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-[#8993a0]">{t('users.deleteRequirement')}</p>
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-[#8993a0]">{t('users.roleGuardrail')}</p>
-        <p className="mt-2.5 text-[9px] leading-[1.55] text-[#8993a0]">{t('users.vaultGuardrail')}</p>
+        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.deleteRequirement')}</p>
+        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.roleGuardrail')}</p>
+        <p className="mt-2.5 text-[9px] leading-[1.55] text-muted-foreground">{t('users.vaultGuardrail')}</p>
       </section>
     </>
   )

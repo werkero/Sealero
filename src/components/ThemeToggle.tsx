@@ -3,7 +3,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { AppearancePreference } from '../features/settings/preferences'
 
-/** Sun/moon switch for the public header. Toggles an explicit light/dark choice. */
+/** Sun/moon switch for page headers. Toggles an explicit light/dark choice. */
 export function ThemeToggle({
   onAppearanceChange,
 }: {

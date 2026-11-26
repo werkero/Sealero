@@ -151,5 +151,6 @@
     "deniedMessage": "Abgelehnt. Der Konnektor erhält diesen Eintrag nicht.",
     "actionFailed": "Das hat nicht funktioniert. Bitte erneut versuchen.",
     "backToVault": "Zurück zum Tresor"
-  }
+  },
+  "lockVault": "Tresor sperren"
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultListItem } from '../../client/contracts'
+import { Button } from '../../components/ui/button'
 import {
   CLOUD_DESTINATIONS,
   loadCloudCredentials,
@@ -347,30 +348,30 @@ export function CloudBackupPanel({ user, items, exportBackup }: {
               </div>
               {state.connected ? (
                 <>
-                  <button className="security-button security-button--quiet" type="button" disabled={cloudBusy[destination]} onClick={() => void attemptBackup(destination)}>
+                  <Button className="security-button security-button--quiet" type="button" disabled={cloudBusy[destination]} onClick={() => void attemptBackup(destination)}>
                     {cloudBusy[destination] ? t('backup:backingUp') : t('backup:backupNow')}
-                  </button>
-                  <button className="security-button security-button--quiet" type="button" onClick={() => toggleAutoBackup(destination)} aria-pressed={state.enabled}>
+                  </Button>
+                  <Button className="security-button security-button--quiet" type="button" onClick={() => toggleAutoBackup(destination)} aria-pressed={state.enabled}>
                     {state.enabled ? t('backup:autoBackupOn') : t('backup:autoBackupOff')}
-                  </button>
-                  <button className="security-button security-button--quiet" type="button" onClick={() => disconnect(destination)}>{t('backup:disconnect')}</button>
+                  </Button>
+                  <Button className="security-button security-button--quiet" type="button" onClick={() => disconnect(destination)}>{t('backup:disconnect')}</Button>
                 </>
               ) : destination === 'webdav' ? (
                 <>
-                  <button className="security-button security-button--quiet" type="button" disabled={cloudBusy.webdav} onClick={() => void connectWebdav()}>
+                  <Button className="security-button security-button--quiet" type="button" disabled={cloudBusy.webdav} onClick={() => void connectWebdav()}>
                     {t('backup:saveAndTest')}
-                  </button>
+                  </Button>
                   {webdavEditing ? (
-                    <button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(false)}>{t('backup:cancel')}</button>
+                    <Button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(false)}>{t('backup:cancel')}</Button>
                   ) : null}
                 </>
               ) : (
-                <button className="security-button security-button--quiet" type="button" disabled={!configured || cloudBusy[destination]} onClick={() => void connectOAuth(destination)}>
+                <Button className="security-button security-button--quiet" type="button" disabled={!configured || cloudBusy[destination]} onClick={() => void connectOAuth(destination)}>
                   {configured ? t('backup:connect') : t('backup:connectUnavailable')}
-                </button>
+                </Button>
               )}
               {destination === 'webdav' && state.connected && !webdavEditing ? (
-                <button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(true)}>{t('backup:edit')}</button>
+                <Button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(true)}>{t('backup:edit')}</Button>
               ) : null}
             </div>
           )

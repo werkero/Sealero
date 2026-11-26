@@ -6,7 +6,7 @@ import type { AppearancePreference } from '../features/settings/preferences'
 
 export type LegalDoc = 'terms' | 'privacy'
 
-const SECTION_COUNT = 4
+const SECTION_COUNTS: Record<LegalDoc, number> = { terms: 12, privacy: 14 }
 
 export function LegalPage({ doc, onNavigate, onAppearanceChange }: {
   doc: LegalDoc
@@ -15,7 +15,7 @@ export function LegalPage({ doc, onNavigate, onAppearanceChange }: {
 }) {
   const { t } = useTranslation('common')
   const prefix = doc === 'terms' ? 'terms' : 'privacy'
-  const sections = Array.from({ length: SECTION_COUNT }, (_, i) => i + 1).map((n) => ({
+  const sections = Array.from({ length: SECTION_COUNTS[doc] }, (_, i) => i + 1).map((n) => ({
     title: t(`${prefix}S${n}Title`),
     body: t(`${prefix}S${n}Body`),
   }))

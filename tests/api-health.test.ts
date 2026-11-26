@@ -63,10 +63,20 @@ test('non-2xx responses surface only a safe status error', async () => {
   ))
 })
 
+test('GET /v1/health accepts the documented response with an optional policy_version', async () => {
+  const responseWithPolicy = { ...healthResponse, policy_version: 'privacy-v1' }
+  const client = createApiHealthClient({
+    fetcher: async () => Response.json(responseWithPolicy),
+  })
+
+  assert.deepEqual(await client.getHealth(), responseWithPolicy)
+})
+
 test('malformed JSON and contract drift fail closed', async () => {
   const invalidPayloads = [
     new Response('{', { status: 200, headers: { 'content-type': 'application/json' } }),
     Response.json({ ...healthResponse, unexpected: true }),
+    Response.json({ ...healthResponse, policy_version: 42 }),
     Response.json({ ...healthResponse, min_app_versions: { android: null, ios: null } }),
     Response.json({ ...healthResponse, supported_api_versions: ['v2'] }),
     Response.json({ ...healthResponse, server_time: 'not-a-time' }),

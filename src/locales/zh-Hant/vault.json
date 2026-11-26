@@ -151,5 +151,6 @@
     "deniedMessage": "已拒絕，連接器拿不到該條目。",
     "actionFailed": "操作失敗，請重試。",
     "backToVault": "返回保險庫"
-  }
+  },
+  "lockVault": "鎖定保險庫"
 }

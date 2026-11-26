@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme inline {
   --color-background: var(--background);
@@ -45,7 +46,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.546 0.215 262.9);
+  --primary: oklch(0.388 0.195 264.0);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -57,7 +58,31 @@
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --ring: oklch(0.388 0.195 264.0);
+}
+
+/* shadcn/ui dark theme tokens: same data-theme system as app.css.
+   Surfaces match the existing dark palette (#15171d page, #1b1e25 card,
+   #20242d muted, #343946 border); --primary is the brand blue lifted
+   one step (#4479F5) so it stays readable on dark backgrounds. */
+[data-theme="dark"] {
+  --background: oklch(0.205 0.012 270.8);
+  --foreground: oklch(0.955 0.006 264.5);
+  --card: oklch(0.235 0.014 267.0);
+  --card-foreground: oklch(0.955 0.006 264.5);
+  --popover: oklch(0.235 0.014 267.0);
+  --popover-foreground: oklch(0.955 0.006 264.5);
+  --primary: oklch(0.608 0.195 264.0);
+  --primary-foreground: oklch(0.205 0.012 270.8);
+  --secondary: oklch(0.260 0.018 266.3);
+  --secondary-foreground: oklch(0.955 0.006 264.5);
+  --muted: oklch(0.260 0.018 266.3);
+  --muted-foreground: oklch(0.774 0.022 261.8);
+  --accent: oklch(0.260 0.018 266.3);
+  --accent-foreground: oklch(0.955 0.006 264.5);
+  --border: oklch(0.345 0.024 268.6);
+  --input: oklch(0.345 0.024 268.6);
+  --ring: oklch(0.608 0.195 264.0);
 }
 
 * {
@@ -89,6 +114,6 @@ a {
 }
 
 ::selection {
-  color: #1e40af;
-  background: #dbeafe;
+  color: #0832aa;
+  background: #ebeff8;
 }

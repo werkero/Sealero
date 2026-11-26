@@ -74,6 +74,37 @@ function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIde
   )
 }
 
+function AiCall() {
+  const { t } = useTranslation('common')
+  return (
+    <motion.section
+      className="landing-section ai-section"
+      aria-labelledby="ai-title"
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
+    >
+      <h2 id="ai-title">{t('aiCallTitle')}</h2>
+      <p className="section-subtitle">{t('aiCallDescription')}</p>
+      <div className="pricing-grid ai-grid">
+        <article className="pricing-card">
+          <h3>{t('aiCallPoint1Title')}</h3>
+          <p className="pricing-desc">{t('aiCallPoint1Body')}</p>
+        </article>
+        <article className="pricing-card">
+          <h3>{t('aiCallPoint2Title')}</h3>
+          <p className="pricing-desc">{t('aiCallPoint2Body')}</p>
+        </article>
+        <article className="pricing-card">
+          <h3>{t('aiCallPoint3Title')}</h3>
+          <p className="pricing-desc">{t('aiCallPoint3Body')}</p>
+        </article>
+      </div>
+    </motion.section>
+  )
+}
+
 function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate: (path: string) => void }) {
   const { t } = useTranslation('common')
   return (
@@ -285,6 +316,7 @@ export default function Landing({ user, onNavigate, onAppearanceChange }: { user
             </motion.div>
           </section>
         </main>
+        <AiCall />
         <Pricing user={user} onNavigate={onNavigate} />
         <Faq />
         <PublicFooter onNavigate={onNavigate} />

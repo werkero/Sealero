@@ -11,6 +11,7 @@ import {
   type PasswordGeneratorOptions,
 } from './password-security'
 import './password-security.css'
+import { Button } from '../../components/ui/button'
 
 interface PasswordGeneratorPageProps {
   onBack: () => void
@@ -105,9 +106,9 @@ export function PasswordHealthInline({ itemId, password, itemName, items, loadIt
         <strong>{t('health.itemCheckTitle')}</strong>
         <span>{t('health.localOnlyHint')}</span>
       </div>
-      <button className="security-button security-button--quiet" type="button" onClick={() => void checkPassword()} disabled={checking}>
+      <Button className="security-button security-button--quiet" type="button" onClick={() => void checkPassword()} disabled={checking}>
         {checking ? t('health.checking') : t('health.checkPassword')}
-      </button>
+      </Button>
       {loadFailed ? <p className="security-warning" role="alert">{t('health.loadFailed')}</p> : null}
       {assessment ? <PasswordAssessmentView assessment={assessment} /> : null}
     </section>
@@ -173,9 +174,9 @@ export function PasswordHealthDashboard({ items, loadItem, onBack }: PasswordHea
             <h2 id="health-panel-title">{t('health.settingsTitle')}</h2>
             <p>{t('health.localOnlyHint')}</p>
           </div>
-          <button className="security-button security-button--primary" type="button" onClick={() => void runHealthCheck()} disabled={isWorking || items.length === 0}>
+          <Button className="security-button security-button--primary" type="button" onClick={() => void runHealthCheck()} disabled={isWorking || items.length === 0}>
             {isWorking ? t('health.checking') : rows.length ? t('health.checkAgain') : t('health.runHealthCheck')}
-          </button>
+          </Button>
         </div>
         <p className="security-privacy-note">{t('health.privacyNote')}</p>
         {items.length === 0 ? <p className="security-empty">{t('health.emptyVault')}</p> : null}
@@ -303,16 +304,16 @@ export function PasswordGeneratorPage({ onBack, onCopy }: PasswordGeneratorPageP
           </div>
           <p className="security-help">{t('generator.twoClassesRequired')}</p>
         </fieldset>
-        <button className="security-button security-button--primary security-generate" type="button" onClick={() => void createPassword()} disabled={phase === 'generating' || classCount < 2}>
+        <Button className="security-button security-button--primary security-generate" type="button" onClick={() => void createPassword()} disabled={phase === 'generating' || classCount < 2}>
           {phase === 'generating' ? t('generator.generating') : t('generator.generate')}
-        </button>
+        </Button>
         {notice ? <p className={`security-notice ${phase === 'unavailable' ? 'security-warning' : ''}`} role="status">{notice}</p> : null}
         {password ? (
           <div className="security-generated-result">
             <label htmlFor="security-generated-password">{t('generator.resultLabel')}</label>
             <div className="security-password-output">
               <input id="security-generated-password" type="text" value={password} readOnly autoComplete="off" spellCheck={false} />
-              <button className="security-button security-button--quiet" type="button" onClick={() => onCopy(password, t('generator.passwordLabel'))}>{t('generator.copy')}</button>
+              <Button className="security-button security-button--quiet" type="button" onClick={() => onCopy(password, t('generator.passwordLabel'))}>{t('generator.copy')}</Button>
             </div>
             <p>{t('generator.verifiedHint')}</p>
           </div>

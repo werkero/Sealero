@@ -4,6 +4,13 @@ import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { Brand } from '../components/Brand'
 import { LanguageSelector } from '../components/LanguageSelector'
+import { ThemeToggle } from '../components/ThemeToggle'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import type { AppearancePreference } from '../features/settings/preferences'
 import { AdminApiError, createAdminClient, type AdminClient } from '../client/admin'
 import {
   ADMIN_AUDIT_ACTIONS,
@@ -17,18 +24,18 @@ import {
   type AdminSettingsUpdate,
 } from '../features/admin/contract'
 
-const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-[#e4e9f2] bg-[#f5f7fb] px-2.5 py-1.5 text-[10px] font-[650] text-[#5c6f8e]'
-const panel = 'mt-[17px] min-w-0 rounded-xl border border-[#e8ebef] bg-white p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
-const panelTitle = 'm-0 text-sm font-[640] text-[#303947]'
-const panelDesc = 'mt-1.5 text-[10px] leading-[1.6] text-[#7c8795]'
-const actionButton = 'min-h-[38px] rounded-[7px] border border-[#dfe3e9] bg-[#f5f6f8] px-[13px] text-[10px] font-semibold text-[#929aa5] disabled:cursor-not-allowed disabled:opacity-76'
-const enabledButton = 'min-h-[38px] cursor-pointer rounded-[7px] border border-[#c8d6ee] bg-[#eef3fb] px-[13px] text-[10px] font-semibold text-[#33507e] hover:bg-[#e3ecf9] disabled:cursor-not-allowed disabled:opacity-60'
-const filterInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-[7px] text-[9px] text-[#7d8794] disabled:cursor-not-allowed disabled:opacity-76'
-const filterLabel = 'grid gap-[5px] text-[9px] font-[570] text-[#687381]'
-const pagerButton = 'h-[27px] w-[27px] rounded-md border border-[#e7eaee] bg-[#f8f9fa] text-[#9aa2ac] disabled:cursor-not-allowed'
-const auditTh = 'whitespace-nowrap border-b border-[#edf0f3] bg-[#fafbfc] px-[11px] py-2.5 text-[9px] font-[630] text-[#7d8794]'
-const noteBox = 'flex flex-col gap-1 rounded-lg border border-[#e8edf4] bg-[#f8fafd] p-3 text-[10px] leading-[1.55] text-[#586a83]'
-const statusText = 'mt-[9px] text-[9px] leading-[1.55] text-[#8d96a2]'
+const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[10px] font-[650] text-muted-foreground'
+const panel = 'mt-[17px] min-w-0 rounded-xl border border-border bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panelTitle = 'm-0 text-sm font-[640] text-foreground'
+const panelDesc = 'mt-1.5 text-[10px] leading-[1.6] text-muted-foreground'
+const actionButton = 'min-h-[38px] rounded-[7px] border border-border bg-muted px-[13px] text-[10px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const enabledButton = 'min-h-[38px] cursor-pointer rounded-[7px] border border-primary/30 bg-primary/10 px-[13px] text-[10px] font-semibold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
+const filterInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-[7px] text-[9px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
+const filterLabel = 'grid gap-[5px] text-[9px] font-[570] text-muted-foreground'
+const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
+const auditTh = 'h-auto whitespace-nowrap border-b border-border bg-muted px-[11px] py-2.5 text-[9px] font-[630] text-muted-foreground'
+const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[10px] leading-[1.55] text-muted-foreground'
+const statusText = 'mt-[9px] text-[9px] leading-[1.55] text-muted-foreground'
 
 type AdminSection = 'overview' | 'users' | 'settings' | 'audit'
 const Users = lazy(() => import('./Users').then(({ Users: component }) => ({ default: component })))
@@ -61,14 +68,14 @@ function errorText(error: unknown, t: AdminTFunction): string {
 
 function navLink(active: boolean) {
   return active
-    ? 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-[#e8edf5] bg-[#f3f6fb] px-[11px] text-left text-xs font-[650] text-[#30486f] max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[9px]'
-    : 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-transparent bg-transparent px-[11px] text-left text-xs font-[560] text-[#5f6977] hover:bg-[#f7f9fc] hover:text-[#34435c] max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[9px]'
+    ? 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-border bg-muted px-[11px] text-left text-xs font-[650] text-primary max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[9px]'
+    : 'flex min-h-[42px] cursor-pointer items-center gap-[11px] rounded-lg border border-transparent bg-transparent px-[11px] text-left text-xs font-[560] text-muted-foreground hover:bg-muted hover:text-foreground max-[760px]:flex-col max-[760px]:justify-center max-[760px]:gap-0.5 max-[760px]:px-1.5 max-[760px]:text-[9px]'
 }
 
 function navIcon(active: boolean) {
   return active
-    ? 'w-[18px] text-center text-[15px] text-[#4b6da4] max-[760px]:w-auto max-[760px]:text-[13px]'
-    : 'w-[18px] text-center text-[15px] text-[#8794a7] max-[760px]:w-auto max-[760px]:text-[13px]'
+    ? 'w-[18px] text-center text-[15px] text-primary max-[760px]:w-auto max-[760px]:text-[13px]'
+    : 'w-[18px] text-center text-[15px] text-muted-foreground max-[760px]:w-auto max-[760px]:text-[13px]'
 }
 
 type SettingsDraft = Partial<Record<AdminSettingKey, string | boolean>>
@@ -144,12 +151,13 @@ function sourceLabel(source: string, t: AdminTFunction): string {
   return t('settings.sourceDefault')
 }
 
-export function Console({ onNavigate, getAccessToken, refreshAccessToken, currentUserId }: {
+export function Console({ onNavigate, getAccessToken, refreshAccessToken, currentUserId, onAppearanceChange }: {
   onNavigate: (path: string) => void
   getAccessToken: () => string | null
   /** Shared token refresher (the vault adapter's); the admin client calls it on 401. */
   refreshAccessToken: (signal?: AbortSignal) => Promise<string>
   currentUserId: string
+  onAppearanceChange: (preference: AppearancePreference) => void
 }) {
   const { t } = useTranslation('admin')
   const [section, setSection] = useState<AdminSection>('overview')
@@ -366,21 +374,21 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
       <>
         <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
           <div>
-            <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0]">{t('overview.eyebrow')}</p>
-            <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-[#202631]">{t('overview.title')}</h1>
-            <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-[#798391]">{t('overview.description')}</p>
+            <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('overview.eyebrow')}</p>
+            <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('overview.title')}</h1>
+            <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('overview.description')}</p>
           </div>
-          <button type="button" disabled={overviewLoading} onClick={() => void loadOverview()} className={overviewLoading ? actionButton : enabledButton}>{overviewLoading ? t('loading') : t('retry')}</button>
+          <Button type="button" disabled={overviewLoading} onClick={() => void loadOverview()} className={overviewLoading ? actionButton : enabledButton}>{overviewLoading ? t('loading') : t('retry')}</Button>
         </div>
 
         {overviewError ? <div className={noteBox} role="alert"><strong className="text-[11px]">{overviewError}</strong></div> : null}
 
         <section className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-3 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2 max-[760px]:gap-2" aria-label={t('overview.metricsLabel')}>
           {metrics.map(([key, label, detail, value]) => (
-            <article className="flex min-h-[142px] min-w-0 flex-col items-start rounded-xl border border-[#e8ebef] bg-white p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
-              <span className="text-[10px] font-[580] leading-[1.4] text-[#6d7784]">{label}</span>
-              <strong className="mt-[17px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-[#333d4c] max-[760px]:mt-[13px] max-[760px]:text-2xl">{overviewLoading && overview === null ? t('loading') : value}</strong>
-              <span className="mt-[3px] text-[9px] text-[#99a1ad]">{detail}</span>
+            <article className="flex min-h-[142px] min-w-0 flex-col items-start rounded-xl border border-border bg-(--surface) p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
+              <span className="text-[10px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
+              <strong className="mt-[17px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground max-[760px]:mt-[13px] max-[760px]:text-2xl">{overviewLoading && overview === null ? t('loading') : value}</strong>
+              <span className="mt-[3px] text-[9px] text-muted-foreground">{detail}</span>
             </article>
           ))}
         </section>
@@ -394,24 +402,24 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
             <span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" />
           </div>
           <div className="mt-[18px] grid grid-cols-2 gap-[14px] max-[430px]:grid-cols-1">
-            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-[#f8f9fb] px-3 py-[11px]"><span className="text-[10px] text-[#788291]">{t('overview.lastCleanup')}</span><strong className="text-[10px] font-[590] text-[#626d7b]">{overview === null ? '—' : formatDateTime(overview.tombstone_cleanup.last_cleanup_at)}</strong></div>
-            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-[#f8f9fb] px-3 py-[11px]"><span className="text-[10px] text-[#788291]">{t('overview.cleanupStatus')}</span><strong className="text-[10px] font-[590] text-[#626d7b]">{overview === null ? '—' : overview.tombstone_cleanup.last_cleanup_status === 'success' ? t('overview.cleanupSuccess') : overview.tombstone_cleanup.last_cleanup_status === 'failed' ? t('overview.cleanupFailed') : t('overview.cleanupNever')}</strong></div>
+            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-muted px-3 py-[11px]"><span className="text-[10px] text-muted-foreground">{t('overview.lastCleanup')}</span><strong className="text-[10px] font-[590] text-muted-foreground">{overview === null ? '—' : formatDateTime(overview.tombstone_cleanup.last_cleanup_at)}</strong></div>
+            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-muted px-3 py-[11px]"><span className="text-[10px] text-muted-foreground">{t('overview.cleanupStatus')}</span><strong className="text-[10px] font-[590] text-muted-foreground">{overview === null ? '—' : overview.tombstone_cleanup.last_cleanup_status === 'success' ? t('overview.cleanupSuccess') : overview.tombstone_cleanup.last_cleanup_status === 'failed' ? t('overview.cleanupFailed') : t('overview.cleanupNever')}</strong></div>
           </div>
         </section>
 
         <section className={panel} aria-labelledby="admin-dump-title">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="m-0 mb-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0]">{t('dump.eyebrow')}</p>
+              <p className="m-0 mb-1.5 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('dump.eyebrow')}</p>
               <h2 id="admin-dump-title" className={panelTitle}>{t('dump.title')}</h2>
               <p className={panelDesc}>{t('dump.description')}</p>
             </div>
-            <span className="text-[19px] text-[#8492a8]" aria-hidden="true"><Database size={19} aria-hidden="true" /></span>
+            <span className="text-[19px] text-muted-foreground" aria-hidden="true"><Database size={19} aria-hidden="true" /></span>
           </div>
           <form className="mt-[17px] grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-[9px] max-[430px]:grid-cols-1" onSubmit={(event) => void downloadDump(event)}>
-            <label htmlFor="admin-dump-password" className="col-span-full text-[10px] font-[560] text-[#66717f]">{t('dump.passwordLabel')}</label>
-            <input id="admin-dump-password" type="password" autoComplete="current-password" value={dumpPassword} onChange={(event) => setDumpPassword(event.target.value)} disabled={dumpBusy} placeholder={t('dump.passwordLabel')} className="min-h-[38px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-2.5 text-[10px] text-[#7d8794] disabled:cursor-not-allowed disabled:opacity-76" />
-            <button type="submit" disabled={dumpBusy || dumpPassword === ''} className={`${dumpBusy || dumpPassword === '' ? actionButton : enabledButton} max-[430px]:w-full`}>{dumpBusy ? t('dump.downloading') : t('dump.download')}</button>
+            <Label htmlFor="admin-dump-password" className="col-span-full text-[10px] font-[560] text-muted-foreground">{t('dump.passwordLabel')}</Label>
+            <Input id="admin-dump-password" type="password" autoComplete="current-password" value={dumpPassword} onChange={(event) => setDumpPassword(event.target.value)} disabled={dumpBusy} placeholder={t('dump.passwordLabel')} className="min-h-[38px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2.5 text-[10px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76" />
+            <Button type="submit" disabled={dumpBusy || dumpPassword === ''} className={`${dumpBusy || dumpPassword === '' ? actionButton : enabledButton} max-[430px]:w-full`}>{dumpBusy ? t('dump.downloading') : t('dump.download')}</Button>
           </form>
           {dumpMessage ? <p className={statusText} role="status">{dumpMessage}</p> : <p className={statusText}>{t('dump.loginPasswordNote')}</p>}
         </section>
@@ -423,9 +431,9 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
     <>
       <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
         <div>
-          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0]">{t('settings.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-[#202631]">{t('settings.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-[#798391]">{t('settings.description')}</p>
+          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('settings.eyebrow')}</p>
+          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('settings.title')}</h1>
+          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('settings.description')}</p>
         </div>
         <span className={pill}>{t('settings.whitelistCount')}</span>
       </div>
@@ -440,58 +448,61 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
               const source = settingsResponse.sources[field.key]
               const draftValue = settingsDraft[field.key]
               return (
-                <article className="grid min-h-[94px] grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-[15px] border-b border-[#eff1f4] px-0.5 py-[13px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
+                <article className="grid min-h-[94px] grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-[15px] border-b border-border px-0.5 py-[13px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
                   <div>
-                    <h2 className="m-0 text-[11px] font-[650] text-[#343d4a]">{t(`fields.${field.key}`)}</h2>
-                    <code className="mt-1 inline-block font-[ui-monospace,SFMono-Regular,Menlo,monospace] text-[8px] text-[#8792a1]">{field.key}</code>
-                    <p className="mt-[5px] text-[9px] leading-[1.45] text-[#929ba7]">{t(field.constraintKey)}</p>
+                    <h2 className="m-0 text-[11px] font-[650] text-foreground">{t(`fields.${field.key}`)}</h2>
+                    <code className="mt-1 inline-block font-[ui-monospace,SFMono-Regular,Menlo,monospace] text-[8px] text-muted-foreground">{field.key}</code>
+                    <p className="mt-[5px] text-[9px] leading-[1.45] text-muted-foreground">{t(field.constraintKey)}</p>
                   </div>
                   <div className="grid justify-items-start gap-1 max-[760px]:col-[1/2] max-[760px]:row-[2]">
                     {field.key === 'smtp_pass' ? (
-                      <input
+                      <Input
                         type="password"
                         autoComplete="new-password"
                         value={typeof draftValue === 'string' ? draftValue : ''}
                         onChange={(event) => setSettingsDraft((prev) => ({ ...prev, smtp_pass: event.target.value }))}
                         placeholder={t('settings.writeOnly')}
                         aria-label={t(`fields.${field.key}`)}
-                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-2 text-[9px] text-[#7d8794]"
+                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[9px] text-muted-foreground"
                       />
                     ) : field.kind === 'boolean' ? (
-                      <select
+                      <Select
                         value={draftValue === true ? 'true' : 'false'}
-                        onChange={(event) => setSettingsDraft((prev) => ({ ...prev, [field.key]: event.target.value === 'true' }))}
-                        aria-label={t(`fields.${field.key}`)}
-                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-2 text-[9px] text-[#7d8794]"
+                        onValueChange={(value) => setSettingsDraft((prev) => ({ ...prev, [field.key]: value === 'true' }))}
                       >
-                        <option value="true">{t('common.yes')}</option>
-                        <option value="false">{t('common.no')}</option>
-                      </select>
+                        <SelectTrigger aria-label={t(`fields.${field.key}`)} className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[9px] text-muted-foreground">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">{t('common.yes')}</SelectItem>
+                          <SelectItem value="false">{t('common.no')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     ) : (
-                      <input
+                      <Input
                         type="text"
                         inputMode={field.kind === 'integer' || field.kind === 'nullable-integer' ? 'numeric' : 'text'}
                         value={typeof draftValue === 'string' ? draftValue : ''}
                         onChange={(event) => setSettingsDraft((prev) => ({ ...prev, [field.key]: event.target.value }))}
                         aria-label={t(`fields.${field.key}`)}
-                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-[#e4e7eb] bg-[#f9fafb] px-2 text-[9px] text-[#7d8794]"
+                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[9px] text-muted-foreground"
                       />
                     )}
-                    <span className="text-[9px] leading-[1.45] text-[#8b95a2]">{sourceLabel(source, t)}</span>
-                    <span className="text-[9px] leading-[1.45] text-[#8b95a2]">
+                    <span className="text-[9px] leading-[1.45] text-muted-foreground">{sourceLabel(source, t)}</span>
+                    <span className="text-[9px] leading-[1.45] text-muted-foreground">
                       {t('settings.builtInDefault', { value: formatDefault(field.defaultValue, t) })}
                     </span>
                   </div>
-                  <button className="min-h-[30px] whitespace-nowrap rounded-md border border-[#e7e9ed] bg-[#fafbfc] px-2 text-[8px] text-[#9199a4] disabled:cursor-not-allowed max-[760px]:col-[2] max-[760px]:row-[1/span_2]" type="button" disabled={settingsSaving} onClick={() => void clearSetting(field.key)} aria-label={`${t('settings.clearOverride')} ${field.key}`}>
+                  <Button className="min-h-[30px] whitespace-nowrap rounded-md border border-border bg-muted px-2 text-[8px] text-muted-foreground disabled:cursor-not-allowed max-[760px]:col-[2] max-[760px]:row-[1/span_2]" type="button" disabled={settingsSaving} onClick={() => void clearSetting(field.key)} aria-label={`${t('settings.clearOverride')} ${field.key}`}>
                     {t('settings.clearOverride')}
-                  </button>
+                  </Button>
                 </article>
               )
             })}
           </div>
           <div className="flex items-center justify-between gap-[14px] pt-[14px] max-[430px]:flex-col max-[430px]:items-start">
-            <p className="m-0 text-[9px] leading-[1.55] text-[#848e9b]">{settingsMessage || t('settings.nullClearNote')}</p>
-            <button type="button" disabled={settingsSaving} onClick={() => void saveSettings()} className={settingsSaving ? actionButton : enabledButton}>{settingsSaving ? t('loading') : t('settings.saveChanges')}</button>
+            <p className="m-0 text-[9px] leading-[1.55] text-muted-foreground">{settingsMessage || t('settings.nullClearNote')}</p>
+            <Button type="button" disabled={settingsSaving} onClick={() => void saveSettings()} className={settingsSaving ? actionButton : enabledButton}>{settingsSaving ? t('loading') : t('settings.saveChanges')}</Button>
           </div>
         </section>
       )}
@@ -501,8 +512,8 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
           <h2 id="admin-retention-title" className={panelTitle}>{t('settings.tombstoneRetention')}</h2>
           <p className={panelDesc}>{t('settings.tombstoneRetentionDescription')}</p>
         </div>
-        <strong className="ml-auto whitespace-nowrap text-[15px] font-[650] text-[#46536a] max-[760px]:ml-0">30 {t('settings.days')}</strong>
-        <span className="whitespace-nowrap text-[9px] text-[#87919d]">{t('settings.fixedReadOnly')}</span>
+        <strong className="ml-auto whitespace-nowrap text-[15px] font-[650] text-muted-foreground max-[760px]:ml-0">30 {t('settings.days')}</strong>
+        <span className="whitespace-nowrap text-[9px] text-muted-foreground">{t('settings.fixedReadOnly')}</span>
       </section>
       <section className={`${panel} flex items-center justify-between gap-4 max-[760px]:flex-wrap max-[760px]:items-start`} aria-labelledby="admin-smtp-title">
         <div>
@@ -518,9 +529,9 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
     <>
       <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
         <div>
-          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0]">{t('audit.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-[#202631]">{t('audit.title')}</h1>
-          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-[#798391]">{t('audit.description')}</p>
+          <p className="m-0 mb-2 text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('audit.eyebrow')}</p>
+          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('audit.title')}</h1>
+          <p className="mt-2 max-w-[690px] text-xs leading-[1.6] text-muted-foreground">{t('audit.description')}</p>
         </div>
       </div>
 
@@ -528,62 +539,62 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
 
       <section className={panel} aria-label={t('audit.title')}>
         <div className="grid grid-cols-[repeat(5,minmax(100px,1fr))_auto] items-end gap-2.5 pb-[17px] max-[1100px]:grid-cols-[repeat(3,minmax(120px,1fr))] max-[760px]:grid-cols-2 max-[430px]:grid-cols-1">
-          <label className={filterLabel}>{t('audit.actorFilter')}<input type="text" value={auditDraft.actor} onChange={(event) => setAuditDraft((prev) => ({ ...prev, actor: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></label>
-          <label className={filterLabel}>{t('audit.targetFilter')}<input type="text" value={auditDraft.target} onChange={(event) => setAuditDraft((prev) => ({ ...prev, target: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></label>
-          <label className={filterLabel}>{t('audit.actionFilter')}<select value={auditDraft.action} onChange={(event) => setAuditDraft((prev) => ({ ...prev, action: event.target.value }))} className={filterInput}><option value="">{t('audit.allActions')}</option>{ADMIN_AUDIT_ACTIONS.map((action) => <option key={action} value={action}>{action}</option>)}</select></label>
-          <label className={filterLabel}>{t('audit.fromFilter')}<input type="datetime-local" value={auditDraft.from} onChange={(event) => setAuditDraft((prev) => ({ ...prev, from: event.target.value }))} className={filterInput} /></label>
-          <label className={filterLabel}>{t('audit.toFilter')}<input type="datetime-local" value={auditDraft.to} onChange={(event) => setAuditDraft((prev) => ({ ...prev, to: event.target.value }))} className={filterInput} /></label>
-          <button type="button" disabled={auditLoading} onClick={applyAuditFilters} className="min-h-[35px] rounded-[7px] border border-[#dfe3e9] bg-[#f5f6f8] px-[9px] text-[9px] font-semibold text-[#929aa5] disabled:cursor-not-allowed disabled:opacity-76 max-[760px]:col-span-full max-[430px]:col-auto">{t('audit.applyFilters')}</button>
+          <Label className={filterLabel}>{t('audit.actorFilter')}<Input type="text" value={auditDraft.actor} onChange={(event) => setAuditDraft((prev) => ({ ...prev, actor: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></Label>
+          <Label className={filterLabel}>{t('audit.targetFilter')}<Input type="text" value={auditDraft.target} onChange={(event) => setAuditDraft((prev) => ({ ...prev, target: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></Label>
+          <Label className={filterLabel}>{t('audit.actionFilter')}<Select value={auditDraft.action === '' ? '__all__' : auditDraft.action} onValueChange={(value) => setAuditDraft((prev) => ({ ...prev, action: value === '__all__' ? '' : value }))}><SelectTrigger className={filterInput}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__all__">{t('audit.allActions')}</SelectItem>{ADMIN_AUDIT_ACTIONS.map((action) => <SelectItem key={action} value={action}>{action}</SelectItem>)}</SelectContent></Select></Label>
+          <Label className={filterLabel}>{t('audit.fromFilter')}<Input type="datetime-local" value={auditDraft.from} onChange={(event) => setAuditDraft((prev) => ({ ...prev, from: event.target.value }))} className={filterInput} /></Label>
+          <Label className={filterLabel}>{t('audit.toFilter')}<Input type="datetime-local" value={auditDraft.to} onChange={(event) => setAuditDraft((prev) => ({ ...prev, to: event.target.value }))} className={filterInput} /></Label>
+          <Button type="button" disabled={auditLoading} onClick={applyAuditFilters} className="min-h-[35px] rounded-[7px] border border-border bg-muted px-[9px] text-[9px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76 max-[760px]:col-span-full max-[430px]:col-auto">{t('audit.applyFilters')}</Button>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-[#edf0f3]">
-          <table className="w-full border-collapse text-left">
-            <thead><tr>
-              <th scope="col" className={auditTh}>{t('audit.time')}</th>
-              <th scope="col" className={auditTh}>{t('audit.actor')}</th>
-              <th scope="col" className={auditTh}>{t('audit.target')}</th>
-              <th scope="col" className={auditTh}>{t('audit.action')}</th>
-              <th scope="col" className={auditTh}>{t('audit.metadata')}</th>
-            </tr></thead>
-            <tbody>
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <Table className="w-full border-collapse text-left">
+            <TableHeader><TableRow className="hover:bg-transparent">
+              <TableHead scope="col" className={auditTh}>{t('audit.time')}</TableHead>
+              <TableHead scope="col" className={auditTh}>{t('audit.actor')}</TableHead>
+              <TableHead scope="col" className={auditTh}>{t('audit.target')}</TableHead>
+              <TableHead scope="col" className={auditTh}>{t('audit.action')}</TableHead>
+              <TableHead scope="col" className={auditTh}>{t('audit.metadata')}</TableHead>
+            </TableRow></TableHeader>
+            <TableBody>
               {auditLoading && auditPage === null ? (
-                <tr><td colSpan={5} className="h-[110px] break-anywhere border-b border-[#f0f2f4] px-[11px] py-3 text-center text-[9px] text-[#9099a5]">{t('loading')}</td></tr>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere border-b border-border px-[11px] py-3 text-center text-[9px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
               ) : auditPage !== null && auditPage.items.length > 0 ? auditPage.items.map((row) => (
-                <tr key={row.id}>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-[11px] py-3 text-[9px] text-[#5f6977]">{formatDateTime(row.created_at)}</td>
-                  <td className="break-all border-b border-[#f0f2f4] px-[11px] py-3 text-[9px] text-[#5f6977]">{row.actor_user_id ?? '—'}</td>
-                  <td className="break-all border-b border-[#f0f2f4] px-[11px] py-3 text-[9px] text-[#5f6977]">{row.target_user_id ?? '—'}</td>
-                  <td className="whitespace-nowrap border-b border-[#f0f2f4] px-[11px] py-3 text-[9px] text-[#5f6977]">{row.action}</td>
-                  <td className="break-all border-b border-[#f0f2f4] px-[11px] py-3 text-[9px] text-[#5f6977]">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</td>
-                </tr>
+                <TableRow key={row.id} className="hover:bg-transparent">
+                  <TableCell className="whitespace-nowrap border-b border-border px-[11px] py-3 text-[9px] text-muted-foreground">{formatDateTime(row.created_at)}</TableCell>
+                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[9px] text-muted-foreground">{row.actor_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[9px] text-muted-foreground">{row.target_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-nowrap border-b border-border px-[11px] py-3 text-[9px] text-muted-foreground">{row.action}</TableCell>
+                  <TableCell className="whitespace-normal break-all border-b border-border px-[11px] py-3 text-[9px] text-muted-foreground">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</TableCell>
+                </TableRow>
               )) : (
-                <tr><td colSpan={5} className="h-[110px] break-anywhere border-b border-[#f0f2f4] px-[11px] py-3 text-center text-[9px] text-[#9099a5]">{t('audit.noRows')}</td></tr>
+                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere border-b border-border px-[11px] py-3 text-center text-[9px] text-muted-foreground">{t('audit.noRows')}</TableCell></TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-between gap-3 text-[9px] leading-[1.5] text-[#8a94a1] max-[430px]:flex-col max-[430px]:items-start">
+        <div className="mt-[14px] flex items-center justify-between gap-3 text-[9px] leading-[1.5] text-muted-foreground max-[430px]:flex-col max-[430px]:items-start">
           <span>{t('audit.metadataPolicy')}</span>
           <div className="flex items-center gap-[9px]">
-            <button type="button" disabled={auditCursorStack.length < 2 || auditLoading} onClick={auditPreviousPage} aria-label={t('audit.previousPage')} className={pagerButton}>‹</button>
+            <Button type="button" disabled={auditCursorStack.length < 2 || auditLoading} onClick={auditPreviousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
             <span>{auditPage === null ? '—' : `${t('audit.totalCount', { count: auditPage.total_count })}`}</span>
-            <button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} className={pagerButton}><ChevronRight size={16} aria-hidden="true" /></button>
+            <Button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} className={`${pagerButton} px-0`}><ChevronRight size={16} aria-hidden="true" /></Button>
           </div>
         </div>
       </section>
-      <p className="mx-[1px] mt-3 text-[9px] leading-[1.6] text-[#999fa8]">{t('audit.sensitiveDataWarning')}</p>
+      <p className="mx-[1px] mt-3 text-[9px] leading-[1.6] text-muted-foreground">{t('audit.sensitiveDataWarning')}</p>
     </>
   )
 
   return (
-    <div className="min-h-screen bg-[#f7f8fa] text-(--ink)">
-      <header className="flex min-h-[76px] items-center justify-between gap-5 border-b border-(--line) bg-white px-[clamp(20px,4vw,52px)] max-[760px]:min-h-[66px] max-[760px]:px-4">
-        <div className="flex items-center gap-[18px] max-[760px]:gap-2.5"><Brand onNavigate={onNavigate} /><span className="h-[22px] w-px bg-(--line-strong)" /><span className="text-[13px] font-[560] text-[#677180] max-[760px]:text-[11px]">{t('header.console')}</span></div>
-        <div className="flex items-center gap-[18px] max-[760px]:gap-2.5"><LanguageSelector /></div>
+    <div className="min-h-screen bg-(--page) text-(--ink)">
+      <header className="flex min-h-[76px] items-center justify-between gap-5 border-b border-(--line) bg-(--surface) px-[clamp(20px,4vw,52px)] max-[760px]:min-h-[66px] max-[760px]:px-4">
+        <div className="flex items-center gap-[18px] max-[760px]:gap-2.5"><Brand onNavigate={onNavigate} /><span className="h-[22px] w-px bg-(--line-strong)" /><span className="text-[13px] font-[560] text-muted-foreground max-[760px]:text-[11px]">{t('header.console')}</span></div>
+        <div className="flex items-center gap-[18px] max-[760px]:gap-2.5"><ThemeToggle onAppearanceChange={onAppearanceChange} /><LanguageSelector /></div>
       </header>
 
       <div className="mx-auto grid min-h-[calc(100vh-130px)] w-[min(100%,1440px)] grid-cols-[230px_minmax(0,1fr)] max-[760px]:min-h-[calc(100vh-120px)] max-[760px]:grid-cols-1">
-        <aside className="flex flex-col border-r border-(--line) bg-white px-4 pb-5 pt-7 max-[760px]:border-b max-[760px]:border-r-0 max-[760px]:px-[15px] max-[760px]:py-3">
-          <p className="m-0 mb-[14px] text-[9px] font-bold uppercase tracking-[0.1em] text-[#8a93a0] max-[760px]:hidden">{t('header.navigation')}</p>
+        <aside className="flex flex-col border-r border-(--line) bg-(--surface) px-4 pb-5 pt-7 max-[760px]:border-b max-[760px]:border-r-0 max-[760px]:px-[15px] max-[760px]:py-3">
+          <p className="m-0 mb-[14px] text-[9px] font-bold uppercase tracking-[0.1em] text-muted-foreground max-[760px]:hidden">{t('header.navigation')}</p>
           <nav aria-label={t('header.navigation')} className="grid gap-[5px] max-[760px]:grid-cols-4 max-[760px]:gap-1.5">
             {sections.map((item) => (
               <button
@@ -598,12 +609,12 @@ export function Console({ onNavigate, getAccessToken, refreshAccessToken, curren
               </button>
             ))}
           </nav>
-          <div className="mt-auto flex items-start gap-2 rounded-[9px] border border-[#edf0f4] bg-[#fafbfc] p-2.5 text-[10px] leading-[1.55] text-[#778191] max-[760px]:hidden"><span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" /><span>{t('authentication.loginPasswordOnly')}</span></div>
-          <button className="mt-4 inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent px-[5px] py-2 text-left text-[11px] text-[#737d8b] hover:text-(--blue) max-[760px]:hidden" type="button" onClick={() => onNavigate('/')}><span aria-hidden="true">←</span>{t('header.backToSite')}</button>
+          <div className="mt-auto flex items-start gap-2 rounded-[9px] border border-border bg-muted p-2.5 text-[10px] leading-[1.55] text-muted-foreground max-[760px]:hidden"><span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" /><span>{t('authentication.loginPasswordOnly')}</span></div>
+          <button className="mt-4 inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent px-[5px] py-2 text-left text-[11px] text-muted-foreground hover:text-(--blue) max-[760px]:hidden" type="button" onClick={() => onNavigate('/')}><span aria-hidden="true">←</span>{t('header.backToSite')}</button>
         </aside>
 
         <main className="min-w-0 px-[clamp(20px,4vw,54px)] pb-[26px] pt-[34px] max-[760px]:px-4 max-[760px]:pb-5 max-[760px]:pt-6">
-          {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-[#f5f6f8] px-1.5 py-[3px] text-[9px] font-[550] text-[#7b8491]" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} /></Suspense> : section === 'settings' ? renderSettings() : renderAudit()}
+          {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-muted px-1.5 py-[3px] text-[9px] font-[550] text-muted-foreground" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} /></Suspense> : section === 'settings' ? renderSettings() : renderAudit()}
         </main>
       </div>
     </div>

@@ -151,5 +151,6 @@
     "deniedMessage": "Refusé. Le connecteur n’obtiendra pas cet élément.",
     "actionFailed": "Cela n’a pas fonctionné. Réessayez.",
     "backToVault": "Retour au coffre"
-  }
+  },
+  "lockVault": "Verrouiller le coffre"
 }

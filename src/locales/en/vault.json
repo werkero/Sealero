@@ -151,5 +151,6 @@
     "deniedMessage": "Denied. The connector will not get this item.",
     "actionFailed": "That did not work. Try again.",
     "backToVault": "Back to vault"
-  }
+  },
+  "lockVault": "Lock vault"
 }

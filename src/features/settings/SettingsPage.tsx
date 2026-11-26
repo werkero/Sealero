@@ -8,6 +8,7 @@ import { PasswordHealthDashboard } from '../password-security/PasswordSecurity'
 import { getCsvHeaders, getImportFileModifiedAt, inspectBackupContainer, parseCsvWithMapping, parseImportText, type BackupContainerSummary, type ImportField, type ImportedVaultEntry, type ParsedImportFile } from './backup-local'
 import { backupFilename } from './cloud-backup'
 import { CloudBackupPanel } from './CloudBackupPanel'
+import { Button } from '../../components/ui/button'
 import { applyLanguagePreference, getLanguagePreference, type AppearancePreference, type LanguagePreference } from './preferences'
 import './settings.css'
 
@@ -284,8 +285,8 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
           <div className="settings-card-topline"><div><strong>{t('backup:localImportTitle')}</strong><p>{t('backup:localImportDescription')}</p></div><span className="settings-local-badge">{t('backup:localOnly')}</span></div>
           <div className="settings-file-actions">
             <input ref={importInputRef} className="visually-hidden" id="vault-import-file" type="file" accept=".csv,.json,text/csv,application/json" onChange={onImportFileChange} />
-            <label className="button button-secondary" htmlFor="vault-import-file">{t('backup:chooseImportFile')}</label>
-            {parsedImport ? <button className="security-button security-button--quiet" type="button" onClick={clearImportPreview}>{t('backup:clearImport')}</button> : null}
+            <Button asChild className="button button-secondary"><label htmlFor="vault-import-file">{t('backup:chooseImportFile')}</label></Button>
+            {parsedImport ? <Button className="security-button security-button--quiet" type="button" onClick={clearImportPreview}>{t('backup:clearImport')}</Button> : null}
           </div>
           {selectedFileName ? <p className="settings-file-name">{t('backup:selectedFile')}: <strong>{selectedFileName}</strong></p> : null}
           {mappingHeaders.length > 0 && !parsedImport ? (
@@ -294,7 +295,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
               <div className="import-mapping-grid">
                 {importFields.map((field) => <label key={field}><span>{t(`backup:fields.${field}`)}{requiredImportFields.includes(field) ? ' *' : ''}</span><select value={columnMapping[field] ?? ''} onChange={(event) => updateCsvMapping(field, event.target.value)}><option value="">{t('backup:chooseColumn')}</option>{mappingHeaders.map((header, index) => <option key={`${index}-${header}`} value={index}>{header || t('backup:unnamedColumn', { index: index + 1 })}</option>)}</select></label>)}
               </div>
-              <button className="button button-primary" type="button" onClick={finishManualMapping} disabled={requiredImportFields.some((field) => columnMapping[field] === undefined)}>{t('backup:useMapping')}</button>
+              <Button className="button button-primary" type="button" onClick={finishManualMapping} disabled={requiredImportFields.some((field) => columnMapping[field] === undefined)}>{t('backup:useMapping')}</Button>
             </div>
           ) : null}
           {importError ? <p className="settings-inline-error" role="alert">{t(importError)}</p> : null}
@@ -303,7 +304,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
               <div className="import-preview-heading"><div><h3>{t('backup:previewTitle')}</h3><p>{t('backup:previewCount', { count: parsedImport.rows.length })}</p></div><span className="settings-local-badge">{parsedImport.format === 'csv' ? t('backup:csvFormat') : t('backup:bitwardenFormat')}</span></div>
               <p className="settings-security-note">{sourceFileModifiedAt ? t('backup:importFileModifiedAt', { date: new Intl.DateTimeFormat(activeI18n.resolvedLanguage ?? 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(sourceFileModifiedAt)) }) : t('backup:importFileTimeUnknown')}</p>
               <p className="settings-security-note">{t('backup:passwordsMasked')} {t('backup:sourceFileReminder')}</p>
-              <button className="button button-secondary" type="button" disabled={isCheckingImport || parsedImport.rows.length === 0} onClick={() => void buildPreview()}>{isCheckingImport ? t('backup:checkingDuplicates') : t('backup:checkDuplicates')}</button>
+              <Button className="button button-secondary" type="button" disabled={isCheckingImport || parsedImport.rows.length === 0} onClick={() => void buildPreview()}>{isCheckingImport ? t('backup:checkingDuplicates') : t('backup:checkDuplicates')}</Button>
               {importPreview ? (
                 <>
                   <div className="import-count-summary"><span>{t('backup:summaryNew', { count: importCounts.new })}</span><span>{t('backup:summarySame', { count: importPreview.filter((row) => row.kind === 'same').length })}</span><span>{t('backup:summaryChanged', { count: importCounts.changed })}</span><span>{t('backup:summarySkipped', { count: importCounts.skipped })}</span></div>
@@ -322,7 +323,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
                 </>
               ) : null}
               <p className="settings-blocked-note" role="status">{t('backup:importWriteUnavailable')}</p>
-              <button className="button button-primary" type="button" disabled>{t('backup:applyImport')}</button>
+              <Button className="button button-primary" type="button" disabled>{t('backup:applyImport')}</Button>
             </div>
           ) : null}
         </div>
@@ -333,7 +334,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
         <div className="settings-card settings-data-card">
           <div className="settings-card-topline"><div><strong>{t('backup:encryptedBackupTitle')}</strong><p>{t('backup:encryptedBackupDescription')}</p></div><span className="settings-local-badge">{t('backup:formatV3')}</span></div>
           <div className="settings-security-note">{t('backup:secretBoundary')}</div>
-          <div className="settings-file-actions"><button className="button button-primary" type="button" onClick={openExportDialog}>{t('backup:exportButton')}</button></div>
+          <div className="settings-file-actions"><Button className="button button-primary" type="button" onClick={openExportDialog}>{t('backup:exportButton')}</Button></div>
           {exportDoneFile ? <p className="settings-file-name" role="status">{t('backup:exportDone')}: <strong>{exportDoneFile}</strong></p> : null}
           {exportDialogOpen ? (
             <div className="import-mapping" aria-label={t('backup:exportDialogTitle')}>
@@ -345,15 +346,15 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
               </div>
               {exportError ? <p className="settings-inline-error" role="alert">{t(exportError)}</p> : null}
               <div className="settings-file-actions">
-                <button className="button button-primary" type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</button>
-                <button className="security-button security-button--quiet" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</button>
+                <Button className="button button-primary" type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</Button>
+                <Button className="security-button security-button--quiet" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</Button>
               </div>
             </div>
           ) : null}
           <div className="backup-restore-divider" />
           <div className="settings-card-topline"><div><strong>{t('backup:restoreTitle')}</strong><p>{t('backup:restoreDescription')}</p></div></div>
           <input ref={backupInputRef} className="visually-hidden" id="vault-backup-file" type="file" accept=".json,application/json" onChange={(event) => void onBackupFileChange(event)} />
-          <div className="settings-file-actions"><label className="button button-secondary" htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label><span className="settings-file-name">{backupFileName}</span></div>
+          <div className="settings-file-actions"><Button asChild className="button button-secondary"><label htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label></Button><span className="settings-file-name">{backupFileName}</span></div>
           {backupError ? <p className="settings-inline-error" role="alert">{t(backupError)}</p> : null}
           {backupSummary ? <div className="backup-inspection-result" role="status"><strong>{t('backup:containerRecognized', { version: backupSummary.version })}</strong><p>{t('backup:integrityNotChecked')}</p><span>{t('backup:restoreUnavailable')}</span></div> : null}
         </div>
@@ -368,7 +369,7 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
 
       <section className="settings-section" aria-labelledby="settings-health-title">
         <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">✳</span><div><h2 id="settings-health-title">{t('settings:healthTitle')}</h2><p>{t('settings:healthDescription')}</p></div></div>
-        <div className="settings-card settings-row-card"><div><strong>{t('vault:health.title')}</strong><span>{t('settings:healthLocal')}</span></div><button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}</button></div>
+        <div className="settings-card settings-row-card"><div><strong>{t('vault:health.title')}</strong><span>{t('settings:healthLocal')}</span></div><Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}</Button></div>
       </section>
 
       <section className="settings-section" aria-labelledby="settings-autolock-title">

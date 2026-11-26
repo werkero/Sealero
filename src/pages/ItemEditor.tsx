@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VaultItem, VaultItemInput } from '../client/contracts'
+import { Button } from '../components/ui/button'
 
 function errorCode(error: unknown): string | null {
   if (typeof error === 'object' && error !== null && 'code' in error) {
@@ -107,7 +108,7 @@ export function ItemEditor({ initial, onSave, onCancel }: {
         </label>
         {saveError ? <p className="inline-warning" role="alert">{saveError}</p> : null}
         <div className="detail-card-heading">
-          <button className="button button-primary" type="submit" disabled={saving}>{t('vault:saveItem')}</button>
+          <Button className="button button-primary" type="submit" disabled={saving}>{t('vault:saveItem')}</Button>
           <button className="quiet-button" type="button" onClick={onCancel} disabled={saving}>{t('vault:cancelEdit')}</button>
         </div>
       </form>

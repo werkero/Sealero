@@ -8,6 +8,8 @@ export interface ApiHealthResponse {
   }
   server_time: string
   server_name: string
+  /** Current privacy-policy version (SD §5.1); present when the server is configured with one. */
+  policy_version?: string
 }
 
 export type ApiHealthClientErrorCode = 'http_error' | 'invalid_response' | 'timeout'
@@ -56,9 +58,18 @@ function isUtcIsoTimestamp(value: unknown): value is string {
   return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value
 }
 
-/** Validates the five-field, unauthenticated response defined for GET /v1/health. */
+function hasHealthKeys(value: Record<string, unknown>): boolean {
+  const keys = Object.keys(value)
+  return (
+    HEALTH_FIELDS.every((key) => Object.hasOwn(value, key)) &&
+    keys.every((key) => (HEALTH_FIELDS as readonly string[]).includes(key) || key === 'policy_version')
+  )
+}
+
+/** Validates the documented response for GET /v1/health: the five required fields plus the optional policy_version (SD §5.1). Any other extra field still fails closed. */
 export function isApiHealthResponse(value: unknown): value is ApiHealthResponse {
-  if (!isRecord(value) || !hasExactKeys(value, HEALTH_FIELDS)) return false
+  if (!isRecord(value) || !hasHealthKeys(value)) return false
+  if (Object.hasOwn(value, 'policy_version') && typeof value['policy_version'] !== 'string') return false
   if (typeof value['api_version'] !== 'string' || value['api_version'].length === 0) return false
   if (!Array.isArray(value['supported_api_versions']) ||
     !value['supported_api_versions'].every((version) => typeof version === 'string') ||

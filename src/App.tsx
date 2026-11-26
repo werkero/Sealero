@@ -5,6 +5,9 @@ import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
 import { LanguageSelector } from './components/LanguageSelector'
 import { ThemeToggle } from './components/ThemeToggle'
+import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from './components/ui/dropdown-menu'
+import { Button } from './components/ui/button'
 import type { AppearancePreference } from './features/settings/preferences'
 import type { VaultIdentity, VaultItemInput } from './client/contracts'
 import { createHttpVaultClient, VaultApiError } from './client/http-vault-client'
@@ -38,24 +41,64 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
   )
 }
 
-function VaultHeader({ user, onNavigate, onLogout }: { user: VaultIdentity; onNavigate: (path: string) => void; onLogout: () => void }) {
-  const { t } = useTranslation(['common', 'vault'])
+function VaultHeader({ user, onNavigate, onLock, onRequestSignOut }: {
+  user: VaultIdentity
+  onNavigate: (path: string) => void
+  onLock: () => void
+  onRequestSignOut: () => void
+}) {
+  const { t } = useTranslation(['common', 'vault', 'settings'])
+
   return (
     <header className="vault-header">
       <div className="vault-header-brand"><Brand onNavigate={onNavigate} /><span className="header-divider" /><span className="vault-header-label">{t('vault:vaultHeading')}</span></div>
       <div className="vault-header-actions">
         <LanguageSelector />
-        <button className="profile-button" type="button" onClick={onLogout} aria-label={t('common:signOut')} title={t('common:signOut')}>
-          <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
-          <span className="profile-email">{user.email}</span>
-          <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
-        </button>
+        <div className="profile-menu-wrap">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="profile-button" type="button" aria-label={user.email} title={user.email}>
+                <span className="profile-avatar">{user.email.slice(0, 1).toUpperCase()}</span>
+                <span className="profile-email">{user.email}</span>
+                <span className="profile-chevron" aria-hidden="true"><ChevronDown size={12} aria-hidden="true" /></span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="profile-menu" align="end">
+              <DropdownMenuItem className="profile-menu-item" onClick={onLock}>
+                <span aria-hidden="true"><Lock size={15} aria-hidden="true" /></span>{t('vault:lockVault')}
+              </DropdownMenuItem>
+              <DropdownMenuItem className="profile-menu-item" onClick={() => onNavigate(`/users/${user.id}/settings`)}>
+                <span aria-hidden="true"><Settings size={15} aria-hidden="true" /></span>{t('settings:title')}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="profile-menu-divider" />
+              <DropdownMenuItem className="profile-menu-item" onClick={onRequestSignOut}>
+                <span aria-hidden="true"><LogOut size={15} aria-hidden="true" /></span>{t('common:signOut')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, onNavigate, onLogout, children }: {
+function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onConfirm: () => void; onClose: () => void }) {
+  const { t } = useTranslation(['common'])
+
+  return (
+    <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose() }}>
+      <DialogContent className="confirm-dialog gap-0" showCloseButton={false}>
+        <DialogTitle className="confirm-dialog-text">{t('common:signOutConfirm')}</DialogTitle>
+        <div className="confirm-dialog-actions">
+          <Button className="security-button security-button--quiet" type="button" onClick={onClose}>{t('common:cancel')}</Button>
+          <Button className="button button-primary" type="button" onClick={onConfirm}>{t('common:confirmSignOut')}</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, onNavigate, onLock, onLogout, children }: {
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
@@ -63,13 +106,15 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, 
   isAdmin?: boolean
   onFilterChange: (filter: VaultFilter) => void
   onNavigate: (path: string) => void
+  onLock: () => void
   onLogout: () => void
   children: ReactNode
 }) {
   const { t } = useTranslation(['common', 'vault', 'settings', 'admin'])
+  const [confirmSignOutOpen, setConfirmSignOutOpen] = useState(false)
   return (
     <div className="vault-app-shell">
-      <VaultHeader user={user} onNavigate={onNavigate} onLogout={onLogout} />
+      <VaultHeader user={user} onNavigate={onNavigate} onLock={onLock} onRequestSignOut={() => setConfirmSignOutOpen(true)} />
       <div className="vault-workspace">
         <aside className="vault-sidebar" aria-label={t('vault:navigation')}>
           <div className="sidebar-section-label">{t('vault:yourVault')}</div>
@@ -101,12 +146,13 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, onFilterChange, 
               <strong>{t('vault:autoLockTitle')}</strong>
               <span>{t('vault:autoLockDescription')}</span>
             </div>
-            <button className="sidebar-sign-out" type="button" onClick={onLogout}><span aria-hidden="true"><LogOut size={12} aria-hidden="true" /></span>{t('common:signOut')}</button>
+            <button className="sidebar-sign-out" type="button" onClick={() => setConfirmSignOutOpen(true)}><span aria-hidden="true"><LogOut size={12} aria-hidden="true" /></span>{t('common:signOut')}</button>
           </div>
         </aside>
         <main className="vault-main">{children}</main>
       </div>
       <ToastLayer />
+      <SignOutConfirmDialog open={confirmSignOutOpen} onConfirm={onLogout} onClose={() => setConfirmSignOutOpen(false)} />
     </div>
   )
 }
@@ -406,6 +452,7 @@ function AppShell() {
       onCreateItem={handleCreateItem}
       onUpdateItem={handleUpdateItem}
       onDeleteItem={handleDeleteItem}
+      onLock={lockVault}
       onLogout={handleLogout}
       onCopy={(value, label) => void copyToClipboard(value, label)}
       loadHealthItem={loadHealthItem}

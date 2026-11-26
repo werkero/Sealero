@@ -5,8 +5,9 @@ import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '..
 import { PasswordHealthInline } from '../features/password-security/PasswordSecurity'
 import { CopyIcon, SecretRow, VaultLayout, hostname, iconTone } from '../App'
 import { ItemEditor } from './ItemEditor'
+import { Button } from '../components/ui/button'
 
-export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, onNavigate, onLogout, onCopy, onUpdateItem, onDeleteItem }: {
+export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, onNavigate, onLock, onLogout, onCopy, onUpdateItem, onDeleteItem }: {
   user: VaultIdentity
   item: VaultItem
   itemCount: number
@@ -14,6 +15,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
   isAdmin?: boolean
   loadItem: (itemId: string) => Promise<VaultItem>
   onNavigate: (path: string) => void
+  onLock: () => void
   onLogout: () => void
   onCopy: (value: string, label: string) => void
   onUpdateItem: (itemId: string, input: VaultItemInput) => Promise<VaultItem | null>
@@ -58,7 +60,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
 
   if (editing) {
     return (
-      <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+      <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
         <div className="detail-content">
           <button className="back-button detail-back" type="button" onClick={() => setEditing(false)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
           <ItemEditor
@@ -78,7 +80,7 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
   }
 
   return (
-    <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+    <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
       <div className="detail-content">
         <button className="back-button detail-back" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
         <div className="detail-title-row">
@@ -91,11 +93,12 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
           {item.favorite ? <span className="detail-favorite-pill"><Star size={10} aria-hidden="true" /> {t('vault:favorite')}</span> : null}
         </div>
         <div className="security-list-actions">
-          <button className="security-button" type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</button>
+          <Button className="security-button" type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</Button>
           {confirmingDelete ? (
             <>
               <span className="inline-warning" role="alert">{t('vault:deleteItemConfirm')}</span>
-              <button
+              <Button
+                variant="destructive"
                 className="security-button"
                 type="button"
                 onClick={() => {
@@ -111,11 +114,11 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
                     setConfirmingDelete(false)
                   })
                 }}
-              >{t('vault:confirmDelete')}</button>
-              <button className="security-button security-button--quiet" type="button" onClick={() => setConfirmingDelete(false)}>{t('vault:cancelEdit')}</button>
+              >{t('vault:confirmDelete')}</Button>
+              <Button className="security-button security-button--quiet" type="button" onClick={() => setConfirmingDelete(false)}>{t('vault:cancelEdit')}</Button>
             </>
           ) : (
-            <button className="security-button security-button--quiet" type="button" onClick={() => { setDeleteFailed(false); setConfirmingDelete(true) }}>{t('vault:deleteItem')}</button>
+            <Button className="security-button security-button--quiet" type="button" onClick={() => { setDeleteFailed(false); setConfirmingDelete(true) }}>{t('vault:deleteItem')}</Button>
           )}
           {deleteFailed ? <span className="inline-warning" role="alert">{t('vault:deleteFailed')}</span> : null}
         </div>

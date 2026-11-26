@@ -3,15 +3,17 @@ import { ChevronRight, Info, Search, Star, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItemInput, VaultListItem } from '../client/contracts'
 import { VaultLayout, hostname, iconTone, type VaultFilter } from '../App'
+import { Button } from '../components/ui/button'
 import { ItemEditor } from './ItemEditor'
 
-export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLogout }: {
+export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
   onNavigate: (path: string) => void
   onOpenItem: (itemId: string) => void
   onCreateItem: (input: VaultItemInput) => Promise<unknown>
+  onLock: () => void
   onLogout: () => void
 }) {
   const { t } = useTranslation(['common', 'vault'])
@@ -45,7 +47,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} onFilterChange={setFilter} onNavigate={onNavigate} onLogout={onLogout}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
       <div className="vault-content">
         <div className="vault-title-row">
           <div>
@@ -56,9 +58,9 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
           <div className="vault-items-count"><strong>{visibleItems.length}</strong><span>{t('vault:itemsLabel')}</span></div>
         </div>
         <div className="security-list-actions">
-          <button className="security-button" type="button" onClick={() => setCreating(true)}>{t('vault:newItem')}</button>
-          <button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}/generator`)}>{t('vault:generator.title')}</button>
-          <button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}/settings`)}>{t('vault:health.title')}</button>
+          <Button className="security-button" type="button" onClick={() => setCreating(true)}>{t('vault:newItem')}</Button>
+          <Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}/generator`)}>{t('vault:generator.title')}</Button>
+          <Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}/settings`)}>{t('vault:health.title')}</Button>
         </div>
         {creating ? (
           <ItemEditor

@@ -8,6 +8,7 @@ import {
   type McpConfirmationItem,
 } from '../client/mcp-confirmations'
 import { VaultLayout, hostname } from '../App'
+import { Button } from '../components/ui/button'
 
 /**
  * Trusted-confirmation page (SD §5.3). Lists the AI connector requests
@@ -15,11 +16,12 @@ import { VaultLayout, hostname } from '../App'
  * item name and domain are resolved locally from the unlocked vault —
  * the server never decrypts anything for this page.
  */
-export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, getAccessToken, refreshAccessToken }: {
+export function McpConfirmations({ user, items, isAdmin, onNavigate, onLock, onLogout, getAccessToken, refreshAccessToken }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
   onNavigate: (path: string) => void
+  onLock: () => void
   onLogout: () => void
   getAccessToken: () => string | null
   /** Shared token refresher (the vault adapter's); the client calls it on 401. */
@@ -80,7 +82,7 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, g
   }
 
   return (
-    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLogout={onLogout}>
+    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout}>
       <div className="vault-content">
         <div className="vault-title-row">
           <div>
@@ -88,9 +90,9 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, g
             <h1>{t('vault:mcpConfirmations.title')}</h1>
             <p className="vault-page-subtitle">{t('vault:mcpConfirmations.subtitle')}</p>
           </div>
-          <button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}`)}>
+          <Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}`)}>
             {t('vault:mcpConfirmations.backToVault')}
-          </button>
+          </Button>
         </div>
         {notice ? <p className="detail-loading" role="status">{notice}</p> : null}
         {actionError ? <p className="detail-loading" role="alert">{t('vault:mcpConfirmations.actionFailed')}</p> : null}
@@ -133,22 +135,22 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLogout, g
                   </span>
                   {pending ? (
                     <span className="security-list-actions">
-                      <button
+                      <Button
                         className="security-button"
                         type="button"
                         disabled={actingId === confirmation.confirmation_id}
                         onClick={() => void decide(confirmation, 'approve')}
                       >
                         {t('vault:mcpConfirmations.allow')}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         className="security-button security-button--quiet"
                         type="button"
                         disabled={actingId === confirmation.confirmation_id}
                         onClick={() => void decide(confirmation, 'deny')}
                       >
                         {t('vault:mcpConfirmations.deny')}
-                      </button>
+                      </Button>
                     </span>
                   ) : null}
                 </div>
