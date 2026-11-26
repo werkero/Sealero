@@ -68,7 +68,7 @@ describe('Landing logged-in vs logged-out', () => {
     expect(html).toContain('Create an account');
     expect(html).toContain('Get started');
     expect(html).toContain('Choose Pro');
-    expect(html.match(/href="\/register"/g)?.length).toBe(3);
+    expect(html.match(/href="\/register"/g)?.length).toBe(4);
     expect(html).not.toContain('Enter your vault');
     expect(html).not.toContain('profile-avatar');
   });
@@ -87,7 +87,7 @@ describe('Landing logged-in vs logged-out', () => {
     expect(html).not.toContain('Sign in');
   });
 
-  it('renders the AI screen as its own full-screen section with the demo at its first step', async () => {
+  it('renders the AI screen with the isometric cube visual and four feature points', async () => {
     const html = await renderLanding(null);
     expect(html).toContain('ai-screen');
     expect(html).toContain('Ask your AI for a password');
@@ -95,10 +95,15 @@ describe('Landing logged-in vs logged-out', () => {
     expect(html).toContain('One authorization');
     expect(html).toContain('You approve every time');
     expect(html).toContain('Master password stays with you');
-    expect(html).toContain('AI assistant');
-    expect(html).toContain('Get me my GitHub password');
-    // Server render runs no effects, so the demo is at phase 0: the
-    // confirm and done steps must not be in the initial markup.
+    expect(html).toContain('Valid 5 minutes, single use');
+    expect(html).toContain('ai-cubes');
+    // Server render runs no effects, so the flow is at phase 0: the first
+    // cube is active and the later steps are not done yet.
+    expect(html).toContain('ai-cube--active');
+    expect(html).not.toContain('ai-cube--done');
+    // The old chat demo panel is gone.
+    expect(html).not.toContain('AI assistant');
+    expect(html).not.toContain('Get me my GitHub password');
     expect(html).not.toContain('Confirmed · valid for 5 minutes');
     expect(html).not.toContain('Password fetched');
   });

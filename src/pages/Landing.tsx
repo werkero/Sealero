@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowUpRight, Check, KeyRound, ShieldCheck, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Clock, KeyRound, ShieldCheck, Sparkles } from 'lucide-react'
 import { motion, MotionConfig, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
@@ -76,6 +76,13 @@ function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIde
 
 const AI_DEMO_PHASE_MS = [1800, 2000, 2800]
 
+/** The three flow cubes on the 3x3 grid diagonal: ask -> confirm -> fetch. */
+const AI_CUBE_FLOW = [
+  { icon: Sparkles, phase: 0, position: 0 },
+  { icon: ShieldCheck, phase: 1, position: 4 },
+  { icon: KeyRound, phase: 2, position: 8 },
+] as const
+
 function AiCall() {
   const { t } = useTranslation('common')
   const reduceMotion = useReducedMotion()
@@ -93,6 +100,7 @@ function AiCall() {
     { icon: Sparkles, title: t('aiCallPoint1Title'), body: t('aiCallPoint1Body') },
     { icon: ShieldCheck, title: t('aiCallPoint2Title'), body: t('aiCallPoint2Body') },
     { icon: KeyRound, title: t('aiCallPoint3Title'), body: t('aiCallPoint3Body') },
+    { icon: Clock, title: t('aiCallPoint4Title'), body: t('aiCallPoint4Body') },
   ]
 
   return (
@@ -105,12 +113,39 @@ function AiCall() {
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <div className="ai-screen-inner">
+        <div className="ai-cubes-stage">
+          <div className="ai-cubes" aria-hidden="true">
+            {Array.from({ length: 9 }, (_, index) => {
+              const flow = AI_CUBE_FLOW.find((cube) => cube.position === index)
+              const state = !flow ? 'idle' : flow.phase === phase ? 'active' : flow.phase < phase ? 'done' : 'idle'
+              const Icon = flow?.icon
+              return (
+                <div key={index} className={`ai-cube ai-cube--${state}`}>
+                  <div className="ai-cube-face ai-cube-face--front" />
+                  <div className="ai-cube-face ai-cube-face--back" />
+                  <div className="ai-cube-face ai-cube-face--right" />
+                  <div className="ai-cube-face ai-cube-face--left" />
+                  <div className="ai-cube-face ai-cube-face--top">
+                    {Icon ? (
+                      <span className="ai-cube-icon">
+                        <Icon size={30} aria-hidden="true" />
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
         <div className="ai-copy">
           <h2 id="ai-title">{t('aiCallTitle')}</h2>
           <p className="section-subtitle">{t('aiCallDescription')}</p>
           <ul className="ai-points">
             {points.map((point, index) => (
-              <li key={point.title} className={index === phase ? 'ai-point ai-point--active' : 'ai-point'}>
+              <li
+                key={point.title}
+                className={index === phase || (phase === 2 && index === 3) ? 'ai-point ai-point--active' : 'ai-point'}
+              >
                 <span className="ai-point-icon" aria-hidden="true">
                   <point.icon size={20} />
                 </span>
@@ -121,53 +156,6 @@ function AiCall() {
               </li>
             ))}
           </ul>
-        </div>
-        <div className="ai-demo">
-          <div className="ai-demo-header">
-            <Sparkles size={16} aria-hidden="true" />
-            <span>{t('aiDemoTitle')}</span>
-            <span className="ai-live-dot" aria-hidden="true" />
-          </div>
-          <motion.div
-            className="ai-bubble ai-bubble--ai"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-          >
-            {t('aiDemoAsk')}
-          </motion.div>
-          {phase >= 1 && (
-            <motion.div
-              className="ai-confirm"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            >
-              <Check size={16} aria-hidden="true" />
-              <span>{t('aiDemoApproved')}</span>
-            </motion.div>
-          )}
-          {phase >= 2 && (
-            <>
-              <motion.div
-                className="ai-bubble ai-bubble--done"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                {t('aiDemoDone')}
-              </motion.div>
-              <motion.div
-                className="ai-password-chip"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-              >
-                <KeyRound size={14} aria-hidden="true" />
-                <span aria-hidden="true">••••••••</span>
-              </motion.div>
-            </>
-          )}
         </div>
       </div>
     </motion.section>
@@ -205,6 +193,7 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
             <li>{t('pricingFreeF3')}</li>
             <li>{t('pricingFreeF4')}</li>
             <li>{t('pricingFreeF5')}</li>
+            <li>{t('pricingFreeF6')}</li>
           </ul>
           <a
             className="button button-secondary pricing-cta"
@@ -237,6 +226,10 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
             <li>{t('pricingProF1')}</li>
             <li>{t('pricingProF2')}</li>
             <li>{t('pricingProF3')}</li>
+            <li>{t('pricingProF4')}</li>
+            <li>{t('pricingProF5')}</li>
+            <li>{t('pricingProF6')}</li>
+            <li>{t('pricingProF7')}</li>
           </ul>
           {user ? null : (
             <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
@@ -259,7 +252,6 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
           <ul className="pricing-features">
             <li>{t('pricingCloudF1')}</li>
             <li>{t('pricingCloudF2')}</li>
-            <li>{t('pricingCloudF3')}</li>
           </ul>
           {user ? null : (
             <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
@@ -268,7 +260,6 @@ function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate:
           )}
         </motion.article>
       </div>
-      <p className="pricing-note">{t('pricingNote')}</p>
     </motion.section>
   )
 }

@@ -312,7 +312,7 @@ button {
   width: min(100%, 1200px);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
   gap: clamp(32px, 5vw, 72px);
   align-items: center;
 }
@@ -381,106 +381,104 @@ button {
   line-height: 1.6;
 }
 
-.ai-demo {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  background: var(--surface);
-  padding: 20px;
-  box-shadow: 0 12px 32px rgb(23 26 33 / 14%);
-}
-
-.ai-demo-header {
+.ai-cubes-stage {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink);
-  font-size: 14px;
-  font-weight: 650;
+  justify-content: center;
+  min-height: 420px;
 }
 
-.ai-demo-header > svg {
+/* Isometric cube grid (orthographic: no perspective, so the cubes read as
+   flat isometric blocks). The grid is tilted back and spun 45 degrees; each
+   cube is a real 3D box whose top face carries one step of the AI flow. */
+.ai-cubes {
+  --cube: 92px;
+  display: grid;
+  grid-template-columns: repeat(3, var(--cube));
+  gap: 22px;
+  transform: rotateX(58deg) rotateZ(45deg);
+  transform-style: preserve-3d;
+}
+
+.ai-cube {
+  position: relative;
+  width: var(--cube);
+  height: var(--cube);
+  transform-style: preserve-3d;
+}
+
+.ai-cube-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+}
+
+.ai-cube-face--top {
+  transform: rotateX(90deg) translateZ(calc(var(--cube) / 2));
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ai-cube-face--front {
+  transform: translateZ(calc(var(--cube) / 2));
+  background: color-mix(in srgb, var(--surface) 88%, black);
+}
+
+.ai-cube-face--back {
+  transform: rotateY(180deg) translateZ(calc(var(--cube) / 2));
+  background: color-mix(in srgb, var(--surface) 64%, black);
+}
+
+.ai-cube-face--right {
+  transform: rotateY(90deg) translateZ(calc(var(--cube) / 2));
+  background: color-mix(in srgb, var(--surface) 76%, black);
+}
+
+.ai-cube-face--left {
+  transform: rotateY(-90deg) translateZ(calc(var(--cube) / 2));
+  background: color-mix(in srgb, var(--surface) 52%, black);
+}
+
+/* The icon is counter-rotated against the grid's 45-degree spin and stretched
+   along the tilted axis so it reads upright on the cube top. */
+.ai-cube-icon {
+  color: var(--muted);
+  display: flex;
+  transform: scaleY(1.9) rotate(-45deg);
+  transition: color 200ms ease;
+}
+
+.ai-cube--active .ai-cube-face--top {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 1px var(--blue), 0 0 28px rgb(8 50 170 / 0.35);
+}
+
+.ai-cube--active .ai-cube-icon {
   color: var(--blue);
 }
 
-.ai-live-dot {
-  width: 8px;
-  height: 8px;
-  margin-left: auto;
-  border-radius: 50%;
-  background: #15966a;
-  animation: ai-pulse 2s ease-out infinite;
-}
-
-@keyframes ai-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgb(21 150 106 / 0.4);
-  }
-  100% {
-    box-shadow: 0 0 0 8px rgb(21 150 106 / 0);
-  }
-}
-
-.ai-bubble {
-  max-width: 88%;
-  padding: 12px 16px;
-  border-radius: 16px;
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.ai-bubble--ai {
-  align-self: flex-start;
-  border-bottom-left-radius: 6px;
-  background: var(--surface-soft);
-}
-
-.ai-bubble--done {
-  align-self: flex-end;
-  border-bottom-right-radius: 6px;
-  background: var(--blue);
-  color: #fff;
-}
-
-.ai-confirm {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px 14px;
-  color: var(--ink);
-  font-size: 14px;
-  line-height: 1.55;
-}
-
-.ai-confirm > svg {
-  flex: none;
-  margin-top: 2px;
+.ai-cube--done .ai-cube-icon {
   color: #15966a;
-}
-
-.ai-password-chip {
-  align-self: flex-end;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 14px;
-  color: var(--muted);
-  font-size: 14px;
-  letter-spacing: 2px;
 }
 
 @media (max-width: 900px) {
   .ai-screen-inner {
     grid-template-columns: 1fr;
+  }
+
+  .ai-copy {
+    order: -1;
+  }
+
+  .ai-cubes-stage {
+    min-height: 340px;
+  }
+
+  .ai-cubes {
+    --cube: 72px;
+    gap: 16px;
   }
 }
 
@@ -566,12 +564,6 @@ button {
   justify-content: center;
   width: 100%;
   margin-top: 10px;
-}
-
-.pricing-note {
-  margin: 20px 0 0;
-  color: var(--muted);
-  font-size: 12px;
 }
 
 .faq-list {
@@ -906,10 +898,10 @@ button {
   display: grid;
   place-items: center;
   margin-bottom: 23px;
-  border: 1px solid #e3eaf8;
+  border: 1px solid var(--line);
   border-radius: 12px;
-  background: #f1f5fc;
-  color: #3d65ab;
+  background: var(--blue-soft);
+  color: var(--blue);
   font-size: 19px;
 }
 
@@ -1021,7 +1013,7 @@ button {
   border: 0;
   background: none;
   padding: 5px;
-  color: #677181;
+  color: var(--muted);
   font-size: 12px;
   font-weight: 580;
   transform: translateY(-50%);
@@ -1045,7 +1037,7 @@ button {
 
 .auth-switch {
   margin: 20px 0 0;
-  color: #7a828e;
+  color: var(--muted);
   text-align: center;
   font-size: 12px;
 }
@@ -1197,8 +1189,8 @@ button {
   flex: 0 0 auto;
   place-items: center;
   border-radius: 50%;
-  background: #e8effc;
-  color: #355da8;
+  background: var(--blue-soft);
+  color: var(--blue);
   font-size: 12px;
   font-weight: 650;
 }
@@ -1272,7 +1264,7 @@ button {
 
 .vault-title-row .eyebrow {
   margin-bottom: 8px;
-  color: #8a929e;
+  color: var(--muted);
   font-size: 12px;
 }
 
@@ -1296,12 +1288,12 @@ button {
   justify-items: end;
   gap: 2px;
   padding-bottom: 3px;
-  color: #8a929d;
+  color: var(--muted);
   font-size: 12px;
 }
 
 .vault-items-count strong {
-  color: #3f4855;
+  color: var(--ink);
   font-size: 17px;
   font-weight: 650;
 }
@@ -2473,6 +2465,11 @@ button {
     background: #242832;
     color: #e3e8f0;
   }
+
+:root[data-theme="dark"] .lock-mark {
+  background: #16281d;
+  color: #6fce8f;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

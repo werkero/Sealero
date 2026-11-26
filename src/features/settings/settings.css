@@ -73,7 +73,7 @@
   border: 1px solid var(--line);
   border-radius: 9px;
   background: var(--surface);
-  color: #52627a;
+  color: var(--muted);
   font-size: 14px;
 }
 .settings-section-heading h2 {
@@ -177,7 +177,7 @@
 }
 .settings-cloud-mark {
   border-radius: 50%;
-  background: #edf3ff;
+  background: var(--blue-soft);
 }
 .settings-unavailable-card {
   display: flex;
@@ -472,7 +472,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--surface-soft);
-  color: #5e6e84;
+  color: var(--muted);
   font-size: 12px;
 }
 .cloud-provider-row > div {
@@ -629,6 +629,14 @@
 :root[data-theme="dark"] .import-result-pill.is-new {
   background: #20382a;
   color: #94d4a5;
+}
+
+:root[data-theme="dark"] .settings-inline-error {
+  color: #f0a49e;
+}
+
+:root[data-theme="dark"] .cloud-webdav-warning {
+  color: #d4bd8a;
 }
 @media (max-width: 700px) {
   .settings-content {

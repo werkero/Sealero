@@ -53,7 +53,7 @@
   border: 0;
   padding: 0;
   background: transparent;
-  color: #245fe5;
+  color: var(--blue);
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
@@ -62,7 +62,7 @@
 }
 
 .api-health-card__retry:focus-visible {
-  outline: 2px solid #245fe5;
+  outline: 2px solid var(--blue);
   outline-offset: 3px;
   border-radius: 2px;
 }
