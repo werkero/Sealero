@@ -1153,10 +1153,18 @@ const ADMIN_USER_SUMMARY_SELECT = `
          ), 0)::bigint AS ciphertext_total_bytes
   FROM users u`;
 
+export interface SqlAuthStoreOptions {
+  /** Live pool size for `GET /v1/admin/overview`. Defaults to 1 (single connection). */
+  readonly connectionCount?: () => number;
+}
+
 /** SQL implementation; the host supplies a transactional PostgreSQL-compatible driver. */
 export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, DeviceRevocationStore, DeviceListStore,
   PrivacyConsentStore, AdminUserReadStore, AdminConsoleReadStore, OAuthStore, McpConfirmationStore {
-  constructor(private readonly database: TransactionalSqlDatabase) {}
+  constructor(
+    private readonly database: TransactionalSqlDatabase,
+    private readonly options: SqlAuthStoreOptions = {},
+  ) {}
 
   async findUserByEmail(email: string): Promise<AuthUser | null> {
     const row = await first<UserRow>(this.database,
@@ -1364,21 +1372,28 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
          (SELECT COUNT(*)::bigint FROM devices) AS total_devices`,
       [dayStart, dayEnd]);
     if (row === null) throw new Error('Admin overview query returned no row.');
+    // Cleanup runs are recorded in server_settings by the maintenance
+    // endpoint (System Design §7.4, §8); until the first run, both stay null.
+    const cleanupRows = await this.database.query<{ key: string; value: string }>(
+      `SELECT key, value FROM server_settings
+       WHERE key IN ('tombstone_last_cleanup_at', 'tombstone_last_cleanup_status')`,
+    );
+    const cleanupByKey = new Map(cleanupRows.rows.map((entry) => [entry.key, entry.value]));
+    const lastCleanupAt = cleanupByKey.get('tombstone_last_cleanup_at') ?? null;
+    const lastCleanupStatusRaw = cleanupByKey.get('tombstone_last_cleanup_status') ?? null;
+    const lastCleanupStatus =
+      lastCleanupStatusRaw === 'success' || lastCleanupStatusRaw === 'failed'
+        ? lastCleanupStatusRaw
+        : null;
     return {
       total_users: adminInteger(row.total_users),
       today_new_users: adminInteger(row.today_new_users),
       today_active_users: adminInteger(row.today_active_users),
       total_devices: adminInteger(row.total_devices),
-      // TODO (System Design §5.2): db_connections is the live connection-pool
-      // size, but this store holds a single PGlite connection and exposes no
-      // pool; 1 is the true count for this implementation. A pooled store
-      // must report its own live connection count here instead.
-      db_connections: 1,
-      // TODO (System Design §5.2): tombstone_cleanup has no record source.
-      // No table or column stores cleanup runs (§4), and
-      // cleanupExpiredTombstones has no caller yet (KYV-34 deployment
-      // wiring). Until cleanup runs are recorded, both fields stay null.
-      tombstone_cleanup: { last_cleanup_at: null, last_cleanup_status: null },
+      // Live connection-pool size for a pooled store (Neon); 1 for the
+      // single-connection local adapter. See SqlAuthStoreOptions.
+      db_connections: this.options.connectionCount?.() ?? 1,
+      tombstone_cleanup: { last_cleanup_at: lastCleanupAt, last_cleanup_status: lastCleanupStatus },
     };
   }
 
