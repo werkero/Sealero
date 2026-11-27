@@ -87,7 +87,7 @@
     "verifiedHint": "Ce mot de passe a passé la liste locale des mots de passe faibles et la vérification des fuites."
   },
   "health": {
-    "title": "État des mots de passe",
+    "title": "Rapport",
     "settingsTitle": "Vérifier les mots de passe du coffre",
     "localOnlyHint": "Les mots de passe sont vérifiés en mémoire dans le navigateur ; seul le préfixe SHA-1 de cinq caractères est envoyé à HIBP pour la comparaison.",
     "runHealthCheck": "Vérifier le coffre",
@@ -141,7 +141,7 @@
   "mnemonicLabel": "Phrase de récupération (mots séparés par des espaces)",
   "tagsHint": "Séparez les étiquettes par des virgules.",
   "mcpConfirmations": {
-    "title": "Confirmations",
+    "title": "Demandes de confirmation",
     "loading": "Chargement des demandes…",
     "loadFailed": "Impossible de charger les demandes de confirmation.",
     "retry": "Réessayer",
@@ -156,8 +156,7 @@
     "deny": "Refuser",
     "approvedMessage": "Approuvé. Le connecteur peut lire cet élément une fois.",
     "deniedMessage": "Refusé. Le connecteur n’obtiendra pas cet élément.",
-    "actionFailed": "Cela n’a pas fonctionné. Réessayez.",
-    "backToVault": "Retour au coffre"
+    "actionFailed": "Cela n’a pas fonctionné. Réessayez."
   },
   "lockVault": "Verrouiller le coffre"
 }

@@ -255,7 +255,7 @@ export interface AuthTransaction {
 export interface AuthStore {
   findUserByEmail(email: string): Promise<AuthUser | null>;
   /** Non-locking identity read for GET /v1/auth/me; null when the account is gone. */
-  findUserById(userId: string): Promise<{ readonly id: string; readonly email: string } | null>;
+  findUserById(userId: string): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null } | null>;
   getAccessOwnerStatus(userId: string, deviceId: string): Promise<AccessOwnerStatus | null>;
   transaction<T>(callback: (transaction: AuthTransaction) => Promise<T>): Promise<T>;
 }

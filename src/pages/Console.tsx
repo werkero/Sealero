@@ -975,6 +975,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
   return (
     <BackendShell
       user={user}
+      onNavigate={onNavigate}
       onLogout={onLogout}
       title={section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'roles' ? t('roles.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
       appearancePreference={appearancePreference}

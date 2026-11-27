@@ -3,6 +3,7 @@ import { ArrowUpRight, Clock, KeyRound, ShieldCheck, Sparkles } from 'lucide-rea
 import { motion, MotionConfig, useReducedMotion } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Brand } from '../components/Brand'
+import { UserAvatar } from '../components/UserAvatar'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
 import type { VaultIdentity } from '../client/contracts'
@@ -62,7 +63,7 @@ function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIde
         <LanguageSelector />
         {user ? (
           <button type="button" className="theme-toggle" aria-label={t('common:landingEnterVaultButton')} title={t('common:landingEnterVaultButton')} onClick={() => onNavigate(`/users/${user.id}`)}>
-            <span className="profile-avatar" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</span>
+            <UserAvatar displayName={user.display_name} avatarUrl={user.avatar_url} email={user.email} className="profile-avatar" />
           </button>
         ) : (
           <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>

@@ -87,7 +87,7 @@
     "verifiedHint": "此密碼已通過本機弱密碼清單和洩漏檢查。"
   },
   "health": {
-    "title": "密碼健康檢查",
+    "title": "報告",
     "settingsTitle": "檢查保險庫中的密碼",
     "localOnlyHint": "密碼只在瀏覽器記憶體中檢查；HIBP 僅收到 SHA-1 雜湊的前 5 位用於洩漏比對。",
     "runHealthCheck": "檢查保險庫",
@@ -141,7 +141,7 @@
   "mnemonicLabel": "復原短語（單字之間用空格分隔）",
   "tagsHint": "多個標籤用英文逗號分隔。",
   "mcpConfirmations": {
-    "title": "確認請求",
+    "title": "請求確認",
     "loading": "正在載入請求…",
     "loadFailed": "載入確認請求失敗。",
     "retry": "重試",
@@ -156,8 +156,7 @@
     "deny": "拒絕",
     "approvedMessage": "已批准，連接器可以讀取該條目一次。",
     "deniedMessage": "已拒絕，連接器拿不到該條目。",
-    "actionFailed": "操作失敗，請重試。",
-    "backToVault": "返回保險庫"
+    "actionFailed": "操作失敗，請重試。"
   },
   "lockVault": "鎖定保險庫"
 }

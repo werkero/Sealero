@@ -284,6 +284,8 @@ export const ADMIN_DEVICE_ACTIONS = ['revoke'] as const
 export interface AdminUserListItem {
   readonly id: string
   readonly email: string
+  readonly display_name: string | null
+  readonly avatar_url: string | null
   readonly created_at: string
   readonly email_verified_at: string | null
   readonly disabled_at: string | null

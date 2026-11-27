@@ -142,6 +142,7 @@
     "applyFilters": "套用篩選",
     "columns": {
       "email": "電子郵件",
+      "display_name": "顯示名稱",
       "created_at": "註冊時間",
       "last_login_at": "最近登入",
       "email_verified_at": "電子郵件已驗證",

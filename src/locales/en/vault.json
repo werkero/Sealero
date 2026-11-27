@@ -87,7 +87,7 @@
     "verifiedHint": "This password passed the local weak-password list and the breach check."
   },
   "health": {
-    "title": "Password health",
+    "title": "Report",
     "settingsTitle": "Check passwords in your vault",
     "localOnlyHint": "Passwords are checked in browser memory; only a five-character SHA-1 prefix is sent to HIBP for breach matching.",
     "runHealthCheck": "Check vault",
@@ -141,7 +141,7 @@
   "mnemonicLabel": "Recovery phrase (words separated by spaces)",
   "tagsHint": "Separate tags with commas.",
   "mcpConfirmations": {
-    "title": "Confirmations",
+    "title": "Confirmation requests",
     "loading": "Loading requests…",
     "loadFailed": "Could not load confirmation requests.",
     "retry": "Retry",
@@ -156,8 +156,7 @@
     "deny": "Deny",
     "approvedMessage": "Approved. The connector can read this item once.",
     "deniedMessage": "Denied. The connector will not get this item.",
-    "actionFailed": "That did not work. Try again.",
-    "backToVault": "Back to vault"
+    "actionFailed": "That did not work. Try again."
   },
   "lockVault": "Lock vault"
 }

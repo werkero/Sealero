@@ -318,7 +318,7 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       const sub = decodeJwtSub(accessToken)
       if (!sub) throw new VaultApiError('login_failed', response.status)
       userId = sub
-      return { id: sub, email: email.trim() }
+      return client.getCurrentUser(signal)
     },
 
     async register(email: string, loginPassword: string, signal?: AbortSignal): Promise<{ emailVerificationRequired: boolean }> {
@@ -368,12 +368,17 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
     async getCurrentUser(signal?: AbortSignal): Promise<VaultIdentity> {
       throwIfAborted(signal)
       if (!accessToken) throw new VaultApiError('unauthorized', 401)
-      const identity = await request<{ id?: unknown; email?: unknown }>('/v1/auth/me', { method: 'GET' }, signal)
+      const identity = await request<{ id?: unknown; email?: unknown; display_name?: unknown; avatar_url?: unknown }>('/v1/auth/me', { method: 'GET' }, signal)
       if (typeof identity.id !== 'string' || !identity.id || typeof identity.email !== 'string' || !identity.email) {
         throw new VaultApiError('unauthorized', 401)
       }
       userId = identity.id
-      return { id: identity.id, email: identity.email }
+      return {
+        id: identity.id,
+        email: identity.email,
+        display_name: typeof identity.display_name === 'string' ? identity.display_name : null,
+        avatar_url: typeof identity.avatar_url === 'string' ? identity.avatar_url : null,
+      }
     },
 
     async verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void> {

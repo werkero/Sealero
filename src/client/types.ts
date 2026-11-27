@@ -1,6 +1,8 @@
 export interface VaultIdentity {
   id: string
   email: string
+  display_name: string | null
+  avatar_url: string | null
 }
 
 export interface RecoveryCode {

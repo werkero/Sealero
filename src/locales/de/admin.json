@@ -142,6 +142,7 @@
     "applyFilters": "Filter anwenden",
     "columns": {
       "email": "E-Mail",
+      "display_name": "Anzeigename",
       "created_at": "Registriert",
       "last_login_at": "Letzte Anmeldung",
       "email_verified_at": "E-Mail bestätigt",

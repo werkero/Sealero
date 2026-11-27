@@ -229,11 +229,12 @@ export class AuthService {
 
   /**
    * Returns the login identity for GET /v1/auth/me (System Design §5.1):
-   * only {id, email} for the JWT's own account. The caller already passed
+   * {id, email, display_name, avatar_url} for the JWT's own account.
+   * The caller already passed
    * the per-request revocation check, so a missing row here only means the
    * account was deleted after the token was issued.
    */
-  async getCurrentUser(userId: string): Promise<{ readonly id: string; readonly email: string }> {
+  async getCurrentUser(userId: string): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null }> {
     const user = await this.store.findUserById(userId);
     if (user === null) {
       throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');

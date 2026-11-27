@@ -142,6 +142,7 @@
     "applyFilters": "Apply filters",
     "columns": {
       "email": "Email",
+      "display_name": "Display name",
       "created_at": "Registered",
       "last_login_at": "Last login",
       "email_verified_at": "Email verified",

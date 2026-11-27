@@ -88,7 +88,7 @@ export function createSensitiveAuthRoutes(
     try {
       requireHttps(context, allowInsecureHttp);
       const identity = await service.getCurrentUser(context.get('auth').sub);
-      return context.json({ id: identity.id, email: identity.email });
+      return context.json({ id: identity.id, email: identity.email, display_name: identity.display_name, avatar_url: identity.avatar_url });
     } catch (error) {
       return authErrorResponse(context, error);
     }

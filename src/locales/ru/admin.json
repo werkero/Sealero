@@ -142,6 +142,7 @@
     "applyFilters": "Применить фильтры",
     "columns": {
       "email": "Почта",
+      "display_name": "Отображаемое имя",
       "created_at": "Регистрация",
       "last_login_at": "Последний вход",
       "email_verified_at": "Почта подтверждена",

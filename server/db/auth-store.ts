@@ -197,6 +197,8 @@ interface AuthCodeRow extends Record<string, unknown> {
 interface AdminUserRow extends Record<string, unknown> {
   id: string;
   email: string;
+  display_name: string | null;
+  avatar_url: string | null;
   created_at: Date | string;
   email_verified_at: Date | string | null;
   disabled_at: Date | string | null;
@@ -474,6 +476,8 @@ function mapAdminUser(row: AdminUserRow): AdminUserSummary {
   return {
     id: row.id,
     email: row.email,
+    display_name: row.display_name,
+    avatar_url: row.avatar_url,
     created_at: createdAt,
     email_verified_at: adminTimestamp(row.email_verified_at),
     disabled_at: adminTimestamp(row.disabled_at),
@@ -1280,7 +1284,7 @@ function existingPostOutcome(row: VaultRow, userId: string, input: VaultItemInpu
 }
 
 const ADMIN_USER_SUMMARY_SELECT = `
-  SELECT u.id, u.email, u.created_at, u.email_verified_at, u.disabled_at,
+  SELECT u.id, u.email, u.display_name, u.avatar_url, u.created_at, u.email_verified_at, u.disabled_at,
          EXISTS (
            SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
            WHERE ur.user_id = u.id AND r.name IN ('admin', 'super_admin')
@@ -1319,10 +1323,10 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
     return row ? mapUser(row) : null;
   }
 
-  async findUserById(userId: string): Promise<{ readonly id: string; readonly email: string } | null> {
-    const row = await first<{ id: string; email: string }>(this.database,
-      'SELECT id, email FROM users WHERE id = $1', [userId]);
-    return row === null ? null : { id: row.id, email: row.email };
+  async findUserById(userId: string): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null } | null> {
+    const row = await first<{ id: string; email: string; display_name: string | null; avatar_url: string | null }>(this.database,
+      'SELECT id, email, display_name, avatar_url FROM users WHERE id = $1', [userId]);
+    return row === null ? null : { id: row.id, email: row.email, display_name: row.display_name, avatar_url: row.avatar_url };
   }
 
   async hasAdminRole(userId: string): Promise<boolean> {

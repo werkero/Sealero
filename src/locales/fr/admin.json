@@ -142,6 +142,7 @@
     "applyFilters": "Appliquer les filtres",
     "columns": {
       "email": "E-mail",
+      "display_name": "Nom affiché",
       "created_at": "Inscription",
       "last_login_at": "Dernière connexion",
       "email_verified_at": "E-mail vérifié",

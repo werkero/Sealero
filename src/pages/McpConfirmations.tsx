@@ -7,7 +7,7 @@ import {
   type McpConfirmationClient,
   type McpConfirmationItem,
 } from '../client/mcp-confirmations'
-import { TopbarBackButton, VaultLayout, hostname } from '../App'
+import { VaultLayout, hostname } from '../App'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { Alert, AlertDescription } from '../components/ui/alert'
 import { Badge } from '../components/ui/badge'
@@ -88,7 +88,7 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLock, onL
   }
 
   return (
-    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} topbarAction={<TopbarBackButton label={t('vault:mcpConfirmations.backToVault')} onClick={() => onNavigate(`/users/${user.id}`)} />} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         {notice ? <Alert><AlertDescription>{notice}</AlertDescription></Alert> : null}
         {actionError ? <Alert variant="destructive"><AlertDescription>{t('vault:mcpConfirmations.actionFailed')}</AlertDescription></Alert> : null}

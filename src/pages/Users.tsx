@@ -6,6 +6,7 @@ import { AdminApiError, type AdminClient } from '../client/admin'
 import { Alert, AlertDescription } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { UserAvatar } from '../components/UserAvatar'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
@@ -272,8 +273,15 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
         <div className="mt-4 grid grid-cols-2 gap-4 max-[760px]:grid-cols-1">
           <Card className="col-span-full max-[760px]:col-auto">
             <CardHeader>
-              <CardTitle id="admin-user-detail-title">{t('users.detailsTitle')}</CardTitle>
-              <CardDescription>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : selectedUser.email}</CardDescription>
+              <div className="flex items-center gap-3">
+                {selectedUser === null ? null : (
+                  <UserAvatar displayName={selectedUser.display_name} avatarUrl={selectedUser.avatar_url} email={selectedUser.email} className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground" />
+                )}
+                <div className="min-w-0">
+                  <CardTitle id="admin-user-detail-title">{t('users.detailsTitle')}</CardTitle>
+                  <CardDescription>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : (selectedUser.display_name ?? selectedUser.email)}</CardDescription>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {detailError ? <Alert variant="destructive"><AlertDescription>{detailError}</AlertDescription></Alert> : null}
@@ -282,6 +290,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                 <dl className="grid grid-cols-3 gap-x-4 gap-y-3 max-[760px]:grid-cols-2">
                 {([
                   ['email', selectedUser.email],
+                  ['display_name', selectedUser.display_name ?? '—'],
                   ['created_at', formatDateTime(selectedUser.created_at)],
                   ['last_login_at', formatDateTime(selectedUser.last_login_at)],
                   ['email_verified_at', formatDateTime(selectedUser.email_verified_at)],

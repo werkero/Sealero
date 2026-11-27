@@ -87,7 +87,7 @@
     "verifiedHint": "Dieses Passwort hat die lokale Liste schwacher Passwörter und die Leckprüfung bestanden."
   },
   "health": {
-    "title": "Passwortsicherheit",
+    "title": "Bericht",
     "settingsTitle": "Passwörter im Tresor prüfen",
     "localOnlyHint": "Passwörter werden im Browserspeicher geprüft; für den Abgleich sendet HIBP nur die ersten fünf Zeichen des SHA-1-Hashs.",
     "runHealthCheck": "Tresor prüfen",
@@ -141,7 +141,7 @@
   "mnemonicLabel": "Wiederherstellungsphrase (Wörter mit Leerzeichen trennen)",
   "tagsHint": "Tags mit Kommas trennen.",
   "mcpConfirmations": {
-    "title": "Bestätigungen",
+    "title": "Bestätigungsanfragen",
     "loading": "Anfragen werden geladen…",
     "loadFailed": "Bestätigungsanfragen konnten nicht geladen werden.",
     "retry": "Erneut versuchen",
@@ -156,8 +156,7 @@
     "deny": "Ablehnen",
     "approvedMessage": "Genehmigt. Der Konnektor kann diesen Eintrag einmal lesen.",
     "deniedMessage": "Abgelehnt. Der Konnektor erhält diesen Eintrag nicht.",
-    "actionFailed": "Das hat nicht funktioniert. Bitte erneut versuchen.",
-    "backToVault": "Zurück zum Tresor"
+    "actionFailed": "Das hat nicht funktioniert. Bitte erneut versuchen."
   },
   "lockVault": "Tresor sperren"
 }

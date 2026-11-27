@@ -149,7 +149,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 
   if (screen === 'generator') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('generator.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:generator.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <PasswordGeneratorPage onCopy={(value, label) => onCopy(value, label)} />
       </VaultLayout>
     )
@@ -163,7 +163,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   }
   if (screen === 'health') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <PasswordHealthDashboard items={items} loadItem={loadHealthItem} />
       </VaultLayout>
     )

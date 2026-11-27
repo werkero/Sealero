@@ -87,7 +87,7 @@
     "verifiedHint": "该密码已通过本地弱密码列表和泄漏检查。"
   },
   "health": {
-    "title": "密码健康检查",
+    "title": "报告",
     "settingsTitle": "检查保险库中的密码",
     "localOnlyHint": "密码只在浏览器内存中检查；HIBP 仅收到 SHA-1 哈希的前 5 位用于泄漏匹配。",
     "runHealthCheck": "检查保险库",
@@ -141,7 +141,7 @@
   "mnemonicLabel": "恢复短语（单词之间用空格分隔）",
   "tagsHint": "多个标签用英文逗号分隔。",
   "mcpConfirmations": {
-    "title": "确认请求",
+    "title": "请求确认",
     "loading": "正在加载请求…",
     "loadFailed": "加载确认请求失败。",
     "retry": "重试",
@@ -156,8 +156,7 @@
     "deny": "拒绝",
     "approvedMessage": "已批准，连接器可以读取该条目一次。",
     "deniedMessage": "已拒绝，连接器拿不到该条目。",
-    "actionFailed": "操作失败，请重试。",
-    "backToVault": "返回保险库"
+    "actionFailed": "操作失败，请重试。"
   },
   "lockVault": "锁定保险库"
 }

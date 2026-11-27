@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
 import { DetailLoading } from './components/DetailLoading'
+import { UserAvatar } from './components/UserAvatar'
 import { LanguageSelector } from './components/LanguageSelector'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
@@ -60,7 +61,7 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
  * sidebar. Toasts are event-driven and render nothing when empty, so
  * both backends can share this shell.
  */
-export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onLogout, onAppearanceChange, children }: {
+export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   nav: ReactNode
   bottom?: ReactNode
@@ -69,6 +70,7 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
   /** One tool shown in the top bar next to the collapse button. */
   topbarAction?: ReactNode
   appearancePreference: AppearancePreference
+  onNavigate: (path: string) => void
   onLogout: () => void
   onAppearanceChange: (preference: AppearancePreference) => void
   children: ReactNode
@@ -80,11 +82,12 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <LogoToggle />
+          <div className="flex items-center justify-between gap-2 group-data-[collapsible=icon]:hidden">
+            <Brand onNavigate={onNavigate} />
+            <SidebarTrigger className="shrink-0" />
           </div>
           <div className="hidden justify-center group-data-[collapsible=icon]:flex">
-            <LogoToggle iconOnly />
+            <LogoToggle />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -97,8 +100,8 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuButton size="lg" tooltip={user.email}>
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground text-xs font-medium" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</span>
-                    <span className="min-w-0 flex-1 truncate text-left">{user.email}</span>
+                    <UserAvatar displayName={user.display_name} avatarUrl={user.avatar_url} email={user.email} className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-medium text-sidebar-primary-foreground" />
+                    <span className="min-w-0 flex-1 truncate text-left">{user.display_name ?? user.email}</span>
                     <ChevronUp className="ml-auto size-4" aria-hidden="true" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
@@ -176,25 +179,24 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
 }
 
 /**
- * The sidebar logo is the collapse/expand control: it shows the Sealero
- * wordmark normally and turns into the toggle icon while hovered (or
- * keyboard-focused). The wordmark stays in place, only invisible, so the
- * button never changes size under the cursor.
+ * Collapsed sidebar only: the icon logo is the expand control — hovering
+ * it turns the logo itself into the toggle icon, and clicking expands the
+ * sidebar. The logo stays in place, only invisible, so the button never
+ * changes size under the cursor.
  */
-function LogoToggle({ iconOnly }: { iconOnly?: boolean }) {
+function LogoToggle() {
   const { toggleSidebar } = useSidebar()
   return (
     <button
       type="button"
       onClick={toggleSidebar}
       aria-label="Toggle Sidebar"
-      className="group/logotoggle relative flex h-8 cursor-pointer items-center rounded-md border-0 bg-transparent p-0 text-left hover:bg-accent"
+      className="group/logotoggle relative flex h-8 cursor-pointer items-center rounded-md border-0 bg-transparent p-0 hover:bg-accent"
     >
       <span className="wordmark group-hover/logotoggle:invisible group-focus-visible/logotoggle:invisible">
         <img className="wordmark-logo" src="/sealero-logo.svg" alt="" aria-hidden="true" />
-        {iconOnly ? null : <>sealero<span className="wordmark-period">.</span></>}
       </span>
-      <span className={`absolute inset-0 hidden items-center group-hover/logotoggle:flex group-focus-visible/logotoggle:flex ${iconOnly ? 'justify-center' : 'justify-start pl-1'}`} aria-hidden="true">
+      <span className="absolute inset-0 hidden items-center justify-center group-hover/logotoggle:flex group-focus-visible/logotoggle:flex" aria-hidden="true">
         <PanelLeft className="size-5" />
       </span>
     </button>
@@ -247,6 +249,7 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
   return (
     <BackendShell
       user={user}
+      onNavigate={onNavigate}
       onLogout={onLogout}
       title={title}
       topbarAction={topbarAction}
