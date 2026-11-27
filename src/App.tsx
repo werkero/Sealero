@@ -81,11 +81,13 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="group-data-[collapsible=icon]:hidden">
+          <div className="group/logo flex items-center justify-between gap-2 group-data-[collapsible=icon]:hidden">
             <Brand onNavigate={onNavigate} />
+            <SidebarTrigger className="shrink-0 opacity-0 transition-opacity group-hover/logo:opacity-100 focus-visible:opacity-100 max-md:opacity-100" />
           </div>
-          <div className="hidden justify-center group-data-[collapsible=icon]:flex">
+          <div className="group/logo hidden flex-col items-center gap-1 group-data-[collapsible=icon]:flex">
             <Brand onNavigate={onNavigate} iconOnly />
+            <SidebarTrigger className="opacity-0 transition-opacity group-hover/logo:opacity-100 focus-visible:opacity-100 max-md:opacity-100" />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -145,10 +147,10 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
       </Sidebar>
       <SidebarInset className="bg-sidebar">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger className="-ml-1 md:hidden" />
           {topbarAction}
           {title ? <>
-            <SidebarSeparator orientation="vertical" className="mr-2 h-4" />
+            <SidebarSeparator orientation="vertical" className="mr-2 h-4 md:hidden" />
             <span className="truncate text-sm font-medium">{title}</span>
           </> : null}
         </header>

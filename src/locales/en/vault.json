@@ -2,7 +2,7 @@
   "vaultHeading": "Vault",
   "navigation": "Vault navigation",
   "yourVault": "Your vault",
-  "allItems": "All items",
+  "allItems": "Password vault",
   "favorites": "Favorites",
   "autoLockTitle": "Auto-lock is on",
   "autoLockDescription": "Locks after 15 minutes idle. Refreshing the page keeps the vault unlocked.",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ChevronRight, Search, Star, X } from 'lucide-react'
+import { ChevronRight, Plus, Search, Star, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItemInput, VaultListItem } from '../client/contracts'
 import { VaultLayout, hostname, iconTone, type VaultFilter } from '../App'
@@ -52,12 +52,9 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={<span className="inline-flex items-center gap-1.5">{filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')}<Button variant="ghost" size="icon" className="size-7" type="button" aria-label={t('vault:newItem')} title={t('vault:newItem')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /></Button></span>} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" onClick={() => setCreating(true)}>{t('vault:newItem')}</Button>
-          <Button variant="secondary" type="button" onClick={() => onNavigate(`/users/${user.id}/generator`)}>{t('vault:generator.title')}</Button>
-          <Button variant="secondary" type="button" onClick={() => onNavigate(`/users/${user.id}/settings`)}>{t('vault:health.title')}</Button>
           <span className="ml-auto self-center text-xs text-muted-foreground"><strong className="font-semibold text-foreground">{visibleItems.length}</strong> {t('vault:itemsLabel')}</span>
         </div>
         {creating ? (
