@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, ShieldCheck, Sparkles, Star, Sun, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, PanelLeft, Settings, Shield, ShieldCheck, Sparkles, Star, Sun, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
@@ -9,7 +9,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 import { Button } from './components/ui/button'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger } from './components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger, useSidebar } from './components/ui/sidebar'
 import { applyLanguagePreference } from './features/settings/preferences'
 import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
@@ -60,7 +60,7 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
  * sidebar. Toasts are event-driven and render nothing when empty, so
  * both backends can share this shell.
  */
-export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
+export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   nav: ReactNode
   bottom?: ReactNode
@@ -69,7 +69,6 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
   /** One tool shown in the top bar next to the collapse button. */
   topbarAction?: ReactNode
   appearancePreference: AppearancePreference
-  onNavigate: (path: string) => void
   onLogout: () => void
   onAppearanceChange: (preference: AppearancePreference) => void
   children: ReactNode
@@ -81,13 +80,11 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="group/logo flex items-center justify-between gap-2 group-data-[collapsible=icon]:hidden">
-            <Brand onNavigate={onNavigate} />
-            <SidebarTrigger className="shrink-0 opacity-0 transition-opacity group-hover/logo:opacity-100 focus-visible:opacity-100 max-md:opacity-100" />
+          <div className="group-data-[collapsible=icon]:hidden">
+            <LogoToggle />
           </div>
-          <div className="group/logo hidden flex-col items-center gap-1 group-data-[collapsible=icon]:flex">
-            <Brand onNavigate={onNavigate} iconOnly />
-            <SidebarTrigger className="opacity-0 transition-opacity group-hover/logo:opacity-100 focus-visible:opacity-100 max-md:opacity-100" />
+          <div className="hidden justify-center group-data-[collapsible=icon]:flex">
+            <LogoToggle iconOnly />
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -178,6 +175,32 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
   )
 }
 
+/**
+ * The sidebar logo is the collapse/expand control: it shows the Sealero
+ * wordmark normally and turns into the toggle icon while hovered (or
+ * keyboard-focused). The wordmark stays in place, only invisible, so the
+ * button never changes size under the cursor.
+ */
+function LogoToggle({ iconOnly }: { iconOnly?: boolean }) {
+  const { toggleSidebar } = useSidebar()
+  return (
+    <button
+      type="button"
+      onClick={toggleSidebar}
+      aria-label="Toggle Sidebar"
+      className="group/logotoggle relative flex h-8 cursor-pointer items-center rounded-md border-0 bg-transparent p-0 text-left hover:bg-accent"
+    >
+      <span className="wordmark group-hover/logotoggle:invisible group-focus-visible/logotoggle:invisible">
+        <img className="wordmark-logo" src="/sealero-logo.svg" alt="" aria-hidden="true" />
+        {iconOnly ? null : <>sealero<span className="wordmark-period">.</span></>}
+      </span>
+      <span className={`absolute inset-0 hidden items-center group-hover/logotoggle:flex group-focus-visible/logotoggle:flex ${iconOnly ? 'justify-center' : 'justify-start pl-1'}`} aria-hidden="true">
+        <PanelLeft className="size-5" />
+      </span>
+    </button>
+  )
+}
+
 export function TopbarBackButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={label} title={label} onClick={onClick}>
@@ -224,7 +247,6 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
   return (
     <BackendShell
       user={user}
-      onNavigate={onNavigate}
       onLogout={onLogout}
       title={title}
       topbarAction={topbarAction}

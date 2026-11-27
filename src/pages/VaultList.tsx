@@ -52,7 +52,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={<span className="inline-flex items-center gap-1.5">{filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')}<Button variant="ghost" size="icon" className="size-7" type="button" aria-label={t('vault:newItem')} title={t('vault:newItem')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /></Button></span>} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={<span className="inline-flex items-center gap-1.5">{filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')}{filter === 'all' ? <Button variant="ghost" size="icon" className="size-7" type="button" aria-label={t('vault:newItem')} title={t('vault:newItem')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /></Button> : null}</span>} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <div className="flex flex-wrap items-center gap-2">
           <span className="ml-auto self-center text-xs text-muted-foreground"><strong className="font-semibold text-foreground">{visibleItems.length}</strong> {t('vault:itemsLabel')}</span>
