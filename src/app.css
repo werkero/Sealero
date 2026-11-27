@@ -9,7 +9,7 @@
   --subtle: #9299a5;
   --line: #e9ebef;
   --line-strong: #dfe3e8;
-  --page: #fff;
+  --page: oklch(0.985 0 0);
   --surface: #fff;
   --surface-soft: #f8f9fb;
   --blue: #0832aa;
@@ -848,6 +848,7 @@ button {
   flex-direction: column;
   min-height: 100svh;
   padding: 0 clamp(20px, 5vw, 64px) 30px;
+  background: var(--page);
 }
 
 .auth-main {
@@ -2326,7 +2327,7 @@ button {
     --muted-text: oklch(0.774 0.022 261.8);
     --line: oklch(0.345 0.024 268.6);
     --line-strong: oklch(0.39 0.024 268.6);
-    --page: oklch(0.205 0.012 270.8);
+    --page: oklch(0.205 0 0);
     --surface: oklch(0.235 0.014 267.0);
     --surface-soft: oklch(0.260 0.018 266.3);
     --blue: #4479f5;
@@ -2338,7 +2339,7 @@ button {
 :root[data-theme="dark"] body,
 :root[data-theme="dark"] #root,
 :root[data-theme="dark"] .auth-shell {
-    background: oklch(0.205 0.012 270.8);
+    background: oklch(0.205 0 0);
     color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .wordmark-logo,
