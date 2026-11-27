@@ -1,9 +1,12 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Activity, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Shield, Smartphone, UserPlus, Users as UsersIcon } from 'lucide-react'
+import { Activity, ChevronLeft, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Shield, Smartphone, UserPlus, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
+import { Alert, AlertDescription } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card'
+import { Checkbox } from '../components/ui/checkbox'
 import { DropdownMenuItem } from '../components/ui/dropdown-menu'
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../components/ui/sidebar'
 import { Input } from '../components/ui/input'
@@ -19,6 +22,8 @@ import {
   sanitizeAuditMetadata,
   type AdminAuditResponse,
   type AdminOverviewResponse,
+  type AdminPermission,
+  type AdminRole,
   type AdminOverviewTrendResponse,
   type AdminSettingKey,
   type AdminUserListItem,
@@ -28,16 +33,17 @@ import {
 } from '../features/admin/contract'
 import { OverviewTrendChart } from '../features/admin/OverviewTrendChart'
 
-const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
-const panelTitle = 'm-0 text-sm font-[640] text-foreground'
-const actionButton = 'min-h-[38px] rounded-[7px] border border-border bg-muted px-[13px] text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
-const enabledButton = 'min-h-[38px] cursor-pointer rounded-[7px] border border-primary/30 bg-primary/10 px-[13px] text-[12px] font-semibold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
-const filterInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-[7px] text-[12px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
-const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'
-const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
-const auditTh = 'h-auto whitespace-nowrap bg-muted px-[11px] py-2.5 text-[12px] font-[630] text-muted-foreground'
-const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
-const statusText = 'mt-[9px] text-[12px] leading-[1.55] text-muted-foreground'
+
+/** i18n suffix for each permission key (admin.json `permissions.descriptions.*`). */
+const permissionDescriptionKey: Record<string, string> = {
+  'overview:read': 'overviewRead',
+  'users:read': 'usersRead',
+  'users:manage': 'usersManage',
+  'settings:manage': 'settingsManage',
+  'audit:read': 'auditRead',
+  'roles:manage': 'rolesManage',
+  'dump:read': 'dumpRead',
+}
 
 type AdminSection = 'overview' | 'users' | 'roles' | 'settings' | 'audit'
 const Users = lazy(() => import('./Users').then(({ Users: component }) => ({ default: component })))
@@ -157,6 +163,36 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
   const sections: AdminSection[] = ['overview', 'users', 'roles', 'settings', 'audit']
   const adminClient: AdminClient = useMemo(() => createAdminClient({ getAccessToken, refreshAccessToken }), [getAccessToken, refreshAccessToken])
 
+  const [myPermissions, setMyPermissions] = useState<readonly string[] | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let active = true
+    void adminClient.getMyPermissions(controller.signal).then(
+      (data) => { if (active) setMyPermissions(data.permissions) },
+      () => { if (active) setMyPermissions([]) },
+    )
+    return () => { active = false; controller.abort() }
+  }, [adminClient])
+
+  const can = useCallback(
+    (key: string) => myPermissions === null ? true : myPermissions.includes(key),
+    [myPermissions],
+  )
+  const visibleSections = sections.filter((item) =>
+    item === 'overview' ? can('overview:read')
+      : item === 'users' ? can('users:read')
+      : item === 'roles' ? can('roles:manage')
+      : item === 'settings' ? can('settings:manage')
+      : can('audit:read'),
+  )
+
+  useEffect(() => {
+    if (myPermissions !== null && !visibleSections.includes(section)) {
+      setSection(visibleSections[0] ?? 'overview')
+    }
+  }, [myPermissions, section, visibleSections])
+
   const [overview, setOverview] = useState<AdminOverviewResponse | null>(null)
   const [overviewError, setOverviewError] = useState('')
   const [overviewLoading, setOverviewLoading] = useState(true)
@@ -193,29 +229,34 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     return () => { active = false; controller.abort() }
   }, [adminClient, t])
 
-  type RoleFilter = 'super_admin' | 'admin' | 'user'
-  const roleFilters: readonly RoleFilter[] = ['super_admin', 'admin', 'user']
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>('admin')
-  const [roleCounts, setRoleCounts] = useState<Record<RoleFilter, number> | null>(null)
-  const [roleUsers, setRoleUsers] = useState<readonly AdminUserListItem[] | null>(null)
-  const [rolesError, setRolesError] = useState('')
+  const [roles, setRoles] = useState<readonly AdminRole[] | null>(null)
+  const [roleCatalog, setRoleCatalog] = useState<readonly AdminPermission[] | null>(null)
   const [rolesLoading, setRolesLoading] = useState(true)
-  const [rolesPendingUserId, setRolesPendingUserId] = useState<string | null>(null)
+  const [rolesError, setRolesError] = useState('')
   const [rolesMessage, setRolesMessage] = useState('')
+  const [editingRole, setEditingRole] = useState<AdminRole | 'new' | null>(null)
+  const [editorName, setEditorName] = useState('')
+  const [editorDescription, setEditorDescription] = useState('')
+  const [editorKeys, setEditorKeys] = useState<readonly string[]>([])
+  const [editorSaving, setEditorSaving] = useState(false)
+  const [detailRole, setDetailRole] = useState<AdminRole | null>(null)
+  const [detailUsers, setDetailUsers] = useState<readonly AdminUserListItem[] | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState('')
+  const [addUserEmail, setAddUserEmail] = useState('')
+  const [detailPendingUserId, setDetailPendingUserId] = useState<string | null>(null)
+  const [confirmDeleteRole, setConfirmDeleteRole] = useState<AdminRole | null>(null)
 
-  const loadRoles = useCallback(async (filter: RoleFilter, signal?: AbortSignal) => {
+  const loadRoles = useCallback(async (signal?: AbortSignal) => {
     setRolesLoading(true)
     setRolesError('')
     try {
-      const pages = await Promise.all(roleFilters.map((role) =>
-        adminClient.listUsers({ status: 'all', verified: 'all', role, cursor: null, limit: role === filter ? 100 : 1 }, signal),
-      ))
-      setRoleCounts({
-        super_admin: pages[0]!.total_count,
-        admin: pages[1]!.total_count,
-        user: pages[2]!.total_count,
-      })
-      setRoleUsers(pages[roleFilters.indexOf(filter)]!.users)
+      const [rolesResponse, permissionsResponse] = await Promise.all([
+        adminClient.listRoles(signal),
+        adminClient.listPermissions(signal),
+      ])
+      setRoles(rolesResponse.roles)
+      setRoleCatalog(permissionsResponse.permissions)
       setRolesLoading(false)
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') return
@@ -225,25 +266,118 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
   }, [adminClient, t])
 
   useEffect(() => {
+    if (section !== 'roles') return
     const controller = new AbortController()
-    void loadRoles(roleFilter, controller.signal)
+    void loadRoles(controller.signal)
     return () => controller.abort()
-  }, [loadRoles, roleFilter])
+  }, [loadRoles, section])
 
-  const runRoleAction = useCallback(async (action: 'make_admin' | 'remove_admin', target: AdminUserListItem) => {
-    setRolesPendingUserId(target.id)
+  const openRoleEditor = useCallback((role: AdminRole | 'new') => {
+    setEditingRole(role)
+    setRolesMessage('')
+    if (role === 'new') {
+      setEditorName('')
+      setEditorDescription('')
+      setEditorKeys([])
+    } else {
+      setEditorName(role.name)
+      setEditorDescription(role.description ?? '')
+      setEditorKeys(role.permission_keys)
+    }
+  }, [])
+
+  const saveRoleEditor = useCallback(async (event: FormEvent) => {
+    event.preventDefault()
+    if (editorSaving || editingRole === null) return
+    setEditorSaving(true)
     setRolesMessage('')
     try {
-      if (action === 'make_admin') await adminClient.makeAdmin(target.id)
-      else await adminClient.removeAdmin(target.id)
-      setRolesMessage(t('users.actionDone'))
-      await loadRoles(roleFilter)
+      const description = editorDescription.trim() === '' ? null : editorDescription.trim()
+      if (editingRole === 'new') {
+        await adminClient.createRole({ name: editorName.trim(), description, permission_keys: editorKeys })
+      } else {
+        await adminClient.updateRole(editingRole.id, { description, permission_keys: editorKeys })
+      }
+      setRolesMessage(t('roles.actionDone'))
+      setEditingRole(null)
+      await loadRoles()
     } catch (error: unknown) {
       setRolesMessage(errorText(error, t))
     } finally {
-      setRolesPendingUserId(null)
+      setEditorSaving(false)
     }
-  }, [adminClient, loadRoles, roleFilter, t])
+  }, [adminClient, editorDescription, editorKeys, editorName, editorSaving, editingRole, loadRoles, t])
+
+  const deleteRole = useCallback(async () => {
+    if (confirmDeleteRole === null) return
+    setRolesMessage('')
+    try {
+      await adminClient.deleteRole(confirmDeleteRole.id)
+      setRolesMessage(t('roles.actionDone'))
+      setConfirmDeleteRole(null)
+      await loadRoles()
+    } catch (error: unknown) {
+      setRolesMessage(errorText(error, t))
+    }
+  }, [adminClient, confirmDeleteRole, loadRoles, t])
+
+  const loadDetailUsers = useCallback(async (role: AdminRole, signal?: AbortSignal) => {
+    setDetailLoading(true)
+    setDetailError('')
+    try {
+      const response = await adminClient.listRoleUsers(role.id, null, 100, signal)
+      setDetailUsers(response.users)
+      setDetailLoading(false)
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') return
+      setDetailError(errorText(error, t))
+      setDetailLoading(false)
+    }
+  }, [adminClient, t])
+
+  const openRoleDetail = useCallback((role: AdminRole) => {
+    setDetailRole(role)
+    setDetailUsers(null)
+    setAddUserEmail('')
+    void loadDetailUsers(role)
+  }, [loadDetailUsers])
+
+  const addRoleUser = useCallback(async (event: FormEvent) => {
+    event.preventDefault()
+    if (detailRole === null || addUserEmail.trim() === '') return
+    setRolesMessage('')
+    try {
+      const found = await adminClient.listUsers({ search: addUserEmail.trim(), status: 'all', verified: 'all', role: 'all', cursor: null, limit: 1 })
+      const target = found.users[0]
+      if (!target) {
+        setRolesMessage(t('roles.userNotFound'))
+        return
+      }
+      await adminClient.assignRole(detailRole.id, target.id)
+      setRolesMessage(t('roles.actionDone'))
+      setAddUserEmail('')
+      await loadDetailUsers(detailRole)
+      await loadRoles()
+    } catch (error: unknown) {
+      setRolesMessage(errorText(error, t))
+    }
+  }, [addUserEmail, adminClient, detailRole, loadDetailUsers, loadRoles, t])
+
+  const removeRoleUser = useCallback(async (target: AdminUserListItem) => {
+    if (detailRole === null) return
+    setDetailPendingUserId(target.id)
+    setRolesMessage('')
+    try {
+      await adminClient.removeRole(detailRole.id, target.id)
+      setRolesMessage(t('roles.actionDone'))
+      await loadDetailUsers(detailRole)
+      await loadRoles()
+    } catch (error: unknown) {
+      setRolesMessage(errorText(error, t))
+    } finally {
+      setDetailPendingUserId(null)
+    }
+  }, [adminClient, detailRole, loadDetailUsers, loadRoles, t])
 
   const [dumpPassword, setDumpPassword] = useState('')
   const [dumpBusy, setDumpBusy] = useState(false)
@@ -422,84 +556,84 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     ]
     return (
       <>
-        {overviewError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{overviewError}</strong></div> : null}
+        {overviewError ? <Alert variant="destructive"><AlertDescription>{overviewError}</AlertDescription></Alert> : null}
 
-        <section className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-3 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2 max-[760px]:gap-2" aria-label={t('overview.metricsLabel')}>
+        <section className="grid grid-cols-5 gap-4 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2" aria-label={t('overview.metricsLabel')}>
           {metrics.map(([key, label, detail, value, Icon]) => (
-            <article className="glass-panel flex min-h-[142px] min-w-0 flex-col items-start rounded-xl p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
+            <Card className="gap-0 p-4" key={key}>
               <div className="flex w-full items-start justify-between gap-2">
-                <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
-                <Icon className="size-[19px] shrink-0 text-muted-foreground" aria-hidden="true" />
+                <span className="text-xs font-medium leading-snug text-muted-foreground">{label}</span>
+                <Icon className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
               </div>
-              <strong className="mt-[17px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground max-[760px]:mt-[13px] max-[760px]:text-2xl">{overviewLoading && overview === null ? t('loading') : value}</strong>
-              <span className="mt-[3px] text-[12px] text-muted-foreground">{detail}</span>
-            </article>
+              <strong className="mt-4 text-3xl font-semibold tabular-nums tracking-tight text-foreground">{overviewLoading && overview === null ? t('loading') : value}</strong>
+              <span className="mt-1 text-xs text-muted-foreground">{detail}</span>
+            </Card>
           ))}
         </section>
 
-        <section className={panel} aria-labelledby="admin-trend-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 id="admin-trend-title" className={panelTitle}>{t('overview.trendTitle')}</h2>
-            </div>
-          </div>
-          <div className="mt-[18px]">
-            {trendError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{trendError}</strong></div>
-              : trendLoading && trend === null ? <p className="m-0 text-[12px] text-muted-foreground">{t('loading')}</p>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle id="admin-trend-title">{t('overview.trendTitle')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {trendError ? <Alert variant="destructive"><AlertDescription>{trendError}</AlertDescription></Alert>
+              : trendLoading && trend === null ? <p className="text-xs text-muted-foreground">{t('loading')}</p>
               : trend === null ? null
               : <OverviewTrendChart days={trend.days} newUsersLabel={t('overview.trendNewUsers')} activeUsersLabel={t('overview.trendActiveUsers')} />}
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
-        <section className={panel} aria-labelledby="admin-cleanup-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 id="admin-cleanup-title" className={panelTitle}>{t('overview.cleanupTitle')}</h2>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle id="admin-cleanup-title">{t('overview.cleanupTitle')}</CardTitle>
+            <CardAction><span className="mt-1 size-2 shrink-0 rounded-full bg-amber-500" aria-hidden="true" /></CardAction>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3 max-[430px]:grid-cols-1">
+              <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5"><span className="text-xs text-muted-foreground">{t('overview.lastCleanup')}</span><strong className="text-xs font-medium text-muted-foreground">{overview === null ? '—' : formatDateTime(overview.tombstone_cleanup.last_cleanup_at)}</strong></div>
+              <div className="flex items-center justify-between gap-2 rounded-lg bg-muted px-3 py-2.5"><span className="text-xs text-muted-foreground">{t('overview.cleanupStatus')}</span><strong className="text-xs font-medium text-muted-foreground">{overview === null ? '—' : overview.tombstone_cleanup.last_cleanup_status === 'success' ? t('overview.cleanupSuccess') : overview.tombstone_cleanup.last_cleanup_status === 'failed' ? t('overview.cleanupFailed') : t('overview.cleanupNever')}</strong></div>
             </div>
-            <span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" />
-          </div>
-          <div className="mt-[18px] grid grid-cols-2 gap-[14px] max-[430px]:grid-cols-1">
-            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-muted px-3 py-[11px]"><span className="text-[12px] text-muted-foreground">{t('overview.lastCleanup')}</span><strong className="text-[12px] font-[590] text-muted-foreground">{overview === null ? '—' : formatDateTime(overview.tombstone_cleanup.last_cleanup_at)}</strong></div>
-            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-muted px-3 py-[11px]"><span className="text-[12px] text-muted-foreground">{t('overview.cleanupStatus')}</span><strong className="text-[12px] font-[590] text-muted-foreground">{overview === null ? '—' : overview.tombstone_cleanup.last_cleanup_status === 'success' ? t('overview.cleanupSuccess') : overview.tombstone_cleanup.last_cleanup_status === 'failed' ? t('overview.cleanupFailed') : t('overview.cleanupNever')}</strong></div>
-          </div>
-        </section>
+          </CardContent>
+        </Card>
 
-        <section className={panel} aria-labelledby="admin-dump-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="m-0 mb-1.5 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('dump.eyebrow')}</p>
-              <h2 id="admin-dump-title" className={panelTitle}>{t('dump.title')}</h2>
-            </div>
-            <span className="text-[19px] text-muted-foreground" aria-hidden="true"><Database size={19} aria-hidden="true" /></span>
-          </div>
-          <form className="mt-[17px] grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-3 gap-y-[9px] max-[430px]:grid-cols-1" onSubmit={(event) => void downloadDump(event)}>
-            <Label htmlFor="admin-dump-password" className="col-span-full text-[12px] font-[560] text-muted-foreground">{t('dump.passwordLabel')}</Label>
-            <Input id="admin-dump-password" type="password" autoComplete="current-password" value={dumpPassword} onChange={(event) => setDumpPassword(event.target.value)} disabled={dumpBusy} placeholder={t('dump.passwordLabel')} className="min-h-[38px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2.5 text-[12px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76" />
-            <Button type="submit" disabled={dumpBusy || dumpPassword === ''} className={`${dumpBusy || dumpPassword === '' ? actionButton : enabledButton} max-[430px]:w-full`}>{dumpBusy ? t('dump.downloading') : t('dump.download')}</Button>
-          </form>
-          {dumpMessage ? <p className={statusText} role="status">{dumpMessage}</p> : <p className={statusText}>{t('dump.loginPasswordNote')}</p>}
-        </section>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardDescription className="text-xs font-bold uppercase tracking-widest">{t('dump.eyebrow')}</CardDescription>
+            <CardTitle id="admin-dump-title">{t('dump.title')}</CardTitle>
+            <CardAction><Database className="size-5 text-muted-foreground" aria-hidden="true" /></CardAction>
+          </CardHeader>
+          <CardContent>
+            <form className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 max-[430px]:grid-cols-1" onSubmit={(event) => void downloadDump(event)}>
+              <div className="grid gap-1.5">
+                <Label htmlFor="admin-dump-password">{t('dump.passwordLabel')}</Label>
+                <Input id="admin-dump-password" type="password" autoComplete="current-password" value={dumpPassword} onChange={(event) => setDumpPassword(event.target.value)} disabled={dumpBusy} placeholder={t('dump.passwordLabel')} />
+              </div>
+              <Button type="submit" disabled={dumpBusy || dumpPassword === ''} variant={dumpBusy || dumpPassword === '' ? 'outline' : 'default'} className="max-[430px]:w-full">{dumpBusy ? t('dump.downloading') : t('dump.download')}</Button>
+            </form>
+            {dumpMessage ? <p className="mt-2 text-xs leading-relaxed text-muted-foreground" role="status">{dumpMessage}</p> : <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{t('dump.loginPasswordNote')}</p>}
+          </CardContent>
+        </Card>
       </>
     )
   }
 
   const renderSettings = () => (
     <>
-      {settingsError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{settingsError}</strong></div> : null}
-      {settingsLoading && settingsResponse === null ? <p className={statusText} role="status">{t('loading')}</p> : null}
+      {settingsError ? <Alert variant="destructive"><AlertDescription>{settingsError}</AlertDescription></Alert> : null}
+      {settingsLoading && settingsResponse === null ? <p className="mt-2 text-xs leading-relaxed text-muted-foreground" role="status">{t('loading')}</p> : null}
 
       {settingsResponse === null ? null : (
-        <section className={panel} aria-label={t('settings.title')}>
-          <div className="mt-2">
+        <Card className="mt-4">
+          <CardContent>
             {ADMIN_SETTING_FIELDS.map((field) => {
               const source = settingsResponse.sources[field.key]
               const draftValue = settingsDraft[field.key]
               return (
-                <article className="grid min-h-[94px] grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-[15px] px-0.5 py-[13px] max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
+                <article className="grid min-h-24 grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-4 py-3 max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
                   <div>
-                    <h2 className="m-0 text-[12px] font-[650] text-foreground">{t(`fields.${field.key}`)}</h2>
-                    <code className="mt-1 inline-block font-[ui-monospace,SFMono-Regular,Menlo,monospace] text-[12px] text-muted-foreground">{field.key}</code>
-                    <p className="mt-[5px] text-[12px] leading-[1.45] text-muted-foreground">{t(field.constraintKey)}</p>
+                    <h2 className="text-xs font-semibold text-foreground">{t(`fields.${field.key}`)}</h2>
+                    <code className="mt-1 inline-block font-mono text-xs text-muted-foreground">{field.key}</code>
+                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(field.constraintKey)}</p>
                   </div>
                   <div className="grid justify-items-start gap-1 max-[760px]:col-[1/2] max-[760px]:row-[2]">
                     {field.key === 'smtp_pass' ? (
@@ -510,14 +644,13 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
                         onChange={(event) => setSettingsDraft((prev) => ({ ...prev, smtp_pass: event.target.value }))}
                         placeholder={t('settings.writeOnly')}
                         aria-label={t(`fields.${field.key}`)}
-                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[12px] text-muted-foreground"
                       />
                     ) : field.kind === 'boolean' ? (
                       <Select
                         value={draftValue === true ? 'true' : 'false'}
                         onValueChange={(value) => setSettingsDraft((prev) => ({ ...prev, [field.key]: value === 'true' }))}
                       >
-                        <SelectTrigger aria-label={t(`fields.${field.key}`)} className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[12px] text-muted-foreground">
+                        <SelectTrigger aria-label={t(`fields.${field.key}`)}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -532,164 +665,309 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
                         value={typeof draftValue === 'string' ? draftValue : ''}
                         onChange={(event) => setSettingsDraft((prev) => ({ ...prev, [field.key]: event.target.value }))}
                         aria-label={t(`fields.${field.key}`)}
-                        className="min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[12px] text-muted-foreground"
                       />
                     )}
-                    <span className="text-[12px] leading-[1.45] text-muted-foreground">{sourceLabel(source, t)}</span>
-                    <span className="text-[12px] leading-[1.45] text-muted-foreground">
+                    <span className="text-xs leading-relaxed text-muted-foreground">{sourceLabel(source, t)}</span>
+                    <span className="text-xs leading-relaxed text-muted-foreground">
                       {t('settings.builtInDefault', { value: formatDefault(field.defaultValue, t) })}
                     </span>
                   </div>
-                  <Button className="min-h-[30px] whitespace-nowrap rounded-md border border-border bg-muted px-2 text-[12px] text-muted-foreground disabled:cursor-not-allowed max-[760px]:col-[2] max-[760px]:row-[1/span_2]" type="button" disabled={settingsSaving} onClick={() => void clearSetting(field.key)} aria-label={`${t('settings.clearOverride')} ${field.key}`}>
+                  <Button variant="outline" size="sm" type="button" disabled={settingsSaving} onClick={() => void clearSetting(field.key)} aria-label={`${t('settings.clearOverride')} ${field.key}`}>
                     {t('settings.clearOverride')}
                   </Button>
                 </article>
               )
             })}
-          </div>
-          <div className="flex items-center justify-between gap-[14px] pt-[14px] max-[430px]:flex-col max-[430px]:items-start">
-            {settingsMessage ? <p className="m-0 text-[12px] leading-[1.55] text-muted-foreground">{settingsMessage}</p> : null}
-            <Button type="button" disabled={settingsSaving} onClick={() => void saveSettings()} className={settingsSaving ? actionButton : enabledButton}>{settingsSaving ? t('loading') : t('settings.saveChanges')}</Button>
-          </div>
-        </section>
+          </CardContent>
+          <CardFooter className="justify-between gap-4 max-[430px]:flex-col max-[430px]:items-start">
+            {settingsMessage ? <p className="text-xs leading-relaxed text-muted-foreground">{settingsMessage}</p> : <span />}
+            <Button type="button" disabled={settingsSaving} onClick={() => void saveSettings()} variant={settingsSaving ? 'outline' : 'default'}>{settingsSaving ? t('loading') : t('settings.saveChanges')}</Button>
+          </CardFooter>
+        </Card>
       )}
 
-      <section className={`${panel} flex items-center justify-between gap-4 max-[760px]:flex-wrap max-[760px]:items-start`} aria-labelledby="admin-retention-title">
-        <div>
-          <h2 id="admin-retention-title" className={panelTitle}>{t('settings.tombstoneRetention')}</h2>
-        </div>
-        <strong className="ml-auto whitespace-nowrap text-[15px] font-[650] text-muted-foreground max-[760px]:ml-0">30 {t('settings.days')}</strong>
-        <span className="whitespace-nowrap text-[12px] text-muted-foreground">{t('settings.fixedReadOnly')}</span>
-      </section>
-      <section className={`${panel} flex items-center justify-between gap-4 max-[760px]:flex-wrap max-[760px]:items-start`} aria-labelledby="admin-smtp-title">
-        <div>
-          <h2 id="admin-smtp-title" className={panelTitle}>{t('settings.smtpPasswordStatus')}</h2>
-        </div>
-        <strong className="text-[12px] font-[550]">{settingsResponse === null ? '—' : settingsResponse.smtp_pass_configured ? t('settings.smtpConfigured') : t('settings.smtpNotConfigured')}</strong>
-      </section>
+      <Card className="mt-4">
+        <CardContent className="flex flex-wrap items-center justify-between gap-4">
+          <CardTitle id="admin-retention-title">{t('settings.tombstoneRetention')}</CardTitle>
+          <strong className="ml-auto whitespace-nowrap text-sm font-semibold text-muted-foreground max-[760px]:ml-0">30 {t('settings.days')}</strong>
+          <span className="whitespace-nowrap text-xs text-muted-foreground">{t('settings.fixedReadOnly')}</span>
+        </CardContent>
+      </Card>
+      <Card className="mt-4">
+        <CardContent className="flex flex-wrap items-center justify-between gap-4">
+          <CardTitle id="admin-smtp-title">{t('settings.smtpPasswordStatus')}</CardTitle>
+          <strong className="text-xs font-medium">{settingsResponse === null ? '—' : settingsResponse.smtp_pass_configured ? t('settings.smtpConfigured') : t('settings.smtpNotConfigured')}</strong>
+        </CardContent>
+      </Card>
     </>
   )
 
   const renderAudit = () => (
     <>
-      {auditError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{auditError}</strong></div> : null}
+      {auditError ? <Alert variant="destructive"><AlertDescription>{auditError}</AlertDescription></Alert> : null}
 
-      <section className={panel} aria-label={t('audit.title')}>
-        <div className="grid grid-cols-[repeat(5,minmax(100px,1fr))_auto] items-end gap-2.5 pb-[17px] max-[1100px]:grid-cols-[repeat(3,minmax(120px,1fr))] max-[760px]:grid-cols-2 max-[430px]:grid-cols-1">
-          <Label className={filterLabel}>{t('audit.actorFilter')}<Input type="text" value={auditDraft.actor} onChange={(event) => setAuditDraft((prev) => ({ ...prev, actor: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></Label>
-          <Label className={filterLabel}>{t('audit.targetFilter')}<Input type="text" value={auditDraft.target} onChange={(event) => setAuditDraft((prev) => ({ ...prev, target: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} className={filterInput} /></Label>
-          <Label className={filterLabel}>{t('audit.actionFilter')}<Select value={auditDraft.action === '' ? '__all__' : auditDraft.action} onValueChange={(value) => setAuditDraft((prev) => ({ ...prev, action: value === '__all__' ? '' : value }))}><SelectTrigger className={filterInput}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__all__">{t('audit.allActions')}</SelectItem>{ADMIN_AUDIT_ACTIONS.map((action) => <SelectItem key={action} value={action}>{action}</SelectItem>)}</SelectContent></Select></Label>
-          <Label className={filterLabel}>{t('audit.fromFilter')}<Input type="datetime-local" value={auditDraft.from} onChange={(event) => setAuditDraft((prev) => ({ ...prev, from: event.target.value }))} className={filterInput} /></Label>
-          <Label className={filterLabel}>{t('audit.toFilter')}<Input type="datetime-local" value={auditDraft.to} onChange={(event) => setAuditDraft((prev) => ({ ...prev, to: event.target.value }))} className={filterInput} /></Label>
-          <Button type="button" disabled={auditLoading} onClick={applyAuditFilters} className="min-h-[35px] rounded-[7px] border border-border bg-muted px-[9px] text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76 max-[760px]:col-span-full max-[430px]:col-auto">{t('audit.applyFilters')}</Button>
+      <Card className="mt-4">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-[repeat(5,minmax(100px,1fr))_auto] items-end gap-2.5 max-[1100px]:grid-cols-[repeat(3,minmax(120px,1fr))] max-[760px]:grid-cols-2 max-[430px]:grid-cols-1">
+          <div className="grid gap-1.5">
+            <Label>{t('audit.actorFilter')}</Label>
+            <Input type="text" value={auditDraft.actor} onChange={(event) => setAuditDraft((prev) => ({ ...prev, actor: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('audit.targetFilter')}</Label>
+            <Input type="text" value={auditDraft.target} onChange={(event) => setAuditDraft((prev) => ({ ...prev, target: event.target.value }))} placeholder={t('audit.uuidPlaceholder')} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('audit.actionFilter')}</Label>
+            <Select value={auditDraft.action === '' ? '__all__' : auditDraft.action} onValueChange={(value) => setAuditDraft((prev) => ({ ...prev, action: value === '__all__' ? '' : value }))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="__all__">{t('audit.allActions')}</SelectItem>{ADMIN_AUDIT_ACTIONS.map((action) => <SelectItem key={action} value={action}>{action}</SelectItem>)}</SelectContent></Select>
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('audit.fromFilter')}</Label>
+            <Input type="datetime-local" value={auditDraft.from} onChange={(event) => setAuditDraft((prev) => ({ ...prev, from: event.target.value }))} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('audit.toFilter')}</Label>
+            <Input type="datetime-local" value={auditDraft.to} onChange={(event) => setAuditDraft((prev) => ({ ...prev, to: event.target.value }))} />
+          </div>
+          <Button type="button" disabled={auditLoading} onClick={applyAuditFilters} variant="outline" className="max-[760px]:col-span-full max-[430px]:col-auto">{t('audit.applyFilters')}</Button>
         </div>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <Table className="w-full border-collapse text-left">
-            <TableHeader><TableRow className="hover:bg-transparent">
-              <TableHead scope="col" className={auditTh}>{t('audit.time')}</TableHead>
-              <TableHead scope="col" className={auditTh}>{t('audit.actor')}</TableHead>
-              <TableHead scope="col" className={auditTh}>{t('audit.target')}</TableHead>
-              <TableHead scope="col" className={auditTh}>{t('audit.action')}</TableHead>
-              <TableHead scope="col" className={auditTh}>{t('audit.metadata')}</TableHead>
+          <div className="overflow-x-auto">
+            <Table>
+            <TableHeader><TableRow>
+              <TableHead scope="col">{t('audit.time')}</TableHead>
+              <TableHead scope="col">{t('audit.actor')}</TableHead>
+              <TableHead scope="col">{t('audit.target')}</TableHead>
+              <TableHead scope="col">{t('audit.action')}</TableHead>
+              <TableHead scope="col">{t('audit.metadata')}</TableHead>
             </TableRow></TableHeader>
             <TableBody>
               {auditLoading && auditPage === null ? (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
               ) : auditPage !== null && auditPage.items.length > 0 ? auditPage.items.map((row) => (
-                <TableRow key={row.id} className="hover:bg-transparent">
-                  <TableCell className="whitespace-nowrap px-[11px] py-3 text-[12px] text-muted-foreground">{formatDateTime(row.created_at)}</TableCell>
-                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{row.actor_user_id ?? '—'}</TableCell>
-                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{row.target_user_id ?? '—'}</TableCell>
-                  <TableCell className="whitespace-nowrap px-[11px] py-3 text-[12px] text-muted-foreground">{row.action}</TableCell>
-                  <TableCell className="whitespace-normal break-all px-[11px] py-3 text-[12px] text-muted-foreground">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</TableCell>
+                <TableRow key={row.id}>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(row.created_at)}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{row.actor_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{row.target_user_id ?? '—'}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{row.action}</TableCell>
+                  <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{JSON.stringify(sanitizeAuditMetadata(row.action, row.metadata))}</TableCell>
                 </TableRow>
               )) : (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('audit.noRows')}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={5} className="h-[110px] whitespace-normal break-anywhere px-[11px] py-3 text-center text-[12px] text-muted-foreground">{t('audit.noRows')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-between gap-3 text-[12px] leading-[1.5] text-muted-foreground max-[430px]:flex-col max-[430px]:items-start">
-          <span>{t('audit.metadataPolicy')}</span>
-          <div className="flex items-center gap-[9px]">
-            <Button type="button" disabled={auditCursorStack.length < 2 || auditLoading} onClick={auditPreviousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
+          <div className="flex items-center justify-between gap-3 text-xs leading-relaxed text-muted-foreground max-[430px]:flex-col max-[430px]:items-start">
+            <span>{t('audit.metadataPolicy')}</span>
+            <div className="flex items-center gap-2">
+            <Button type="button" disabled={auditCursorStack.length < 2 || auditLoading} onClick={auditPreviousPage} aria-label={t('audit.previousPage')} variant="outline" size="icon" className="size-7">‹</Button>
             <span>{auditPage === null ? '—' : `${t('audit.totalCount', { count: auditPage.total_count })}`}</span>
-            <Button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} className={`${pagerButton} px-0`}><ChevronRight size={16} aria-hidden="true" /></Button>
+            <Button type="button" disabled={!auditPage?.has_more || auditLoading} onClick={auditNextPage} aria-label={t('audit.nextPage')} variant="outline" size="icon" className="size-7"><ChevronRight size={16} aria-hidden="true" /></Button>
           </div>
-        </div>
-      </section>
-      <p className="mx-[1px] mt-3 text-[12px] leading-[1.6] text-muted-foreground">{t('audit.sensitiveDataWarning')}</p>
+          </div>
+        </CardContent>
+      </Card>
+      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{t('audit.sensitiveDataWarning')}</p>
     </>
   )
 
-  const renderRoles = () => {
-    const roleMeta: { key: RoleFilter; label: string; desc: string }[] = [
-      { key: 'super_admin', label: t('roles.superAdmin'), desc: t('roles.superAdminDesc') },
-      { key: 'admin', label: t('roles.admin'), desc: t('roles.adminDesc') },
-      { key: 'user', label: t('roles.user'), desc: t('roles.userDesc') },
-    ]
-    const selectedMeta = roleMeta.find((meta) => meta.key === roleFilter) ?? roleMeta[1]!
-    const shownCount = roleUsers === null ? 0 : roleUsers.length
-    const totalCount = roleCounts?.[roleFilter] ?? 0
+  const renderRoleEditor = () => {
+    const role = editingRole
+    if (role === null) return null
+    const isNew = role === 'new'
+    const isSuperAdmin = role !== 'new' && role.name === 'super_admin'
+    const moduleOrder = ['overview', 'users', 'settings', 'audit', 'roles', 'dump']
+    const grouped = moduleOrder
+      .map((module) => ({ module, permissions: (roleCatalog ?? []).filter((permission) => permission.module === module) }))
+      .filter((group) => group.permissions.length > 0)
+    const toggleKey = (key: string) => {
+      setEditorKeys((current) => current.includes(key) ? current.filter((item) => item !== key) : [...current, key])
+    }
     return (
       <>
-        {rolesError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{rolesError}</strong></div> : null}
-        {rolesMessage ? <div className={noteBox} role="status"><strong className="text-[12px]">{rolesMessage}</strong></div> : null}
+        {rolesMessage ? <Alert><AlertDescription>{rolesMessage}</AlertDescription></Alert> : null}
+        <form onSubmit={(event) => void saveRoleEditor(event)}>
+          <Button type="button" onClick={() => setEditingRole(null)} variant="outline">
+            <ChevronLeft size={16} aria-hidden="true" /> {t('roles.backToList')}
+          </Button>
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle id="admin-role-editor-title">
+                {isNew ? t('roles.newRole') : isSuperAdmin ? t('roles.viewRole') : t('roles.editRole')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-1.5">
+                <Label>{t('roles.nameLabel')}</Label>
+                {isNew ? (
+                  <Input value={editorName} onChange={(event) => setEditorName(event.target.value)} placeholder={t('roles.namePlaceholder')} required />
+                ) : (
+                  <span className="text-xs font-medium text-foreground">{editorName}</span>
+                )}
+              </div>
+              <div className="grid gap-1.5">
+                <Label>{t('roles.descriptionLabel')}</Label>
+                <Input value={editorDescription} onChange={(event) => setEditorDescription(event.target.value)} placeholder={t('roles.descriptionPlaceholder')} disabled={isSuperAdmin} />
+              </div>
+              <div className="grid gap-2.5">
+                <span className="text-xs font-medium text-muted-foreground">{t('roles.permissionsLabel')}</span>
+                {grouped.map(({ module, permissions }) => (
+                  <div key={module}>
+                    <p className="mb-2 text-xs font-semibold text-foreground">{t(`permissions.modules.${module}`)}</p>
+                    <div className="grid gap-2">
+                      {permissions.map((permission) => (
+                        <Label key={permission.key} className="flex cursor-pointer items-start gap-2 text-xs leading-relaxed font-normal text-muted-foreground">
+                          <Checkbox checked={editorKeys.includes(permission.key)} disabled={isSuperAdmin} onCheckedChange={() => toggleKey(permission.key)} className="mt-0.5" />
+                          <span>
+                            <code className="text-foreground">{permission.key}</code>
+                            {' — '}
+                            {t(`permissions.descriptions.${permissionDescriptionKey[permission.key] ?? 'overviewRead'}`)}
+                          </span>
+                        </Label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+            {!isSuperAdmin ? (
+              <CardFooter className="gap-2">
+                <Button type="submit" disabled={editorSaving || (isNew && editorName.trim() === '')}>
+                  {isNew ? t('roles.createRole') : t('roles.saveRole')}
+                </Button>
+                <Button type="button" onClick={() => setEditingRole(null)} variant="outline">{t('common:cancel')}</Button>
+              </CardFooter>
+            ) : null}
+          </Card>
+        </form>
+      </>
+    )
+  }
 
-        <section className="grid grid-cols-3 gap-3 max-[760px]:grid-cols-1" aria-label={t('roles.title')}>
-          {roleMeta.map(({ key, label, desc }) => (
-            <button key={key} type="button" onClick={() => setRoleFilter(key)} aria-pressed={roleFilter === key} className={`glass-panel flex min-h-[110px] min-w-0 flex-col items-start rounded-xl p-[15px] text-left shadow-[0_4px_14px_rgb(28_39_58/3%)] ${roleFilter === key ? 'ring-2 ring-ring' : ''}`}>
-              <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
-              <strong className="mt-[12px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground">{rolesLoading && roleCounts === null ? t('loading') : String(roleCounts?.[key] ?? 0)}</strong>
-              <span className="mt-[3px] text-[12px] text-muted-foreground">{desc}</span>
-            </button>
-          ))}
-        </section>
-
-        <section className={panel} aria-labelledby="admin-roles-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 id="admin-roles-title" className={panelTitle}>{selectedMeta.label}</h2>
-            </div>
-          </div>
-          <div className="mt-[18px] overflow-x-auto">
+  const renderRoleDetail = () => {
+    const role = detailRole
+    if (role === null) return null
+    const isSuperAdmin = role.name === 'super_admin'
+    return (
+      <>
+        {rolesMessage ? <Alert><AlertDescription>{rolesMessage}</AlertDescription></Alert> : null}
+        {detailError ? <Alert variant="destructive"><AlertDescription>{detailError}</AlertDescription></Alert> : null}
+        <Button type="button" onClick={() => { setDetailRole(null); setDetailUsers(null) }} variant="outline">
+          <ChevronLeft size={16} aria-hidden="true" /> {t('roles.backToList')}
+        </Button>
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle id="admin-role-users-title">{t('roles.roleUsers')} · {role.name}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!isSuperAdmin ? (
+              <form onSubmit={(event) => void addRoleUser(event)} className="flex items-center gap-2">
+                <Input value={addUserEmail} onChange={(event) => setAddUserEmail(event.target.value)} placeholder={t('roles.addUserPlaceholder')} type="email" required />
+                <Button type="submit" variant="outline">{t('roles.addUser')}</Button>
+              </form>
+            ) : null}
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="hover:bg-transparent">
-                  <TableHead className={auditTh}>{t('users.columns.email')}</TableHead>
-                  <TableHead className={auditTh}>{t('users.columns.created_at')}</TableHead>
-                  <TableHead className={auditTh}>{t('roles.actionColumn')}</TableHead>
+                <TableRow>
+                  <TableHead>{t('users.columns.email')}</TableHead>
+                  <TableHead>{t('users.columns.created_at')}</TableHead>
+                  <TableHead>{t('roles.tableActions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rolesLoading && roleUsers === null ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
-                ) : roleUsers !== null && roleUsers.length === 0 ? (
-                  <TableRow className="hover:bg-transparent"><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('roles.empty')}</TableCell></TableRow>
-                ) : (roleUsers ?? []).map((target) => {
-                  const actionDisabled = rolesPendingUserId !== null ||
-                    (roleFilter === 'admin' && (target.is_super_admin || target.id === currentUserId))
-                  return (
-                    <TableRow key={target.id} className="hover:bg-transparent">
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px]">{target.email}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(target.created_at)}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">
-                        {roleFilter === 'super_admin' ? (
-                          <span className="text-[12px] text-muted-foreground">{t('roles.unchangeable')}</span>
-                        ) : roleFilter === 'user' ? (
-                          <Button type="button" disabled={actionDisabled} onClick={() => void runRoleAction('make_admin', target)} className={actionButton}>{t('users.actions.make_admin')}</Button>
-                        ) : (
-                          <Button type="button" disabled={actionDisabled} onClick={() => void runRoleAction('remove_admin', target)} className={actionButton}>{t('users.actions.remove_admin')}</Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                {detailLoading && detailUsers === null ? (
+                  <TableRow><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
+                ) : detailUsers !== null && detailUsers.length === 0 ? (
+                  <TableRow><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('roles.empty')}</TableCell></TableRow>
+                ) : (detailUsers ?? []).map((target) => (
+                  <TableRow key={target.id}>
+                    <TableCell className="whitespace-normal break-all px-2 py-3 text-xs">{target.email}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(target.created_at)}</TableCell>
+                    <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">
+                      {isSuperAdmin ? (
+                        <span className="text-xs text-muted-foreground">{t('roles.unchangeable')}</span>
+                      ) : (
+                        <Button type="button" disabled={detailPendingUserId !== null || target.id === currentUserId} onClick={() => void removeRoleUser(target)} variant="outline">{t('roles.removeUser')}</Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
-          {totalCount > shownCount ? <p className="mt-3 text-[12px] leading-[1.6] text-muted-foreground">{t('roles.showsFirst', { count: shownCount })}</p> : null}
-        </section>
+            {detailUsers !== null && detailUsers.length >= 100 ? <p className="text-xs leading-relaxed text-muted-foreground">{t('roles.showsFirst', { count: detailUsers.length })}</p> : null}
+          </CardContent>
+        </Card>
+      </>
+    )
+  }
+
+  const renderRoles = () => {
+    if (editingRole !== null) return renderRoleEditor()
+    if (detailRole !== null) return renderRoleDetail()
+    return (
+      <>
+        {rolesError ? <Alert variant="destructive"><AlertDescription>{rolesError}</AlertDescription></Alert> : null}
+        {rolesMessage ? <Alert><AlertDescription>{rolesMessage}</AlertDescription></Alert> : null}
+        {confirmDeleteRole !== null ? (
+          <Alert variant="destructive">
+            <AlertDescription>{t('roles.confirmDelete', { name: confirmDeleteRole.name })}</AlertDescription>
+            <div className="mt-2 flex gap-2">
+              <Button type="button" onClick={() => void deleteRole()} variant="destructive" size="sm">{t('roles.confirmDeleteButton')}</Button>
+              <Button type="button" onClick={() => setConfirmDeleteRole(null)} variant="outline" size="sm">{t('common:cancel')}</Button>
+            </div>
+          </Alert>
+        ) : null}
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle id="admin-roles-title">{t('roles.title')}</CardTitle>
+            <CardAction><Button type="button" onClick={() => openRoleEditor('new')} variant="outline">{t('roles.newRole')}</Button></CardAction>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('roles.tableRole')}</TableHead>
+                  <TableHead>{t('roles.tableUsers')}</TableHead>
+                  <TableHead>{t('roles.tablePermissions')}</TableHead>
+                  <TableHead>{t('roles.tableActions')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rolesLoading && roles === null ? (
+                  <TableRow><TableCell colSpan={4} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
+                ) : roles !== null && roles.length === 0 ? (
+                  <TableRow><TableCell colSpan={4} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('roles.empty')}</TableCell></TableRow>
+                ) : (roles ?? []).map((role) => (
+                  <TableRow key={role.id}>
+                    <TableCell className="whitespace-normal break-all px-2 py-3 text-xs">
+                      <span className="font-medium">{role.name}</span>
+                      {role.description ? <span className="block text-muted-foreground">{role.description}</span> : null}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap px-2 py-3 text-xs tabular-nums text-muted-foreground">{role.user_count}</TableCell>
+                    <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">
+                      {role.name === 'super_admin' ? t('roles.allPermissions')
+                        : role.permission_keys.length === 0 ? t('roles.noPermissions')
+                        : t('roles.permissionCount', { count: role.permission_keys.length })}
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">
+                      <div className="flex gap-2">
+                        <Button type="button" onClick={() => openRoleDetail(role)} variant="outline">{t('roles.roleUsers')}</Button>
+                        <Button type="button" onClick={() => openRoleEditor(role)} variant="outline">{role.name === 'super_admin' ? t('roles.viewRole') : t('roles.editRole')}</Button>
+                        {!role.is_system ? (
+                          <Button type="button" onClick={() => setConfirmDeleteRole(role)} variant="outline">{t('roles.deleteRole')}</Button>
+                        ) : null}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </>
     )
   }
@@ -706,7 +984,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {sections.map((item) => (
+              {visibleSections.map((item) => (
                 <SidebarMenuItem key={item}>
                   <SidebarMenuButton isActive={section === item} tooltip={t(`navigation.${item}`)} onClick={() => setSection(item)}>
                     {item === 'overview' ? <LayoutGrid /> : item === 'users' ? <UsersIcon /> : item === 'roles' ? <Shield /> : item === 'settings' ? <Settings /> : <ScrollText />}

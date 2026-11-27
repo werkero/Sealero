@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createApiHealthClient } from '../../client/api-health'
-import './api-health.css'
 
 const healthClient = createApiHealthClient({ apiBaseUrl: import.meta.env.VITE_API_BASE_URL ?? '' })
 
@@ -30,8 +29,8 @@ export function FooterStatus() {
       : t('footerStatusUnavailable')
 
   return (
-    <span className={`footer-status footer-status--${phase}`} role="status">
-      <span className="footer-status-dot" aria-hidden="true" />
+    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground" role="status">
+      <span className={`size-1.5 rounded-full ${phase === 'online' ? 'bg-emerald-500' : phase === 'unavailable' ? 'bg-destructive' : 'bg-amber-500'}`} aria-hidden="true" />
       {message}
     </span>
   )

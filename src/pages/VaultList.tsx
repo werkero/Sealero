@@ -53,8 +53,8 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
 
   return (
     <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-      <div className="vault-content">
-        <div className="security-list-actions">
+      <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+        <div className="flex flex-wrap items-center gap-2">
           <Button type="button" onClick={() => setCreating(true)}>{t('vault:newItem')}</Button>
           <Button variant="secondary" type="button" onClick={() => onNavigate(`/users/${user.id}/generator`)}>{t('vault:generator.title')}</Button>
           <Button variant="secondary" type="button" onClick={() => onNavigate(`/users/${user.id}/settings`)}>{t('vault:health.title')}</Button>
@@ -72,10 +72,9 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
             onCancel={() => setCreating(false)}
           />
         ) : null}
-        <div className="vault-search-row">
-          <div className="relative min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true"><Search size={16} aria-hidden="true" /></span>
-            <label className="visually-hidden" htmlFor="vault-search">{t('vault:searchLabel')}</label>
+            <label className="sr-only" htmlFor="vault-search">{t('vault:searchLabel')}</label>
             <Input
               ref={searchInputRef}
               id="vault-search"
@@ -94,23 +93,22 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
               <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 font-[inherit] text-[11px] text-muted-foreground">⌘ K</kbd>
             )}
           </div>
-        </div>
-        <div className="item-list-header"><span>{t('vault:entryColumn')}</span><span>{t('vault:categoryColumn')}</span><span>{t('vault:updatedColumn')}</span></div>
-        <div className="item-list">
+        <div className="hidden grid-cols-[minmax(0,1fr)_150px_95px_20px] gap-3 px-4 pb-2 pl-[58px] text-xs font-semibold tracking-wider text-muted-foreground sm:grid"><span>{t('vault:entryColumn')}</span><span>{t('vault:categoryColumn')}</span><span>{t('vault:updatedColumn')}</span></div>
+        <div className="flex flex-col">
           {visibleItems.map((item) => (
-            <button key={item.id} className="vault-item-row" type="button" onClick={() => onOpenItem(item.id)} aria-label={t('vault:openItem', { name: item.name })}>
-              <span className={`app-icon ${iconTone(item.icon)}`}>{item.icon}</span>
-              <span className="item-row-copy"><strong>{item.name}{item.favorite ? <span className="item-favorite-mark" aria-label={t('vault:favorite')}><Star size={10} aria-hidden="true" /></span> : null}</strong><small>{hostname(item.url)}<span className="item-row-separator">·</span>{item.username}</small></span>
-              <span className="item-row-category"><Badge variant="secondary" className="max-w-full truncate">{item.category}</Badge></span>
-              <span className="item-row-updated">{t('vault:updatedRecently')}</span>
-              <span className="item-row-chevron" aria-hidden="true"><ChevronRight size={20} aria-hidden="true" /></span>
+            <button key={item.id} className="grid w-full min-h-[72px] grid-cols-[35px_minmax(0,1fr)_20px] items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors hover:bg-muted sm:grid-cols-[35px_minmax(0,1fr)_150px_95px_20px] sm:px-4" type="button" onClick={() => onOpenItem(item.id)} aria-label={t('vault:openItem', { name: item.name })}>
+              <span className={`grid size-[35px] shrink-0 place-items-center rounded-[11px] text-sm font-bold ${iconTone(item.icon)}`}>{item.icon}</span>
+              <span className="min-w-0"><strong className="block truncate text-sm font-medium text-foreground">{item.name}{item.favorite ? <span className="ml-1.5 inline-flex align-middle text-amber-500" aria-label={t('vault:favorite')}><Star size={10} aria-hidden="true" /></span> : null}</strong><small className="mt-0.5 block truncate text-xs text-muted-foreground">{hostname(item.url)}<span className="mx-1">·</span>{item.username}</small></span>
+              <span className="hidden sm:block"><Badge variant="secondary" className="max-w-full truncate">{item.category}</Badge></span>
+              <span className="hidden text-xs text-muted-foreground sm:block">{t('vault:updatedRecently')}</span>
+              <span className="text-muted-foreground" aria-hidden="true"><ChevronRight size={20} aria-hidden="true" /></span>
             </button>
           ))}
           {visibleItems.length === 0 ? (
-            <div className="empty-state">
-              <span className="empty-state-icon" aria-hidden="true"><Search size={20} aria-hidden="true" /></span>
-              <h2>{query ? t('vault:noResultsTitle') : t('vault:emptyTitle')}</h2>
-              <p>{query ? t('vault:noResultsBody') : t('vault:emptyBody')}</p>
+            <div className="flex flex-col items-center px-4 py-16 text-center">
+              <span className="mb-3 flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground" aria-hidden="true"><Search size={20} aria-hidden="true" /></span>
+              <h2 className="text-base font-semibold text-foreground">{query ? t('vault:noResultsTitle') : t('vault:emptyTitle')}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">{query ? t('vault:noResultsBody') : t('vault:emptyBody')}</p>
               {query ? <Button variant="link" className="mt-3" type="button" onClick={() => setQuery('')}>{t('common:clearSearch')}</Button> : null}
             </div>
           ) : null}

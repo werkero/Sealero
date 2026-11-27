@@ -2,7 +2,8 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import { ApiError } from '../app.js';
 import type { AdminUserService } from './admin-user-service.js';
-import type { AdminUserReadStore, AdminUserRoleFilter, AdminUserStatusFilter, AdminUserVerifiedFilter } from './types.js';
+import { requirePermission } from './require-permission.js';
+import type { AdminRoleStore, AdminUserReadStore, AdminUserRoleFilter, AdminUserStatusFilter, AdminUserVerifiedFilter } from './types.js';
 import type { AuthenticatedEnvironment } from '../middleware/authentication.js';
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -140,7 +141,7 @@ async function requireEmptyBody(context: Context<AuthenticatedEnvironment>): Pro
 
 export function createAdminUserRoutes(
   service: AdminUserService,
-  store: AdminUserReadStore,
+  store: AdminUserReadStore & AdminRoleStore,
   options: AdminUserRouteOptions = {},
 ): Hono<AuthenticatedEnvironment> {
   const routes = new Hono<AuthenticatedEnvironment>();
@@ -148,12 +149,11 @@ export function createAdminUserRoutes(
 
   routes.use('*', async (context, next) => {
     requireHttps(context, allowInsecureHttp);
-    const allowed = await store.hasAdminRole(context.get('auth').sub);
-    if (!allowed) throw new ApiError(403, 'admin_required', 'Administrator access is required.');
     await next();
   });
 
   routes.get('/users', async (context) => {
+    await requirePermission(store, context, 'users:read');
     const status = queryFilter<AdminUserStatusFilter>(context, 'status', ['all', 'active', 'disabled'], 'all');
     const verified = queryFilter<AdminUserVerifiedFilter>(context, 'verified', ['all', 'verified', 'unverified'], 'all');
     const role = queryFilter<AdminUserRoleFilter>(context, 'role', ['all', 'admin', 'user', 'super_admin'], 'all');
@@ -177,6 +177,7 @@ export function createAdminUserRoutes(
   });
 
   routes.get('/users/:id', async (context) => {
+    await requirePermission(store, context, 'users:read');
     const userId = requireUuid(context.req.param('id'), 'id');
     const loginCursor = queryCursor(context, 'login_cursor');
     const loginLimit = queryLimit(context, 'login_limit');
@@ -192,6 +193,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/disable', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     requireUuid(context.req.param('id'), 'id');
     await requireEmptyBody(context);
     await service.disableUser(context.get('auth').sub, context.req.param('id'), requestIp(context.req.raw.headers));
@@ -199,6 +201,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/enable', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     requireUuid(context.req.param('id'), 'id');
     await requireEmptyBody(context);
     await service.enableUser(context.get('auth').sub, context.req.param('id'), requestIp(context.req.raw.headers));
@@ -206,6 +209,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/delete', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     const userId = requireUuid(context.req.param('id'), 'id');
     const loginPassword = await readDeletePassword(context);
     await service.deleteUser(context.get('auth').sub, userId, loginPassword, requestMetadata(context));
@@ -213,6 +217,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/revoke-all-devices', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     const userId = requireUuid(context.req.param('id'), 'id');
     const loginPassword = await readLoginPassword(context, 'revoke-all-devices');
     await service.revokeAllDevices(context.get('auth').sub, userId, loginPassword, requestMetadata(context));
@@ -220,6 +225,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/make-admin', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     const userId = requireUuid(context.req.param('id'), 'id');
     await requireEmptyBody(context);
     await service.makeAdmin(context.get('auth').sub, userId, requestIp(context.req.raw.headers));
@@ -227,6 +233,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/users/:id/remove-admin', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     const userId = requireUuid(context.req.param('id'), 'id');
     await requireEmptyBody(context);
     await service.removeAdmin(context.get('auth').sub, userId, requestIp(context.req.raw.headers));
@@ -234,6 +241,7 @@ export function createAdminUserRoutes(
   });
 
   routes.post('/devices/:id/revoke', async (context) => {
+    await requirePermission(store, context, 'users:manage');
     const deviceId = requireUuid(context.req.param('id'), 'id');
     await requireEmptyBody(context);
     await service.revokeDevice(context.get('auth').sub, deviceId, requestIp(context.req.raw.headers));

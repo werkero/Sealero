@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import { ArrowUpRight, Info, KeyRound, Lock, Star } from 'lucide-react'
+import { ArrowUpRight, ChevronLeft, Info, KeyRound, Lock, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
 import { PasswordHealthInline } from '../features/password-security/PasswordSecurity'
 import { CopyIcon, SecretRow, VaultLayout, hostname, iconTone } from '../App'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { ItemEditor } from './ItemEditor'
+import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
 export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
   user: VaultIdentity
@@ -64,8 +66,8 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
   if (editing) {
     return (
       <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <div className="detail-content">
-          <button className="back-button detail-back" type="button" onClick={() => setEditing(false)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
+        <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+          <Button variant="ghost" className="w-fit" type="button" onClick={() => setEditing(false)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
           <ItemEditor
             initial={item}
             onSave={async (input) => {
@@ -84,25 +86,24 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
 
   return (
     <VaultLayout user={user} filter="all" itemCount={itemCount} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-      <div className="detail-content">
-        <button className="back-button detail-back" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
-        <div className="detail-title-row">
-          <span className={`detail-app-icon ${iconTone(item.icon)}`}>{item.icon}</span>
-          <div className="detail-title-copy">
-            <p className="eyebrow">{t('vault:detailEyebrow')}</p>
-            <h1>{item.name}</h1>
-            <a href={item.url} target="_blank" rel="noreferrer" className="detail-website">{hostname(item.url)}<span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span></a>
+      <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+        <Button variant="ghost" className="w-fit" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
+        <div className="flex items-start gap-4">
+          <span className={`grid size-[54px] shrink-0 place-items-center rounded-[15px] text-xl font-bold ${iconTone(item.icon)}`}>{item.icon}</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('vault:detailEyebrow')}</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{item.name}</h1>
+            <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline">{hostname(item.url)}<ArrowUpRight size={12} aria-hidden="true" /></a>
           </div>
-          {item.favorite ? <span className="detail-favorite-pill"><Star size={10} aria-hidden="true" /> {t('vault:favorite')}</span> : null}
+          {item.favorite ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"><Star size={10} aria-hidden="true" /> {t('vault:favorite')}</span> : null}
         </div>
-        <div className="security-list-actions">
-          <Button className="security-button" type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</Button>
           {confirmingDelete ? (
             <>
-              <span className="inline-warning" role="alert">{t('vault:deleteItemConfirm')}</span>
+              <span className="text-xs font-medium text-destructive" role="alert">{t('vault:deleteItemConfirm')}</span>
               <Button
                 variant="destructive"
-                className="security-button"
                 type="button"
                 onClick={() => {
                   void onDeleteItem(item.id).then((deleted) => {
@@ -118,17 +119,21 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
                   })
                 }}
               >{t('vault:confirmDelete')}</Button>
-              <Button className="security-button security-button--quiet" type="button" onClick={() => setConfirmingDelete(false)}>{t('vault:cancelEdit')}</Button>
+              <Button variant="outline" type="button" onClick={() => setConfirmingDelete(false)}>{t('vault:cancelEdit')}</Button>
             </>
           ) : (
-            <Button className="security-button security-button--quiet" type="button" onClick={() => { setDeleteFailed(false); setConfirmingDelete(true) }}>{t('vault:deleteItem')}</Button>
+            <Button variant="outline" type="button" onClick={() => { setDeleteFailed(false); setConfirmingDelete(true) }}>{t('vault:deleteItem')}</Button>
           )}
-          {deleteFailed ? <span className="inline-warning" role="alert">{t('vault:deleteFailed')}</span> : null}
+          {deleteFailed ? <span className="text-xs font-medium text-destructive" role="alert">{t('vault:deleteFailed')}</span> : null}
         </div>
-        <div className="detail-grid">
-          <section className="detail-card" aria-labelledby="login-details-title">
-            <div className="detail-card-heading"><div><h2 id="login-details-title">{t('vault:loginDetails')}</h2><p>{t('vault:loginDetailsSubtitle')}</p></div><span className="detail-card-lock" aria-hidden="true"><Lock size={16} aria-hidden="true" /></span></div>
-            <div className="detail-fields">
+        <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-4 max-[1100px]:grid-cols-1">
+          <Card>
+            <CardHeader>
+              <CardTitle id="login-details-title">{t('vault:loginDetails')}</CardTitle>
+              <CardDescription>{t('vault:loginDetailsSubtitle')}</CardDescription>
+              <CardAction><Lock size={16} className="text-muted-foreground" aria-hidden="true" /></CardAction>
+            </CardHeader>
+            <CardContent className="grid gap-4">
               <SecretRow label={t('vault:username')} value={item.username} maskedValue={item.username} onCopy={() => onCopy(item.username, t('vault:username'))} copyLabel={t('vault:username')} />
               <SecretRow
                 label={t('vault:password')}
@@ -140,61 +145,91 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
                 copyLabel={t('vault:password')}
               />
               <PasswordHealthInline itemId={item.id} password={item.password} itemName={item.name} items={items} loadItem={loadItem} />
-              <div className="detail-field detail-field-url">
-                <div className="detail-field-label">{t('vault:website')}</div>
-                <a className="detail-field-url-value" href={item.url} target="_blank" rel="noreferrer">{item.url}<span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span></a>
-                <span className="detail-field-actions"><button className="copy-button" type="button" onClick={() => onCopy(item.url, t('vault:website'))} aria-label={`${t('common:copy')} ${t('vault:website')}`}><CopyIcon /></button></span>
+              <div className="grid gap-1">
+                <div className="text-xs font-medium text-muted-foreground">{t('vault:website')}</div>
+                <div className="flex items-center gap-2">
+                  <a className="min-w-0 flex-1 truncate text-sm text-primary hover:underline" href={item.url} target="_blank" rel="noreferrer">{item.url}<ArrowUpRight size={12} className="ml-1 inline" aria-hidden="true" /></a>
+                  <Button variant="ghost" size="icon" className="size-7 shrink-0" type="button" onClick={() => onCopy(item.url, t('vault:website'))} aria-label={`${t('common:copy')} ${t('vault:website')}`}><CopyIcon /></Button>
+                </div>
               </div>
-              <div className="detail-field detail-note-field"><div className="detail-field-label">{t('vault:note')}</div><p>{item.note || t('vault:noNotes')}</p></div>
-            </div>
-            <div className="detail-metadata"><span><span>{t('vault:category')}</span>{item.category}</span><span><span>{t('vault:tags')}</span>{item.tags.map((tag) => <i key={tag}>{tag}</i>)}</span></div>
-          </section>
-          <div className="detail-secondary-column">
+              <div className="grid gap-1"><div className="text-xs font-medium text-muted-foreground">{t('vault:note')}</div><p className="text-sm text-foreground">{item.note || t('vault:noNotes')}</p></div>
+              <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs"><span><span className="text-muted-foreground">{t('vault:category')} </span>{item.category}</span><span className="flex flex-wrap items-center gap-1.5"><span className="text-muted-foreground">{t('vault:tags')} </span>{item.tags.map((tag) => <Badge key={tag} variant="secondary">{tag}</Badge>)}</span></div>
+            </CardContent>
+          </Card>
+          <div className="flex flex-col gap-4">
             {item.totpSecret ? (
-              <section className="detail-card compact-detail-card" aria-labelledby="totp-title">
-                <div className="detail-card-heading"><div><h2 id="totp-title">{t('vault:authenticatorCode')}</h2><p>{t('vault:totpSubtitle')}</p></div><span className="totp-badge">{t('vault:totp')}</span></div>
-                <div className="totp-code-row"><strong aria-live="polite">{totp}</strong><span className="totp-countdown">{totpSeconds}<small>s</small></span><button className="copy-button" type="button" onClick={() => onCopy(totp, t('vault:authenticatorCode'))} aria-label={`${t('common:copy')} ${t('vault:authenticatorCode')}`}><CopyIcon /></button></div>
-                <div className="totp-progress"><span style={{ width: `${(totpSeconds / 30) * 100}%` }} /></div>
-              </section>
+              <Card>
+                <CardHeader>
+                  <CardTitle id="totp-title">{t('vault:authenticatorCode')}</CardTitle>
+                  <CardDescription>{t('vault:totpSubtitle')}</CardDescription>
+                  <CardAction><Badge variant="secondary">{t('vault:totp')}</Badge></CardAction>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center gap-3"><strong className="font-mono text-2xl font-semibold tracking-widest" aria-live="polite">{totp}</strong><span className="text-sm text-muted-foreground">{totpSeconds}<small>s</small></span><Button variant="ghost" size="icon" className="ml-auto size-7" type="button" onClick={() => onCopy(totp, t('vault:authenticatorCode'))} aria-label={`${t('common:copy')} ${t('vault:authenticatorCode')}`}><CopyIcon /></Button></div>
+                  <div className="h-1 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-primary" style={{ width: `${(totpSeconds / 30) * 100}%` }} /></div>
+                </CardContent>
+              </Card>
             ) : null}
             {item.passkey ? (
-              <section className="detail-card compact-detail-card" aria-labelledby="passkey-title">
-                <div className="detail-card-heading"><div><h2 id="passkey-title">{t('vault:passkey')}</h2><p>{t('vault:passkeySubtitle')}</p></div><span className="passkey-symbol" aria-hidden="true"><KeyRound size={16} aria-hidden="true" /></span></div>
-                <div className="passkey-info"><span>{t('vault:relyingParty')}</span><strong>{item.passkey.rpId}</strong><span>{t('vault:credentialId')}</span><code>{item.passkey.credentialId}</code><span>{t('vault:publicKey')}</span><code className="public-key-value">{item.passkey.publicKey}</code></div>
-                <p className="security-note"><span aria-hidden="true"><Info size={12} aria-hidden="true" /></span>{t('vault:privateKeyNeverSaved')}</p>
-              </section>
+              <Card>
+                <CardHeader>
+                  <CardTitle id="passkey-title">{t('vault:passkey')}</CardTitle>
+                  <CardDescription>{t('vault:passkeySubtitle')}</CardDescription>
+                  <CardAction><KeyRound size={16} className="text-muted-foreground" aria-hidden="true" /></CardAction>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <dl className="grid gap-2 text-sm">
+                    <div className="grid gap-0.5"><dt className="text-xs text-muted-foreground">{t('vault:relyingParty')}</dt><dd className="font-medium">{item.passkey.rpId}</dd></div>
+                    <div className="grid gap-0.5"><dt className="text-xs text-muted-foreground">{t('vault:credentialId')}</dt><dd><code className="break-all font-mono text-xs">{item.passkey.credentialId}</code></dd></div>
+                    <div className="grid gap-0.5"><dt className="text-xs text-muted-foreground">{t('vault:publicKey')}</dt><dd><code className="break-all font-mono text-xs">{item.passkey.publicKey}</code></dd></div>
+                  </dl>
+                  <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground"><Info size={12} className="mt-0.5 shrink-0" aria-hidden="true" />{t('vault:privateKeyNeverSaved')}</p>
+                </CardContent>
+              </Card>
             ) : null}
             {item.recoveryCodes?.length ? (
-              <section className="detail-card compact-detail-card" aria-labelledby="recovery-title">
-                <div className="detail-card-heading"><div><h2 id="recovery-title">{t('vault:recoveryCodes')}</h2><p>{t('vault:remainingCodes', { count: remainingCodes })}</p></div><button className="quiet-button" type="button" onClick={() => setRecoveryVisible((visible) => !visible)}>{recoveryVisible ? t('common:hide') : t('common:show')}</button></div>
-                <div className="recovery-list">
+              <Card>
+                <CardHeader>
+                  <CardTitle id="recovery-title">{t('vault:recoveryCodes')}</CardTitle>
+                  <CardDescription>{t('vault:remainingCodes', { count: remainingCodes })}</CardDescription>
+                  <CardAction><Button variant="ghost" size="sm" type="button" onClick={() => setRecoveryVisible((visible) => !visible)}>{recoveryVisible ? t('common:hide') : t('common:show')}</Button></CardAction>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex flex-col gap-2">
                   {item.recoveryCodes.map((code) => {
                     const isUsed = usedCodes.has(code.id)
                     return (
-                      <div className={`recovery-row ${isUsed ? 'is-used' : ''}`} key={code.id}>
-                        <span className="recovery-code">{recoveryVisible ? code.value : '•••• •••• ••••'}</span>
-                        <button className="recovery-use-button" type="button" onClick={() => { const nextUsed = !usedCodes.has(code.id); setUsedCodes((current) => { const next = new Set(current); if (nextUsed) next.add(code.id); else next.delete(code.id); return next }) }} aria-pressed={isUsed}>{isUsed ? t('vault:used') : t('vault:markUsed')}</button>
-                        <button className="copy-button" type="button" onClick={() => onCopy(code.value, t('vault:recoveryCode'))} aria-label={`${t('common:copy')} ${t('vault:recoveryCode')}`}><CopyIcon /></button>
+                      <div className={`flex items-center gap-2 rounded-lg bg-muted px-3 py-2 ${isUsed ? 'opacity-60' : ''}`} key={code.id}>
+                        <span className="flex-1 font-mono text-sm">{recoveryVisible ? code.value : '•••• •••• ••••'}</span>
+                        <Button variant="ghost" size="sm" type="button" onClick={() => { const nextUsed = !usedCodes.has(code.id); setUsedCodes((current) => { const next = new Set(current); if (nextUsed) next.add(code.id); else next.delete(code.id); return next }) }} aria-pressed={isUsed}>{isUsed ? t('vault:used') : t('vault:markUsed')}</Button>
+                        <Button variant="ghost" size="icon" className="size-7 shrink-0" type="button" onClick={() => onCopy(code.value, t('vault:recoveryCode'))} aria-label={`${t('common:copy')} ${t('vault:recoveryCode')}`}><CopyIcon /></Button>
                       </div>
                     )
                   })}
-                </div>
-                <p className="security-note warning-note">{t('vault:recoveryCodePreviewNote')}</p>
-              </section>
+                  </div>
+                  <p className="text-xs leading-relaxed text-amber-600 dark:text-amber-400">{t('vault:recoveryCodePreviewNote')}</p>
+                </CardContent>
+              </Card>
             ) : null}
             {item.mnemonic?.length ? (
-              <section className="detail-card compact-detail-card" aria-labelledby="mnemonic-title">
-                <div className="detail-card-heading"><div><h2 id="mnemonic-title">{t('vault:mnemonic')}</h2><p>{t('vault:mnemonicSubtitle', { count: item.mnemonic.length })}</p></div><button className="quiet-button" type="button" onClick={() => setMnemonicVisible((visible) => !visible)}>{mnemonicVisible ? t('common:hide') : t('common:show')}</button></div>
-                <div className="mnemonic-grid">
-                  {item.mnemonic.map((word, index) => <div className="mnemonic-word" key={`${word}-${index}`}><span>{index + 1}</span><strong>{mnemonicVisible ? word : '••••••'}</strong><button type="button" className="word-copy" onClick={() => onCopy(word, `${t('vault:mnemonic')} ${index + 1}`)} aria-label={`${t('common:copy')} ${t('vault:mnemonic')} ${index + 1}`}><CopyIcon /></button></div>)}
-                </div>
-                <button className="mnemonic-copy-all" type="button" onClick={() => onCopy(item.mnemonic!.join(' '), t('vault:mnemonic'))}><CopyIcon />{t('vault:copyPhrase')}</button>
-                <p className="security-note warning-note"><span aria-hidden="true">!</span>{t('vault:mnemonicRisk')}</p>
-              </section>
+              <Card>
+                <CardHeader>
+                  <CardTitle id="mnemonic-title">{t('vault:mnemonic')}</CardTitle>
+                  <CardDescription>{t('vault:mnemonicSubtitle', { count: item.mnemonic.length })}</CardDescription>
+                  <CardAction><Button variant="ghost" size="sm" type="button" onClick={() => setMnemonicVisible((visible) => !visible)}>{mnemonicVisible ? t('common:hide') : t('common:show')}</Button></CardAction>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-3 gap-2">
+                    {item.mnemonic.map((word, index) => <div className="flex items-center gap-2 rounded-lg bg-muted px-2.5 py-2" key={`${word}-${index}`}><span className="text-xs text-muted-foreground">{index + 1}</span><strong className="min-w-0 flex-1 truncate text-sm font-medium">{mnemonicVisible ? word : '••••••'}</strong><Button variant="ghost" size="icon" className="size-6 shrink-0" type="button" onClick={() => onCopy(word, `${t('vault:mnemonic')} ${index + 1}`)} aria-label={`${t('common:copy')} ${t('vault:mnemonic')} ${index + 1}`}><CopyIcon /></Button></div>)}
+                  </div>
+                  <Button variant="outline" size="sm" type="button" onClick={() => onCopy(item.mnemonic!.join(' '), t('vault:mnemonic'))}><CopyIcon />{t('vault:copyPhrase')}</Button>
+                  <p className="flex items-start gap-1.5 text-xs leading-relaxed text-amber-600 dark:text-amber-400"><span aria-hidden="true">!</span>{t('vault:mnemonicRisk')}</p>
+                </CardContent>
+              </Card>
             ) : null}
           </div>
         </div>
-        <p className="detail-footnote"><span aria-hidden="true"><Info size={12} aria-hidden="true" /></span>{t('vault:clipboardAutoClear')}</p>
+        <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground"><Info size={12} className="mt-0.5 shrink-0" aria-hidden="true" />{t('vault:clipboardAutoClear')}</p>
       </div>
     </VaultLayout>
   )

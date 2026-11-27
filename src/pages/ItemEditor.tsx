@@ -1,7 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VaultItem, VaultItemInput } from '../client/contracts'
+import { Alert, AlertDescription } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Checkbox } from '../components/ui/checkbox'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
+import { Textarea } from '../components/ui/textarea'
 
 function errorCode(error: unknown): string | null {
   if (typeof error === 'object' && error !== null && 'code' in error) {
@@ -11,7 +17,7 @@ function errorCode(error: unknown): string | null {
   return null
 }
 
-/** Create/edit form for one vault item, in the existing detail-card style. */
+/** Create/edit form for one vault item, as a shadcn Card. */
 export function ItemEditor({ initial, onSave, onCancel }: {
   /** Null for a new item; the loaded item when editing (passkey is preserved, not edited). */
   initial: VaultItem | null
@@ -67,51 +73,71 @@ export function ItemEditor({ initial, onSave, onCancel }: {
   }
 
   return (
-    <section className="detail-card" aria-labelledby="item-editor-title">
-      <div className="detail-card-heading">
-        <div>
-          <h2 id="item-editor-title">{initial ? t('vault:editItem') : t('vault:newItem')}</h2>
-          <p>{initial ? initial.name : t('vault:collectionSubtitle')}</p>
-        </div>
-      </div>
-      <form className="auth-form" onSubmit={submit}>
-        <label className="field-label" htmlFor="item-name">{t('vault:name')}</label>
-        <input className="text-input" id="item-name" name="name" type="text" autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} required disabled={saving} />
-        <label className="field-label" htmlFor="item-url">{t('vault:website')}</label>
-        <input className="text-input" id="item-url" name="url" type="text" autoComplete="off" placeholder="https://" value={url} onChange={(event) => setUrl(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-username">{t('vault:username')}</label>
-        <input className="text-input" id="item-username" name="username" type="text" autoComplete="off" value={username} onChange={(event) => setUsername(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-password">{t('vault:password')}</label>
-        <div className="password-input-wrap">
-          <input className="text-input" id="item-password" name="password" type={passwordVisible ? 'text' : 'password'} autoComplete="off" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={saving} />
-          <button className="input-action" type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? t('common:hide') : t('common:show')} disabled={saving}>
-            {passwordVisible ? t('common:hide') : t('common:show')}
-          </button>
-        </div>
-        <label className="field-label" htmlFor="item-note">{t('vault:note')}</label>
-        <textarea className="text-input" id="item-note" name="note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-category">{t('vault:category')}</label>
-        <input className="text-input" id="item-category" name="category" type="text" autoComplete="off" value={category} onChange={(event) => setCategory(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-tags">{t('vault:tags')}</label>
-        <input className="text-input" id="item-tags" name="tags" type="text" autoComplete="off" value={tagsText} onChange={(event) => setTagsText(event.target.value)} disabled={saving} />
-        <p className="field-hint">{t('vault:tagsHint')}</p>
-        <label className="field-label" htmlFor="item-totp">{t('vault:totpSecretLabel')}</label>
-        <input className="text-input" id="item-totp" name="totpSecret" type="text" autoComplete="off" value={totpSecret} onChange={(event) => setTotpSecret(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-recovery">{t('vault:recoveryCodesLabel')}</label>
-        <textarea className="text-input" id="item-recovery" name="recoveryCodes" rows={3} value={recoveryText} onChange={(event) => setRecoveryText(event.target.value)} disabled={saving} />
-        <p className="field-hint">{t('vault:recoveryCodesHint')}</p>
-        <label className="field-label" htmlFor="item-mnemonic">{t('vault:mnemonicLabel')}</label>
-        <textarea className="text-input" id="item-mnemonic" name="mnemonic" rows={2} value={mnemonicText} onChange={(event) => setMnemonicText(event.target.value)} disabled={saving} />
-        <label className="field-label" htmlFor="item-favorite">
-          <input id="item-favorite" name="favorite" type="checkbox" checked={favorite} onChange={(event) => setFavorite(event.target.checked)} disabled={saving} />
-          {' '}{t('vault:favorite')}
-        </label>
-        {saveError ? <p className="inline-warning" role="alert">{saveError}</p> : null}
-        <div className="detail-card-heading">
-          <Button className="button button-primary" type="submit" disabled={saving}>{t('vault:saveItem')}</Button>
-          <button className="quiet-button" type="button" onClick={onCancel} disabled={saving}>{t('vault:cancelEdit')}</button>
-        </div>
-      </form>
-    </section>
+    <Card>
+      <CardHeader>
+        <CardTitle id="item-editor-title">{initial ? t('vault:editItem') : t('vault:newItem')}</CardTitle>
+        <CardDescription>{initial ? initial.name : t('vault:collectionSubtitle')}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="grid gap-4" onSubmit={submit}>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-name">{t('vault:name')}</Label>
+            <Input id="item-name" name="name" type="text" autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} required disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-url">{t('vault:website')}</Label>
+            <Input id="item-url" name="url" type="text" autoComplete="off" placeholder="https://" value={url} onChange={(event) => setUrl(event.target.value)} disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-username">{t('vault:username')}</Label>
+            <Input id="item-username" name="username" type="text" autoComplete="off" value={username} onChange={(event) => setUsername(event.target.value)} disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-password">{t('vault:password')}</Label>
+            <div className="relative">
+              <Input id="item-password" name="password" type={passwordVisible ? 'text' : 'password'} autoComplete="off" value={password} onChange={(event) => setPassword(event.target.value)} required disabled={saving} className="pr-16" />
+              <Button variant="ghost" size="sm" className="absolute right-1 top-1/2 -translate-y-1/2" type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? t('common:hide') : t('common:show')} disabled={saving}>
+                {passwordVisible ? t('common:hide') : t('common:show')}
+              </Button>
+            </div>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-note">{t('vault:note')}</Label>
+            <Textarea id="item-note" name="note" rows={3} value={note} onChange={(event) => setNote(event.target.value)} disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-category">{t('vault:category')}</Label>
+            <Input id="item-category" name="category" type="text" autoComplete="off" value={category} onChange={(event) => setCategory(event.target.value)} disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-tags">{t('vault:tags')}</Label>
+            <Input id="item-tags" name="tags" type="text" autoComplete="off" value={tagsText} onChange={(event) => setTagsText(event.target.value)} disabled={saving} />
+            <p className="text-xs leading-relaxed text-muted-foreground">{t('vault:tagsHint')}</p>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-totp">{t('vault:totpSecretLabel')}</Label>
+            <Input id="item-totp" name="totpSecret" type="text" autoComplete="off" value={totpSecret} onChange={(event) => setTotpSecret(event.target.value)} disabled={saving} />
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-recovery">{t('vault:recoveryCodesLabel')}</Label>
+            <Textarea id="item-recovery" name="recoveryCodes" rows={3} value={recoveryText} onChange={(event) => setRecoveryText(event.target.value)} disabled={saving} />
+            <p className="text-xs leading-relaxed text-muted-foreground">{t('vault:recoveryCodesHint')}</p>
+          </div>
+          <div className="grid gap-1.5">
+            <Label htmlFor="item-mnemonic">{t('vault:mnemonicLabel')}</Label>
+            <Textarea id="item-mnemonic" name="mnemonic" rows={2} value={mnemonicText} onChange={(event) => setMnemonicText(event.target.value)} disabled={saving} />
+          </div>
+          <Label htmlFor="item-favorite" className="flex cursor-pointer items-center gap-2 font-normal">
+            <Checkbox id="item-favorite" name="favorite" checked={favorite} onCheckedChange={(checked) => setFavorite(checked === true)} disabled={saving} />
+            {t('vault:favorite')}
+          </Label>
+          {saveError ? <Alert variant="destructive"><AlertDescription>{saveError}</AlertDescription></Alert> : null}
+          <div className="flex gap-2">
+            <Button type="submit" disabled={saving}>{t('vault:saveItem')}</Button>
+            <Button variant="outline" type="button" onClick={onCancel} disabled={saving}>{t('vault:cancelEdit')}</Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

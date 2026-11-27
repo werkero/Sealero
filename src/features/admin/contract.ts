@@ -55,6 +55,58 @@ export interface AdminOverviewTrendResponse {
   readonly days: readonly AdminOverviewTrendDay[]
 }
 
+/** One RBAC permission from the catalog (System Design §3.1). */
+export interface AdminPermission {
+  readonly key: string
+  readonly module: string
+  readonly description: string | null
+}
+
+/** One role with its permission keys and user count (System Design §5.2). */
+export interface AdminRole {
+  readonly id: string
+  readonly name: string
+  readonly description: string | null
+  readonly created_at: string
+  readonly is_system: boolean
+  readonly permission_keys: readonly string[]
+  readonly user_count: number
+}
+
+export interface AdminRolesResponse {
+  readonly roles: readonly AdminRole[]
+}
+
+export interface AdminPermissionsResponse {
+  readonly permissions: readonly AdminPermission[]
+}
+
+export interface AdminMyPermissionsResponse {
+  readonly permissions: readonly string[]
+}
+
+/** POST /v1/admin/roles body. */
+export interface AdminRoleCreateInput {
+  readonly name: string
+  readonly description?: string | null
+  readonly permission_keys: readonly string[]
+}
+
+/** PATCH /v1/admin/roles/{id} body: name cannot change. */
+export interface AdminRoleUpdateInput {
+  readonly description?: string | null
+  readonly permission_keys?: readonly string[]
+}
+
+export interface AdminRoleResponse {
+  readonly role: AdminRole
+}
+
+export interface AdminRoleAssignResponse {
+  readonly role: AdminRole
+  readonly user: AdminUserListItem
+}
+
 /** PUT /v1/admin/settings body: only changed keys; null clears a nullable key. */
 export type AdminSettingsUpdate = Partial<Record<AdminSettingKey, string | number | boolean | null>>
 
@@ -111,12 +163,18 @@ export const ADMIN_AUDIT_ACTIONS = [
   'settings_update',
   'make_admin',
   'remove_admin',
+  'role_create',
+  'role_update',
+  'role_delete',
+  'role_assign',
+  'role_remove',
 ] as const
 
 export type AdminAuditAction = (typeof ADMIN_AUDIT_ACTIONS)[number]
 export type AdminAuditMetadata =
   | { readonly keys_changed: readonly AdminSettingKey[] }
   | { readonly device_id: string }
+  | { readonly role_id: string; readonly role_name: string; readonly permission_keys?: readonly string[] }
   | Readonly<Record<string, never>>
 
 export interface AdminAuditRow {
@@ -149,6 +207,19 @@ export function sanitizeAuditMetadata(action: string, metadata: unknown): Record
 
   if (action === 'device_revoke' && typeof record.device_id === 'string' && uuidPattern.test(record.device_id)) {
     return { device_id: record.device_id }
+  }
+
+  if (
+    (action === 'role_create' || action === 'role_update' || action === 'role_delete' || action === 'role_assign' || action === 'role_remove') &&
+    typeof record.role_id === 'string' && uuidPattern.test(record.role_id) &&
+    typeof record.role_name === 'string' && record.role_name !== ''
+  ) {
+    const permissionKeys = Array.isArray(record.permission_keys)
+      ? [...new Set(record.permission_keys.filter((key): key is string => typeof key === 'string'))]
+      : undefined
+    return permissionKeys === undefined
+      ? { role_id: record.role_id, role_name: record.role_name }
+      : { role_id: record.role_id, role_name: record.role_name, permission_keys: permissionKeys }
   }
 
   return {}

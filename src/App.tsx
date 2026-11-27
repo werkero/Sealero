@@ -165,11 +165,11 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
 
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => { if (!nextOpen) onClose() }}>
-      <DialogContent className="confirm-dialog gap-0" showCloseButton={false}>
-        <DialogTitle className="confirm-dialog-text">{t('common:signOutConfirm')}</DialogTitle>
-        <div className="confirm-dialog-actions">
-          <Button className="security-button security-button--quiet" type="button" onClick={onClose}>{t('common:cancel')}</Button>
-          <Button className="button button-primary" type="button" onClick={onConfirm}>{t('common:confirmSignOut')}</Button>
+      <DialogContent className="gap-0" showCloseButton={false}>
+        <DialogTitle className="text-base font-semibold">{t('common:signOutConfirm')}</DialogTitle>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button variant="outline" type="button" onClick={onClose}>{t('common:cancel')}</Button>
+          <Button type="button" onClick={onConfirm}>{t('common:confirmSignOut')}</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -308,12 +308,12 @@ export function SecretRow({ label, value, maskedValue, visible, onToggle, onCopy
 }) {
   const { t } = useTranslation('common')
   return (
-    <div className="detail-field">
-      <div className="detail-field-label">{label}</div>
-      <div className="detail-field-value">{visible === false ? maskedValue : value}</div>
-      <div className="detail-field-actions">
-        {onToggle ? <button className="quiet-button" type="button" onClick={onToggle}>{visible ? t('hide') : t('show')}</button> : null}
-        <button className="copy-button" type="button" onClick={onCopy} aria-label={`${t('copy')} ${copyLabel}`} title={`${t('copy')} ${copyLabel}`}><CopyIcon /></button>
+    <div className="grid gap-1">
+      <div className="text-xs font-medium text-muted-foreground">{label}</div>
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1 break-all text-sm">{visible === false ? maskedValue : value}</div>
+        {onToggle ? <Button variant="ghost" size="sm" type="button" onClick={onToggle}>{visible ? t('hide') : t('show')}</Button> : null}
+        <Button variant="ghost" size="icon" className="size-7 shrink-0" type="button" onClick={onCopy} aria-label={`${t('copy')} ${copyLabel}`} title={`${t('copy')} ${copyLabel}`}><CopyIcon /></Button>
       </div>
     </div>
   )
@@ -341,11 +341,16 @@ function ToastLayer() {
     }
   }, [])
 
-  return message ? <div className="toast-message" role="status" aria-live="polite">{message}</div> : null
+  return message ? <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full bg-foreground px-4 py-2 text-sm text-background shadow-lg" role="status" aria-live="polite">{message}</div> : null
 }
 
 export function iconTone(icon: string) {
-  const tones = ['icon-violet', 'icon-coral', 'icon-green', 'icon-blue']
+  const tones = [
+    'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300',
+    'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300',
+    'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
+  ]
   const code = icon.codePointAt(0) ?? 0
   return tones[code % tones.length]
 }

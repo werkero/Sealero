@@ -9,17 +9,17 @@ export interface AdminStatusProbeOptions {
   timeoutMs?: number
 }
 
-function buildAdminSettingsUrl(apiBaseUrl: string): string {
+function buildMyPermissionsUrl(apiBaseUrl: string): string {
   const base = apiBaseUrl.trim().replace(/\/+$/, '')
-  return `${base}/v1/admin/settings`
+  return `${base}/v1/admin/me/permissions`
 }
 
 /**
- * Probes whether the current login session has the admin role.
+ * Probes whether the current login session holds any admin permission.
  *
- * GET /v1/admin/settings is a cheap, side-effect-free admin read: the server
- * answers 200 for admins and 403 `admin_required` for authenticated
- * non-admins (401 without a valid session). Any other outcome — 404, 503,
+ * GET /v1/admin/me/permissions is a cheap, side-effect-free read: the server
+ * answers 200 with the caller's permission keys (an empty list for plain
+ * users) and 401 without a valid session. Any other outcome — 404, 503,
  * network error, timeout — also means "not an admin" here, never an error.
  * The result is cached by the session hook; the probe runs once per login.
  */
@@ -28,7 +28,7 @@ export async function probeAdminAccess(
   signal?: AbortSignal,
 ): Promise<boolean> {
   if (signal?.aborted) return false
-  const endpoint = buildAdminSettingsUrl(options.apiBaseUrl ?? '')
+  const endpoint = buildMyPermissionsUrl(options.apiBaseUrl ?? '')
   const fetcher = options.fetcher ?? globalThis.fetch
   const timeoutMs = options.timeoutMs ?? DEFAULT_ADMIN_STATUS_TIMEOUT_MS
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
@@ -51,7 +51,13 @@ export async function probeAdminAccess(
       cache: 'no-store',
       signal: requestController.signal,
     })
-    return response.ok
+    if (!response.ok) return false
+    try {
+      const body = (await response.json()) as { permissions?: unknown }
+      return Array.isArray(body.permissions) && body.permissions.length > 0
+    } catch {
+      return false
+    }
   } catch {
     return false
   } finally {

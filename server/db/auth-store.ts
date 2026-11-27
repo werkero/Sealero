@@ -13,7 +13,6 @@ import type {
   RateLimitWindow,
   RefreshOwnerStatus,
   RefreshTokenRecord,
-  UserRole,
 } from '../auth/types.js';
 import type { DeviceType } from '../auth/types.js';
 import type { PrivacyConsentStore } from '../auth/consent-types.js';
@@ -55,6 +54,9 @@ import type {
   AdminOverview,
   AdminOverviewTrend,
   AdminOverviewTrendDay,
+  AdminPermission,
+  AdminRole,
+  AdminRoleStore,
   AdminSettingKey,
   DbDumpRow,
   DbDumpTables,
@@ -203,6 +205,30 @@ interface AdminUserRow extends Record<string, unknown> {
   device_count: string | number | bigint;
   last_login_at: Date | string | null;
   ciphertext_total_bytes: string | number | bigint;
+}
+
+interface AdminRoleRow extends Record<string, unknown> {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: Date | string;
+  is_system: boolean;
+  permission_keys: string;
+  user_count: string | number | bigint;
+}
+
+function mapAdminRole(row: AdminRoleRow): AdminRole {
+  const createdAt = adminTimestamp(row.created_at);
+  if (createdAt === null) throw new Error('A role must have created_at.');
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    created_at: createdAt,
+    is_system: row.is_system,
+    permission_keys: row.permission_keys === '' ? [] : row.permission_keys.split(','),
+    user_count: adminInteger(row.user_count),
+  };
 }
 
 interface AdminDeviceRow extends Record<string, unknown> {
@@ -376,6 +402,8 @@ const DB_DUMP_TABLES: readonly { readonly name: string; readonly orderBy: string
   { name: 'server_settings', orderBy: 'key' },
   { name: 'roles', orderBy: 'id' },
   { name: 'user_roles', orderBy: 'user_id, role_id' },
+  { name: 'permissions', orderBy: 'key' },
+  { name: 'role_permissions', orderBy: 'role_id, permission_id' },
   { name: 'audit_logs', orderBy: 'id' },
   { name: 'login_logs', orderBy: 'id' },
   { name: 'rate_limits', orderBy: 'id' },
@@ -663,10 +691,100 @@ class SqlAuthTransaction implements AuthTransaction {
     );
   }
 
+  async ensureDefaultPermissions(): Promise<void> {
+    await this.connection.query(
+      `INSERT INTO permissions (key, module, description) VALUES
+         ('overview:read', 'overview', '看控制台总览与用户趋势'),
+         ('users:read', 'users', '看用户列表与详情'),
+         ('users:manage', 'users', '停用/启用/删除用户、指定/取消管理员、吊销设备'),
+         ('settings:manage', 'settings', '看与改服务器设置'),
+         ('audit:read', 'audit', '看审计日志'),
+         ('roles:manage', 'roles', '增删改角色、改角色权限、指派/移除角色用户'),
+         ('dump:read', 'dump', '下载数据库密文 dump')
+       ON CONFLICT (key) DO NOTHING`,
+    );
+    await this.connection.query(
+      `INSERT INTO role_permissions (role_id, permission_id)
+       SELECT r.id, p.id FROM roles r CROSS JOIN permissions p WHERE r.name = 'admin'
+       ON CONFLICT (role_id, permission_id) DO NOTHING`,
+    );
+  }
+
+  async findRoleForUpdate(roleId: string): Promise<{ readonly id: string; readonly name: string; readonly description: string | null } | null> {
+    return first<{ id: string; name: string; description: string | null }>(this.connection,
+      'SELECT id, name, description FROM roles WHERE id = $1 FOR UPDATE', [roleId]);
+  }
+
+  async findRoleByNameForUpdate(name: string): Promise<{ readonly id: string; readonly name: string; readonly description: string | null } | null> {
+    return first<{ id: string; name: string; description: string | null }>(this.connection,
+      'SELECT id, name, description FROM roles WHERE name = $1 FOR UPDATE', [name]);
+  }
+
+  async updateRoleDescription(roleId: string, description: string | null): Promise<boolean> {
+    const row = await first<{ id: string }>(this.connection,
+      'UPDATE roles SET description = $2 WHERE id = $1 RETURNING id', [roleId, description]);
+    return row !== null;
+  }
+
+  async findUserPermissionsForUpdate(userId: string): Promise<readonly string[]> {
+    const result = await this.connection.query<{ key: string }>(
+      `SELECT p.key FROM permissions p
+       WHERE EXISTS (
+         SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+         WHERE ur.user_id = $1 AND r.name = 'super_admin'
+       ) OR EXISTS (
+         SELECT 1 FROM user_roles ur JOIN role_permissions rp ON rp.role_id = ur.role_id
+         WHERE ur.user_id = $1 AND rp.permission_id = p.id
+       )
+       ORDER BY p.key`,
+      [userId],
+    );
+    return result.rows.map((row) => row.key);
+  }
+
+  async insertRole(name: string, description: string | null): Promise<string> {
+    const row = await first<{ id: string }>(this.connection,
+      'INSERT INTO roles (name, description) VALUES ($1, $2) RETURNING id', [name, description]);
+    if (row === null) throw new Error('Role insert did not return an id.');
+    return row.id;
+  }
+
+  async setRolePermissions(roleId: string, permissionKeys: readonly string[], grantedBy: string): Promise<void> {
+    await this.connection.query('DELETE FROM role_permissions WHERE role_id = $1', [roleId]);
+    if (permissionKeys.length === 0) return;
+    await this.connection.query(
+      `INSERT INTO role_permissions (role_id, permission_id, granted_by)
+       SELECT $1, p.id, $2 FROM permissions p WHERE p.key = ANY($3::text[])
+       ON CONFLICT (role_id, permission_id) DO NOTHING`,
+      [roleId, grantedBy, permissionKeys],
+    );
+  }
+
+  async deleteRoleById(roleId: string): Promise<boolean> {
+    const row = await first<{ id: string }>(this.connection,
+      'DELETE FROM roles WHERE id = $1 RETURNING id', [roleId]);
+    return row !== null;
+  }
+
+  async assignUserRole(userId: string, roleId: string, assignedBy: string, assignedAt: Date): Promise<boolean> {
+    const row = await first<{ user_id: string }>(this.connection,
+      `INSERT INTO user_roles (user_id, role_id, assigned_at, assigned_by)
+       VALUES ($1, $2, $3, $4) ON CONFLICT (user_id, role_id) DO NOTHING RETURNING user_id`,
+      [userId, roleId, assignedAt, assignedBy]);
+    return row !== null;
+  }
+
+  async removeUserRole(userId: string, roleId: string): Promise<boolean> {
+    const row = await first<{ user_id: string }>(this.connection,
+      'DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2 RETURNING user_id', [userId, roleId]);
+    return row !== null;
+  }
+
   async grantRegistrationRoles(userId: string, assignedAt: Date): Promise<boolean> {
     // Backfill for databases created before schema.sql seeded roles: without
     // these rows the grants below would silently grant nothing.
     await this.ensureDefaultRoles();
+    await this.ensureDefaultPermissions();
     // Serialize the first-user check. SHARE ROW EXCLUSIVE conflicts with
     // itself (the same lock lockSettingsForUpdate uses), so a concurrent
     // registration waits here until this transaction commits, and its count
@@ -1021,19 +1139,14 @@ class SqlAuthTransaction implements AuthTransaction {
     return row !== null;
   }
 
-  async findUserRolesForUpdate(userId: string): Promise<readonly UserRole[]> {
+  async findUserRolesForUpdate(userId: string): Promise<readonly string[]> {
     const result = await this.connection.query<{ name: string }>(
       `SELECT r.name FROM user_roles ur
        JOIN roles r ON r.id = ur.role_id
        WHERE ur.user_id = $1
        ORDER BY r.name
        FOR UPDATE OF ur`, [userId]);
-    return result.rows.map((row) => {
-      if (row.name !== 'admin' && row.name !== 'user' && row.name !== 'super_admin') {
-        throw new Error('The database returned an unknown user role.');
-      }
-      return row.name;
-    });
+    return result.rows.map((row) => row.name);
   }
 
   async deleteAuthCodesForEmail(email: string): Promise<void> {
@@ -1193,7 +1306,7 @@ export interface SqlAuthStoreOptions {
 
 /** SQL implementation; the host supplies a transactional PostgreSQL-compatible driver. */
 export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, DeviceRevocationStore, DeviceListStore,
-  PrivacyConsentStore, AdminUserReadStore, AdminConsoleReadStore, OAuthStore, McpConfirmationStore {
+  PrivacyConsentStore, AdminUserReadStore, AdminConsoleReadStore, AdminRoleStore, OAuthStore, McpConfirmationStore {
   constructor(
     private readonly database: TransactionalSqlDatabase,
     private readonly options: SqlAuthStoreOptions = {},
@@ -1219,6 +1332,107 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
          WHERE ur.user_id = $1 AND r.name IN ('admin', 'super_admin')
        ) AS is_admin`, [userId]);
     return row?.is_admin === true;
+  }
+
+  async hasPermission(userId: string, permissionKey: string): Promise<boolean> {
+    const row = await first<{ has_permission: boolean }>(this.database,
+      `SELECT EXISTS (
+         SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+         WHERE ur.user_id = $1 AND (r.name = 'super_admin' OR EXISTS (
+           SELECT 1 FROM role_permissions rp JOIN permissions p ON p.id = rp.permission_id
+           WHERE rp.role_id = ur.role_id AND p.key = $2
+         ))
+       ) AS has_permission`, [userId, permissionKey]);
+    return row?.has_permission === true;
+  }
+
+  async getUserPermissions(userId: string): Promise<readonly string[]> {
+    const result = await this.database.query<{ key: string }>(
+      `SELECT p.key FROM permissions p
+       WHERE EXISTS (
+         SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+         WHERE ur.user_id = $1 AND r.name = 'super_admin'
+       ) OR EXISTS (
+         SELECT 1 FROM user_roles ur JOIN role_permissions rp ON rp.role_id = ur.role_id
+         WHERE ur.user_id = $1 AND rp.permission_id = p.id
+       )
+       ORDER BY p.key`,
+      [userId],
+    );
+    return result.rows.map((row) => row.key);
+  }
+
+  async listPermissions(): Promise<readonly AdminPermission[]> {
+    const result = await this.database.query<{ key: string; module: string; description: string | null }>(
+      'SELECT key, module, description FROM permissions ORDER BY module, key');
+    return result.rows.map((row) => ({ key: row.key, module: row.module, description: row.description }));
+  }
+
+  async listRoles(): Promise<readonly AdminRole[]> {
+    const result = await this.database.query<AdminRoleRow>(
+      `SELECT r.id, r.name, r.description, r.created_at,
+              (r.name IN ('admin', 'user', 'super_admin')) AS is_system,
+              CASE WHEN r.name = 'super_admin'
+                THEN (SELECT COALESCE(string_agg(key, ',' ORDER BY key), '') FROM permissions)
+                ELSE COALESCE((SELECT string_agg(p.key, ',' ORDER BY p.key)
+                               FROM role_permissions rp JOIN permissions p ON p.id = rp.permission_id
+                               WHERE rp.role_id = r.id), '')
+              END AS permission_keys,
+              (SELECT COUNT(*)::bigint FROM user_roles ur WHERE ur.role_id = r.id) AS user_count
+       FROM roles r
+       ORDER BY CASE r.name WHEN 'super_admin' THEN 0 WHEN 'admin' THEN 1 WHEN 'user' THEN 2 ELSE 3 END,
+                r.created_at ASC, r.name ASC`,
+    );
+    return result.rows.map(mapAdminRole);
+  }
+
+  async getRole(roleId: string): Promise<AdminRole | null> {
+    const row = await first<AdminRoleRow>(this.database,
+      `SELECT r.id, r.name, r.description, r.created_at,
+              (r.name IN ('admin', 'user', 'super_admin')) AS is_system,
+              CASE WHEN r.name = 'super_admin'
+                THEN (SELECT COALESCE(string_agg(key, ',' ORDER BY key), '') FROM permissions)
+                ELSE COALESCE((SELECT string_agg(p.key, ',' ORDER BY p.key)
+                               FROM role_permissions rp JOIN permissions p ON p.id = rp.permission_id
+                               WHERE rp.role_id = r.id), '')
+              END AS permission_keys,
+              (SELECT COUNT(*)::bigint FROM user_roles ur WHERE ur.role_id = r.id) AS user_count
+       FROM roles r WHERE r.id = $1`, [roleId]);
+    return row === null ? null : mapAdminRole(row);
+  }
+
+  async listRoleUsers(roleId: string, cursor: string | null, limit: number): Promise<AdminPage<AdminUserSummary> | null> {
+    if (cursor !== null) {
+      const cursorRow = await first<{ id: string }>(this.database,
+        'SELECT id FROM users WHERE id = $1', [cursor]);
+      if (cursorRow === null) return null;
+    }
+    const role = await first<{ id: string }>(this.database,
+      'SELECT id FROM roles WHERE id = $1', [roleId]);
+    if (role === null) return null;
+    const count = await first<{ total_count: string | number | bigint }>(this.database,
+      `SELECT COUNT(*)::bigint AS total_count FROM users u
+       JOIN user_roles ur ON ur.user_id = u.id WHERE ur.role_id = $1`, [roleId]);
+    if (count === null) throw new Error('Role user count query returned no row.');
+    const result = await this.database.query<AdminUserRow>(
+      `${ADMIN_USER_SUMMARY_SELECT}
+       JOIN user_roles ur ON ur.user_id = u.id
+       WHERE ur.role_id = $1
+         AND ($2::uuid IS NULL OR (u.created_at, u.id) < (
+           SELECT cursor_user.created_at, cursor_user.id FROM users cursor_user WHERE cursor_user.id = $2::uuid
+         ))
+       ORDER BY u.created_at DESC, u.id DESC
+       LIMIT $3`,
+      [roleId, cursor, limit + 1],
+    );
+    const hasMore = result.rows.length > limit;
+    const items = result.rows.slice(0, limit).map(mapAdminUser);
+    return {
+      items,
+      total_count: adminInteger(count.total_count),
+      has_more: hasMore,
+      next_cursor: hasMore ? (items.at(-1)?.id ?? null) : null,
+    };
   }
 
   async listAdminUsers(query: AdminUserListQuery): Promise<AdminPage<AdminUserSummary> | null> {

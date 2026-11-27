@@ -1,7 +1,14 @@
 import type {
   AdminAuditResponse,
+  AdminMyPermissionsResponse,
   AdminOverviewResponse,
   AdminOverviewTrendResponse,
+  AdminPermissionsResponse,
+  AdminRoleAssignResponse,
+  AdminRoleCreateInput,
+  AdminRoleResponse,
+  AdminRoleUpdateInput,
+  AdminRolesResponse,
   AdminSettingsResponse,
   AdminSettingsUpdate,
   AdminUserDetailResponse,
@@ -72,6 +79,15 @@ export interface AdminClient {
   makeAdmin(userId: string, signal?: AbortSignal): Promise<void>
   removeAdmin(userId: string, signal?: AbortSignal): Promise<void>
   revokeDevice(deviceId: string, signal?: AbortSignal): Promise<void>
+  getMyPermissions(signal?: AbortSignal): Promise<AdminMyPermissionsResponse>
+  listRoles(signal?: AbortSignal): Promise<AdminRolesResponse>
+  listPermissions(signal?: AbortSignal): Promise<AdminPermissionsResponse>
+  createRole(input: AdminRoleCreateInput, signal?: AbortSignal): Promise<AdminRoleResponse>
+  updateRole(roleId: string, input: AdminRoleUpdateInput, signal?: AbortSignal): Promise<AdminRoleResponse>
+  deleteRole(roleId: string, signal?: AbortSignal): Promise<void>
+  listRoleUsers(roleId: string, cursor?: string | null, limit?: number, signal?: AbortSignal): Promise<UsersResponse>
+  assignRole(roleId: string, userId: string, signal?: AbortSignal): Promise<AdminRoleAssignResponse>
+  removeRole(roleId: string, userId: string, signal?: AbortSignal): Promise<void>
   downloadDbDump(loginPassword: string, signal?: AbortSignal): Promise<{ filename: string; blob: Blob }>
 }
 
@@ -257,6 +273,47 @@ export function createAdminClient(options: AdminClientOptions = {}): AdminClient
 
     revokeDevice(deviceId, signal) {
       return request<void>(`/v1/admin/devices/${encodeURIComponent(deviceId)}/revoke`, { method: 'POST' }, signal)
+    },
+
+    getMyPermissions(signal) {
+      return request<AdminMyPermissionsResponse>('/v1/admin/me/permissions', { method: 'GET' }, signal)
+    },
+
+    listRoles(signal) {
+      return request<AdminRolesResponse>('/v1/admin/roles', { method: 'GET' }, signal)
+    },
+
+    listPermissions(signal) {
+      return request<AdminPermissionsResponse>('/v1/admin/permissions', { method: 'GET' }, signal)
+    },
+
+    createRole(input, signal) {
+      return request<AdminRoleResponse>('/v1/admin/roles', { method: 'POST', ...jsonBody(input) }, signal)
+    },
+
+    updateRole(roleId, input, signal) {
+      return request<AdminRoleResponse>(`/v1/admin/roles/${encodeURIComponent(roleId)}`, { method: 'PATCH', ...jsonBody(input) }, signal)
+    },
+
+    deleteRole(roleId, signal) {
+      return request<void>(`/v1/admin/roles/${encodeURIComponent(roleId)}`, { method: 'DELETE' }, signal)
+    },
+
+    listRoleUsers(roleId, cursor, limit, signal) {
+      return request<UsersResponse>(withQuery(`/v1/admin/roles/${encodeURIComponent(roleId)}/users`, {
+        cursor: cursor ?? undefined,
+        limit: limit === undefined ? undefined : String(limit),
+      }), { method: 'GET' }, signal)
+    },
+
+    assignRole(roleId, userId, signal) {
+      return request<AdminRoleAssignResponse>(`/v1/admin/roles/${encodeURIComponent(roleId)}/users`, {
+        method: 'POST', ...jsonBody({ user_id: userId }),
+      }, signal)
+    },
+
+    removeRole(roleId, userId, signal) {
+      return request<void>(`/v1/admin/roles/${encodeURIComponent(roleId)}/users/${encodeURIComponent(userId)}`, { method: 'DELETE' }, signal)
     },
 
     async downloadDbDump(loginPassword, signal) {

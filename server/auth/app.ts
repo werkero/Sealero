@@ -23,7 +23,10 @@ import type { AdminUserReadStore } from '../admin/types.js';
 import { createAdminUserRoutes } from '../admin/users.js';
 import { AdminConsoleService } from '../admin/console-service.js';
 import type { AdminConsoleReadStore } from '../admin/types.js';
+import type { AdminRoleStore } from '../admin/types.js';
 import { createAdminConsoleRoutes } from '../admin/console.js';
+import { AdminRoleService } from '../admin/admin-role-service.js';
+import { createAdminRoleRoutes } from '../admin/roles.js';
 import { parseDbDumpKey } from '../admin/db-dump.js';
 import { createConsentRoutes } from '../routes/consent.js';
 import type { PrivacyConsentStore } from './consent-types.js';
@@ -37,7 +40,7 @@ import { createMcpConfirmationRoutes } from '../routes/mcp-confirmations.js';
 
 export interface AuthenticatedAppDependencies {
   readonly store: AuthStore & VaultStore & VaultKeyStore & DeviceRevocationStore & DeviceListStore &
-    PrivacyConsentStore & AdminUserReadStore & AdminConsoleReadStore & OAuthStore & McpConfirmationStore;
+    PrivacyConsentStore & AdminUserReadStore & AdminConsoleReadStore & AdminRoleStore & OAuthStore & McpConfirmationStore;
   readonly jwtKeys: JwtKeySet;
   readonly notifications: AuthNotification;
   readonly authCodeHmacSecret: string;
@@ -122,6 +125,10 @@ export function createAuthenticatedApp(
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
   }));
   securedRoutes.route('/admin', createAdminConsoleRoutes(adminConsoleService, dependencies.store, {
+    allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
+  }));
+  const adminRoleService = new AdminRoleService(dependencies.store);
+  securedRoutes.route('/admin', createAdminRoleRoutes(adminRoleService, dependencies.store, {
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
   }));
   securedRoutes.route('/auth', createConsentRoutes(dependencies.store, policyVersion, dependencies.serviceOptions?.now));

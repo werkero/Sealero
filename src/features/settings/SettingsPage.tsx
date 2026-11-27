@@ -8,9 +8,11 @@ import { PasswordHealthDashboard } from '../password-security/PasswordSecurity'
 import { getCsvHeaders, getImportFileModifiedAt, inspectBackupContainer, parseCsvWithMapping, parseImportText, type BackupContainerSummary, type ImportField, type ImportedVaultEntry, type ParsedImportFile } from './backup-local'
 import { backupFilename } from './cloud-backup'
 import { CloudBackupPanel } from './CloudBackupPanel'
+import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
+import { Card, CardContent } from '../../components/ui/card'
+import { Input } from '../../components/ui/input'
 import { applyLanguagePreference, getLanguagePreference, type AppearancePreference, type LanguagePreference } from './preferences'
-import './settings.css'
 
 const requiredImportFields: ImportField[] = ['name', 'url', 'username', 'password']
 const importFields: ImportField[] = ['name', 'url', 'username', 'password', 'note', 'category', 'tags', 'favorite']
@@ -248,133 +250,150 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
   }
 
   return (
-    <div className="settings-content">
-      <section className="settings-section" aria-labelledby="settings-account-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◉</span><div><h2 id="settings-account-title">{t('settings:accountTitle')}</h2></div></div>
-        <div className="settings-card settings-account-card">
-          <div className="settings-account-avatar" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
-          <div className="settings-account-copy"><strong>{user.email}</strong><small>{t('settings:accountId')} · {user.id}</small></div>
-        </div>
+    <div className="w-full space-y-6 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+      <section className="space-y-3" aria-labelledby="settings-account-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">◉</span><div><h2 id="settings-account-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:accountTitle')}</h2></div></div>
+        <Card>
+          <CardContent className="flex items-center gap-3">
+            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
+            <div className="min-w-0 flex-1"><strong className="block truncate text-sm font-medium">{user.email}</strong><small className="block truncate text-xs text-muted-foreground">{t('settings:accountId')} · {user.id}</small></div>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-server-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">⌘</span><div><h2 id="settings-server-title">{t('settings:serverTitle')}</h2></div></div>
-        <div className="settings-card settings-row-card">
-          <div className="settings-row-leading"><span className="settings-cloud-mark" aria-hidden="true">S</span><div><strong>{t('settings:officialCloud')}</strong><span>{t('settings:v1ReadOnly')}</span></div></div>
-          <span className="settings-readonly-pill">{t('settings:readOnly')}</span>
-        </div>
+      <section className="space-y-3" aria-labelledby="settings-server-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⌘</span><div><h2 id="settings-server-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:serverTitle')}</h2></div></div>
+        <Card>
+          <CardContent className="flex items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-foreground" aria-hidden="true">S</span><div className="min-w-0"><strong className="block text-sm font-medium">{t('settings:officialCloud')}</strong><span className="block text-xs text-muted-foreground">{t('settings:v1ReadOnly')}</span></div></div>
+            <Badge variant="secondary">{t('settings:readOnly')}</Badge>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-device-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">▣</span><div><h2 id="settings-device-title">{t('settings:devicesTitle')}</h2></div></div>
+      <section className="space-y-3" aria-labelledby="settings-device-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">▣</span><div><h2 id="settings-device-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:devicesTitle')}</h2></div></div>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-import-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">⇧</span><div><h2 id="settings-import-title">{t('backup:importTitle')}</h2><p>{t('backup:importDescription')}</p></div></div>
-        <div className="settings-card settings-data-card">
-          <div className="settings-card-topline"><div><strong>{t('backup:localImportTitle')}</strong><p>{t('backup:localImportDescription')}</p></div><span className="settings-local-badge">{t('backup:localOnly')}</span></div>
-          <div className="settings-file-actions">
+      <section className="space-y-3" aria-labelledby="settings-import-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⇧</span><div><h2 id="settings-import-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:importTitle')}</h2><p className="text-sm text-muted-foreground">{t('backup:importDescription')}</p></div></div>
+        <Card>
+          <CardContent className="space-y-4">
+          <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:localImportTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:localImportDescription')}</p></div><Badge variant="secondary">{t('backup:localOnly')}</Badge></div>
+          <div className="flex flex-wrap items-center gap-2">
             <input ref={importInputRef} className="visually-hidden" id="vault-import-file" type="file" accept=".csv,.json,text/csv,application/json" onChange={onImportFileChange} />
-            <Button asChild className="button button-secondary"><label htmlFor="vault-import-file">{t('backup:chooseImportFile')}</label></Button>
-            {parsedImport ? <Button className="security-button security-button--quiet" type="button" onClick={clearImportPreview}>{t('backup:clearImport')}</Button> : null}
+            <Button asChild variant="outline"><label htmlFor="vault-import-file">{t('backup:chooseImportFile')}</label></Button>
+            {parsedImport ? <Button variant="outline" type="button" onClick={clearImportPreview}>{t('backup:clearImport')}</Button> : null}
           </div>
-          {selectedFileName ? <p className="settings-file-name">{t('backup:selectedFile')}: <strong>{selectedFileName}</strong></p> : null}
+          {selectedFileName ? <p className="text-sm text-muted-foreground">{t('backup:selectedFile')}: <strong className="font-medium text-foreground">{selectedFileName}</strong></p> : null}
           {mappingHeaders.length > 0 && !parsedImport ? (
-            <div className="import-mapping" aria-label={t('backup:mappingTitle')}>
-              <h3>{t('backup:mappingTitle')}</h3><p>{t('backup:mappingDescription')}</p>
-              <div className="import-mapping-grid">
-                {importFields.map((field) => <label key={field}><span>{t(`backup:fields.${field}`)}{requiredImportFields.includes(field) ? ' *' : ''}</span><select value={columnMapping[field] ?? ''} onChange={(event) => updateCsvMapping(field, event.target.value)}><option value="">{t('backup:chooseColumn')}</option>{mappingHeaders.map((header, index) => <option key={`${index}-${header}`} value={index}>{header || t('backup:unnamedColumn', { index: index + 1 })}</option>)}</select></label>)}
+            <div className="grid gap-3 rounded-lg bg-muted p-4" aria-label={t('backup:mappingTitle')}>
+              <h3 className="text-sm font-semibold">{t('backup:mappingTitle')}</h3><p className="text-xs text-muted-foreground">{t('backup:mappingDescription')}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {importFields.map((field) => <label key={field} className="grid gap-1.5"><span className="text-sm font-medium">{t(`backup:fields.${field}`)}{requiredImportFields.includes(field) ? ' *' : ''}</span><select className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm" value={columnMapping[field] ?? '' } onChange={(event) => updateCsvMapping(field, event.target.value)}><option value="">{t('backup:chooseColumn')}</option>{mappingHeaders.map((header, index) => <option key={`${index}-${header}`} value={index}>{header || t('backup:unnamedColumn', { index: index + 1 })}</option>)}</select></label>)}
               </div>
-              <Button className="button button-primary" type="button" onClick={finishManualMapping} disabled={requiredImportFields.some((field) => columnMapping[field] === undefined)}>{t('backup:useMapping')}</Button>
+              <Button type="button" onClick={finishManualMapping} disabled={requiredImportFields.some((field) => columnMapping[field] === undefined)}>{t('backup:useMapping')}</Button>
             </div>
           ) : null}
-          {importError ? <p className="settings-inline-error" role="alert">{t(importError)}</p> : null}
+          {importError ? <p className="text-sm font-medium text-destructive" role="alert">{t(importError)}</p> : null}
           {parsedImport ? (
-            <div className="import-preview-shell">
-              <div className="import-preview-heading"><div><h3>{t('backup:previewTitle')}</h3><p>{t('backup:previewCount', { count: parsedImport.rows.length })}</p></div><span className="settings-local-badge">{parsedImport.format === 'csv' ? t('backup:csvFormat') : t('backup:bitwardenFormat')}</span></div>
-              <p className="settings-security-note">{sourceFileModifiedAt ? t('backup:importFileModifiedAt', { date: new Intl.DateTimeFormat(activeI18n.resolvedLanguage ?? 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(sourceFileModifiedAt)) }) : t('backup:importFileTimeUnknown')}</p>
-              <p className="settings-security-note">{t('backup:passwordsMasked')} {t('backup:sourceFileReminder')}</p>
-              <Button className="button button-secondary" type="button" disabled={isCheckingImport || parsedImport.rows.length === 0} onClick={() => void buildPreview()}>{isCheckingImport ? t('backup:checkingDuplicates') : t('backup:checkDuplicates')}</Button>
+            <div className="space-y-4">
+              <div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-semibold">{t('backup:previewTitle')}</h3><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:previewCount', { count: parsedImport.rows.length })}</p></div><Badge variant="secondary">{parsedImport.format === 'csv' ? t('backup:csvFormat') : t('backup:bitwardenFormat')}</Badge></div>
+              <p className="text-xs leading-relaxed text-muted-foreground">{sourceFileModifiedAt ? t('backup:importFileModifiedAt', { date: new Intl.DateTimeFormat(activeI18n.resolvedLanguage ?? 'en', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(sourceFileModifiedAt)) }) : t('backup:importFileTimeUnknown')}</p>
+              <p className="text-xs leading-relaxed text-muted-foreground">{t('backup:passwordsMasked')} {t('backup:sourceFileReminder')}</p>
+              <Button variant="outline" type="button" disabled={isCheckingImport || parsedImport.rows.length === 0} onClick={() => void buildPreview()}>{isCheckingImport ? t('backup:checkingDuplicates') : t('backup:checkDuplicates')}</Button>
               {importPreview ? (
                 <>
-                  <div className="import-count-summary"><span>{t('backup:summaryNew', { count: importCounts.new })}</span><span>{t('backup:summarySame', { count: importPreview.filter((row) => row.kind === 'same').length })}</span><span>{t('backup:summaryChanged', { count: importCounts.changed })}</span><span>{t('backup:summarySkipped', { count: importCounts.skipped })}</span></div>
-                  <div className="import-preview-list">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground"><span>{t('backup:summaryNew', { count: importCounts.new })}</span><span>{t('backup:summarySame', { count: importPreview.filter((row) => row.kind === 'same').length })}</span><span>{t('backup:summaryChanged', { count: importCounts.changed })}</span><span>{t('backup:summarySkipped', { count: importCounts.skipped })}</span></div>
+                  <div className="flex flex-col gap-2">
                     {importPreview.map(({ entry, kind, matchedName }) => (
-                      <div className="import-preview-row" key={entry.sourceIndex}>
-                        <div className="import-preview-main"><strong>{entry.name || entry.url || t('backup:unnamedEntry', { name: entry.username || t('backup:noWebsite') })}</strong><span>{entry.url || t('backup:noWebsite')} · {entry.username || t('backup:noUsername')}</span><small>{t('backup:maskedPassword')}</small></div>
-                        <div className="import-preview-resolution">
-                          {kind === 'same' ? <span className="import-result-pill is-same">{t('backup:exactDuplicate')}</span> : null}
-                          {kind === 'new' ? <span className="import-result-pill is-new">{t('backup:newEntry')}</span> : null}
-                          {kind === 'changed' ? <label><span>{t('backup:passwordDiffers', { name: matchedName ?? '' })}</span><select value={choices[entry.sourceIndex] ?? 'skip'} onChange={(event) => setChoices((current) => ({ ...current, [entry.sourceIndex]: event.target.value as ImportChoice }))}><option value="skip">{t('backup:skip')}</option><option value="update">{t('backup:updateExisting')}</option><option value="keep-both">{t('backup:keepBoth')}</option></select></label> : null}
+                      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-3 py-2" key={entry.sourceIndex}>
+                        <div className="min-w-0 flex-1"><strong className="block truncate text-sm font-medium">{entry.name || entry.url || t('backup:unnamedEntry', { name: entry.username || t('backup:noWebsite') })}</strong><span className="block truncate text-xs text-muted-foreground">{entry.url || t('backup:noWebsite')} · {entry.username || t('backup:noUsername')}</span><small className="block text-xs text-muted-foreground">{t('backup:maskedPassword')}</small></div>
+                        <div className="flex items-center gap-2">
+                          {kind === 'same' ? <Badge variant="secondary">{t('backup:exactDuplicate')}</Badge> : null}
+                          {kind === 'new' ? <Badge>{t('backup:newEntry')}</Badge> : null}
+                          {kind === 'changed' ? <label className="flex flex-wrap items-center gap-2"><span className="text-xs text-muted-foreground">{t('backup:passwordDiffers', { name: matchedName ?? '' })}</span><select className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={choices[entry.sourceIndex] ?? 'skip'} onChange={(event) => setChoices((current) => ({ ...current, [entry.sourceIndex]: event.target.value as ImportChoice }))}><option value="skip">{t('backup:skip')}</option><option value="update">{t('backup:updateExisting')}</option><option value="keep-both">{t('backup:keepBoth')}</option></select></label> : null}
                         </div>
                       </div>
                     ))}
                   </div>
                 </>
               ) : null}
-              <p className="settings-blocked-note" role="status">{t('backup:importWriteUnavailable')}</p>
-              <Button className="button button-primary" type="button" disabled>{t('backup:applyImport')}</Button>
+              <p className="text-xs leading-relaxed text-muted-foreground" role="status">{t('backup:importWriteUnavailable')}</p>
+              <Button type="button" disabled>{t('backup:applyImport')}</Button>
             </div>
           ) : null}
-        </div>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-export-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">⇩</span><div><h2 id="settings-export-title">{t('backup:exportTitle')}</h2><p>{t('backup:exportDescription')}</p></div></div>
-        <div className="settings-card settings-data-card">
-          <div className="settings-card-topline"><div><strong>{t('backup:encryptedBackupTitle')}</strong><p>{t('backup:encryptedBackupDescription')}</p></div><span className="settings-local-badge">{t('backup:formatV3')}</span></div>
-          <div className="settings-security-note">{t('backup:secretBoundary')}</div>
-          <div className="settings-file-actions"><Button className="button button-primary" type="button" onClick={openExportDialog}>{t('backup:exportButton')}</Button></div>
-          {exportDoneFile ? <p className="settings-file-name" role="status">{t('backup:exportDone')}: <strong>{exportDoneFile}</strong></p> : null}
+      <section className="space-y-3" aria-labelledby="settings-export-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⇩</span><div><h2 id="settings-export-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:exportTitle')}</h2><p className="text-sm text-muted-foreground">{t('backup:exportDescription')}</p></div></div>
+        <Card>
+          <CardContent className="space-y-4">
+          <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:encryptedBackupTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:encryptedBackupDescription')}</p></div><Badge variant="secondary">{t('backup:formatV3')}</Badge></div>
+          <div className="text-xs leading-relaxed text-muted-foreground">{t('backup:secretBoundary')}</div>
+          <div className="flex flex-wrap items-center gap-2"><Button type="button" onClick={openExportDialog}>{t('backup:exportButton')}</Button></div>
+          {exportDoneFile ? <p className="text-sm text-muted-foreground" role="status">{t('backup:exportDone')}: <strong className="font-medium text-foreground">{exportDoneFile}</strong></p> : null}
           {exportDialogOpen ? (
-            <div className="import-mapping" aria-label={t('backup:exportDialogTitle')}>
-              <h3>{t('backup:exportDialogTitle')}</h3>
-              <p>{t('backup:exportDialogDescription')}</p>
-              <div className="export-dialog-form">
-                <label><span>{t('backup:exportMasterPassword')}</span><input type="password" value={exportMasterPassword} autoComplete="current-password" onChange={(event) => setExportMasterPassword(event.target.value)} /></label>
-                <label><span>{t('backup:exportRecoveryKey')}</span><input type="password" value={exportRecoveryKey} autoComplete="off" onChange={(event) => setExportRecoveryKey(event.target.value)} /></label>
+            <div className="grid gap-3 rounded-lg bg-muted p-4" aria-label={t('backup:exportDialogTitle')}>
+              <h3 className="text-sm font-semibold">{t('backup:exportDialogTitle')}</h3>
+              <p className="text-xs text-muted-foreground">{t('backup:exportDialogDescription')}</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportMasterPassword')}</span><Input type="password" value={exportMasterPassword} autoComplete="current-password" onChange={(event) => setExportMasterPassword(event.target.value)} /></label>
+                <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportRecoveryKey')}</span><Input type="password" value={exportRecoveryKey} autoComplete="off" onChange={(event) => setExportRecoveryKey(event.target.value)} /></label>
               </div>
-              {exportError ? <p className="settings-inline-error" role="alert">{t(exportError)}</p> : null}
-              <div className="settings-file-actions">
-                <Button className="button button-primary" type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</Button>
-                <Button className="security-button security-button--quiet" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</Button>
+              {exportError ? <p className="text-sm font-medium text-destructive" role="alert">{t(exportError)}</p> : null}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</Button>
+                <Button variant="outline" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</Button>
               </div>
             </div>
           ) : null}
-          <div className="backup-restore-divider" />
-          <div className="settings-card-topline"><div><strong>{t('backup:restoreTitle')}</strong><p>{t('backup:restoreDescription')}</p></div></div>
+          <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:restoreTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:restoreDescription')}</p></div></div>
           <input ref={backupInputRef} className="visually-hidden" id="vault-backup-file" type="file" accept=".json,application/json" onChange={(event) => void onBackupFileChange(event)} />
-          <div className="settings-file-actions"><Button asChild className="button button-secondary"><label htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label></Button><span className="settings-file-name">{backupFileName}</span></div>
-          {backupError ? <p className="settings-inline-error" role="alert">{t(backupError)}</p> : null}
-          {backupSummary ? <div className="backup-inspection-result" role="status"><strong>{t('backup:containerRecognized', { version: backupSummary.version })}</strong><p>{t('backup:integrityNotChecked')}</p><span>{t('backup:restoreUnavailable')}</span></div> : null}
-        </div>
+          <div className="flex flex-wrap items-center gap-2"><Button asChild variant="outline"><label htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label></Button><span className="text-sm text-muted-foreground">{backupFileName}</span></div>
+          {backupError ? <p className="text-sm font-medium text-destructive" role="alert">{t(backupError)}</p> : null}
+          {backupSummary ? <div className="grid gap-1 rounded-lg bg-muted p-3" role="status"><strong className="text-sm font-medium">{t('backup:containerRecognized', { version: backupSummary.version })}</strong><p className="text-xs text-muted-foreground">{t('backup:integrityNotChecked')}</p><span className="text-xs text-muted-foreground">{t('backup:restoreUnavailable')}</span></div> : null}
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-cloud-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">☁</span><div><h2 id="settings-cloud-title">{t('backup:cloudTitle')}</h2><p>{t('backup:cloudDescription')}</p></div></div>
-        <div className="settings-card settings-data-card">
+      <section className="space-y-3" aria-labelledby="settings-cloud-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">☁</span><div><h2 id="settings-cloud-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:cloudTitle')}</h2><p className="text-sm text-muted-foreground">{t('backup:cloudDescription')}</p></div></div>
+        <Card>
+          <CardContent className="space-y-4">
           <CloudBackupPanel user={user} items={items} exportBackup={onExportBackup} />
-        </div>
+          </CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-health-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">✳</span><div><h2 id="settings-health-title">{t('settings:healthTitle')}</h2><p>{t('settings:healthDescription')}</p></div></div>
-        <div className="settings-card settings-row-card"><div><strong>{t('vault:health.title')}</strong><span>{t('settings:healthLocal')}</span></div><Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}</Button></div>
+      <section className="space-y-3" aria-labelledby="settings-health-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">✳</span><div><h2 id="settings-health-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:healthTitle')}</h2><p className="text-sm text-muted-foreground">{t('settings:healthDescription')}</p></div></div>
+        <Card>
+          <CardContent className="flex items-center justify-between gap-3"><div><strong className="block text-sm font-medium">{t('vault:health.title')}</strong><span className="block text-xs text-muted-foreground">{t('settings:healthLocal')}</span></div><Button variant="outline" type="button" onClick={() => onNavigate(`${rootPath}/settings/health`)}>{t('settings:openHealth')}</Button></CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-autolock-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title">{t('settings:autoLockTitle')}</h2><p>{t('settings:autoLockDescription')}</p></div></div>
-        <div className="settings-card settings-policy-grid"><div><span>{t('settings:idleLabel')}</span><strong>{t('settings:fifteenMinutes')}</strong></div></div>
+      <section className="space-y-3" aria-labelledby="settings-autolock-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:autoLockTitle')}</h2><p className="text-sm text-muted-foreground">{t('settings:autoLockDescription')}</p></div></div>
+        <Card>
+          <CardContent className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">{t('settings:idleLabel')}</span><strong className="text-sm font-medium">{t('settings:fifteenMinutes')}</strong></CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-language-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">文</span><div><h2 id="settings-language-title">{t('settings:languageTitle')}</h2><p>{t('settings:languageDescription')}</p></div></div>
-        <div className="settings-card settings-preference-row"><div><strong>{t('settings:languageTitle')}</strong><span>{t('settings:preferenceLocal')}</span></div><label className="settings-select-control"><span className="visually-hidden">{t('settings:languageTitle')}</span><select value={languagePreference} onChange={(event) => changeLanguage(event.target.value)}><option value="system">{t('settings:followSystem')}</option>{languages.map((language) => <option value={language.code} key={language.code}>{language.label}</option>)}</select></label></div>
+      <section className="space-y-3" aria-labelledby="settings-language-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">文</span><div><h2 id="settings-language-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:languageTitle')}</h2><p className="text-sm text-muted-foreground">{t('settings:languageDescription')}</p></div></div>
+        <Card>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3"><div><strong className="block text-sm font-medium">{t('settings:languageTitle')}</strong><span className="block text-xs text-muted-foreground">{t('settings:preferenceLocal')}</span></div><label className="grid gap-1.5"><span className="sr-only">{t('settings:languageTitle')}</span><select className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={languagePreference} onChange={(event) => changeLanguage(event.target.value)}><option value="system">{t('settings:followSystem')}</option>{languages.map((language) => <option value={language.code} key={language.code}>{language.label}</option>)}</select></label></CardContent>
+        </Card>
       </section>
 
-      <section className="settings-section" aria-labelledby="settings-appearance-title">
-        <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◐</span><div><h2 id="settings-appearance-title">{t('settings:appearanceTitle')}</h2><p>{t('settings:appearanceDescription')}</p></div></div>
-        <div className="settings-card settings-preference-row"><div><strong>{t('settings:appearanceTitle')}</strong><span>{t('settings:preferenceLocal')}</span></div><div className="appearance-choice-group" role="group" aria-label={t('settings:appearanceTitle')}>{(['system', 'light', 'dark'] as const).map((value) => <button key={value} type="button" className={appearancePreference === value ? 'is-selected' : ''} aria-pressed={appearancePreference === value} onClick={() => onAppearanceChange(value)}>{t(`settings:${value === 'system' ? 'followSystem' : value}`)}</button>)}</div></div>
+      <section className="space-y-3" aria-labelledby="settings-appearance-title">
+        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">◐</span><div><h2 id="settings-appearance-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:appearanceTitle')}</h2><p className="text-sm text-muted-foreground">{t('settings:appearanceDescription')}</p></div></div>
+        <Card>
+          <CardContent className="flex flex-wrap items-center justify-between gap-3"><div><strong className="block text-sm font-medium">{t('settings:appearanceTitle')}</strong><span className="block text-xs text-muted-foreground">{t('settings:preferenceLocal')}</span></div><div className="flex gap-1 rounded-lg bg-muted p-1" role="group" aria-label={t('settings:appearanceTitle')}>{(['system', 'light', 'dark'] as const).map((value) => <button key={value} type="button" className={appearancePreference === value ? 'rounded-md bg-background px-3 py-1.5 text-sm font-medium shadow-sm' : 'rounded-md px-3 py-1.5 text-sm text-muted-foreground'} aria-pressed={appearancePreference === value} onClick={() => onAppearanceChange(value)}>{t(`settings:${value === 'system' ? 'followSystem' : value}`)}</button>)}</div></CardContent>
+        </Card>
       </section>
     </div>
   )

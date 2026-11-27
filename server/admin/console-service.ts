@@ -293,15 +293,11 @@ function validateSmtpCombination(effective: EffectiveSettings): void {
   }
 }
 
-function hasAdminRole(roles: readonly string[]): boolean {
-  return roles.includes('admin') || roles.includes('super_admin');
-}
-
-async function actorRoleOutcome(transaction: AuthTransaction, actorId: string): Promise<RoleOutcome> {
+async function actorPermissionOutcome(transaction: AuthTransaction, actorId: string, permissionKey: string): Promise<RoleOutcome> {
   const actor = await transaction.findUserForUpdate(actorId);
   if (actor === null) return 'not_found';
   if (actor.disabledAt !== null) return 'disabled';
-  return hasAdminRole(await transaction.findUserRolesForUpdate(actorId)) ? 'success' : 'forbidden';
+  return (await transaction.findUserPermissionsForUpdate(actorId)).includes(permissionKey) ? 'success' : 'forbidden';
 }
 
 function requireActorRole(outcome: RoleOutcome): void {
@@ -377,7 +373,7 @@ export class AdminConsoleService {
             ? true
             : await verifyLoginPassword(actor.passwordHash, loginPassword);
           if (!passwordStillMatches) return 'invalid_password' as const;
-          if (!hasAdminRole(await transaction.findUserRolesForUpdate(actorId))) return 'forbidden' as const;
+          if (!(await transaction.findUserPermissionsForUpdate(actorId)).includes('dump:read')) return 'forbidden' as const;
           tables = await transaction.readDbDumpTables();
           await transaction.insertAuditLog({
             actorUserId: actorId,
@@ -432,7 +428,7 @@ export class AdminConsoleService {
     const updates = parseUpdates(input);
     const now = this.now();
     const result = await this.store.transaction(async (transaction) => {
-      const roleOutcome = await actorRoleOutcome(transaction, actorId);
+      const roleOutcome = await actorPermissionOutcome(transaction, actorId, 'settings:manage');
       if (roleOutcome !== 'success') return { kind: roleOutcome } as const;
 
       await transaction.lockSettingsForUpdate();

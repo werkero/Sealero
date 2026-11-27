@@ -21,6 +21,7 @@
 -- Changes in v1.48: server tables 15 -> 16. New table mcp_confirmations (MCP get-one trusted confirmation records, single-use, 5-minute expiry).
 -- Changes in v1.48: oauth_auth_codes adds client_name (optional AI client name snapshot, carried into oauth_authorizations so the trusted-confirmation page can show it).
 -- Changes in v1.48: seed the three roles rows (admin, user, super_admin) idempotently, so a fresh database has roles without a separate seed step; registration also re-seeds for pre-existing databases with an empty roles table.
+-- Changes in v1.48 (RBAC): permissions + role_permissions tables; roles.name CHECK is now a format pattern so custom roles can be created; the 7 permissions are seeded and the admin role is granted all 7.
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -115,7 +116,7 @@ CREATE TABLE server_settings (
 -- roles 角色表
 CREATE TABLE roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name TEXT NOT NULL UNIQUE CHECK (name IN ('admin', 'user', 'super_admin')),
+    name TEXT NOT NULL UNIQUE CHECK (name ~ '^[a-z][a-z0-9_]{0,63}$'),
     description TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -135,6 +136,41 @@ CREATE TABLE user_roles (
     assigned_by UUID REFERENCES users(id) ON DELETE SET NULL,
     PRIMARY KEY (user_id, role_id)
 );
+
+-- permissions 权限表 (System Design v1.48 §3.1)
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    key TEXT NOT NULL UNIQUE,
+    module TEXT NOT NULL,
+    description TEXT
+);
+
+-- Permission catalog (System Design v1.48 §3.1): 7 rows, idempotent.
+INSERT INTO permissions (key, module, description) VALUES
+    ('overview:read', 'overview', '看控制台总览与用户趋势'),
+    ('users:read', 'users', '看用户列表与详情'),
+    ('users:manage', 'users', '停用/启用/删除用户、指定/取消管理员、吊销设备'),
+    ('settings:manage', 'settings', '看与改服务器设置'),
+    ('audit:read', 'audit', '看审计日志'),
+    ('roles:manage', 'roles', '增删改角色、改角色权限、指派/移除角色用户'),
+    ('dump:read', 'dump', '下载数据库密文 dump')
+ON CONFLICT (key) DO NOTHING;
+
+-- role_permissions 角色权限关联表
+CREATE TABLE role_permissions (
+    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
+    granted_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    granted_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    PRIMARY KEY (role_id, permission_id)
+);
+
+-- The admin role gets all 7 permissions (System Design v1.48 §3.1); the user
+-- role gets none; super_admin is treated in code as having all permissions
+-- and is never granted through this table. Idempotent.
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id FROM roles r CROSS JOIN permissions p WHERE r.name = 'admin'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- audit_logs 审计日志表
 CREATE TABLE audit_logs (

@@ -133,6 +133,26 @@ export interface AuthTransaction {
    */
   grantRegistrationRoles(userId: string, assignedAt: Date): Promise<boolean>;
   removeAdminRole(userId: string): Promise<boolean>;
+  /** Locks one role row; null when the id does not exist. */
+  findRoleForUpdate(roleId: string): Promise<{ readonly id: string; readonly name: string; readonly description: string | null } | null>;
+  /** Locks one role row by name; null when the name does not exist. */
+  findRoleByNameForUpdate(name: string): Promise<{ readonly id: string; readonly name: string; readonly description: string | null } | null>;
+  /** Sets a role's description. */
+  updateRoleDescription(roleId: string, description: string | null): Promise<boolean>;
+  /** Permission keys the user holds; super_admin resolves to all 7 catalog keys. */
+  findUserPermissionsForUpdate(userId: string): Promise<readonly string[]>;
+  /** Inserts the 7 catalog permissions when missing; safe to call on any database. */
+  ensureDefaultPermissions(): Promise<void>;
+  /** Inserts a custom role; the name must already be validated (SD §3.1). Returns the new id. */
+  insertRole(name: string, description: string | null): Promise<string>;
+  /** Replaces a role's permission set with the given keys. */
+  setRolePermissions(roleId: string, permissionKeys: readonly string[], grantedBy: string): Promise<void>;
+  /** Deletes a role row; role_permissions and user_roles cascade. */
+  deleteRoleById(roleId: string): Promise<boolean>;
+  /** Grants a role to a user; false when the grant already exists. */
+  assignUserRole(userId: string, roleId: string, assignedBy: string, assignedAt: Date): Promise<boolean>;
+  /** Removes a role from a user; false when no such grant exists. */
+  removeUserRole(userId: string, roleId: string): Promise<boolean>;
   revokeUserDevice(userId: string, deviceId: string, revokedAt: Date): Promise<boolean>;
   updatePasswordHash(userId: string, expectedHash: string, newHash: string): Promise<boolean>;
   setEmailVerified(userId: string, verifiedAt: Date): Promise<void>;
@@ -222,7 +242,7 @@ export interface AuthTransaction {
   rotateOAuthAuthorization(id: string, rotation: OAuthAuthorizationRotation): Promise<boolean>;
   /** Revokes by access- or refresh-token hash; false when no live row matches. */
   revokeOAuthAuthorizationByTokenHash(tokenHash: string, revokedAt: Date): Promise<boolean>;
-  findUserRolesForUpdate(userId: string): Promise<readonly UserRole[]>;
+  findUserRolesForUpdate(userId: string): Promise<readonly string[]>;
   deleteAuthCodesForEmail(email: string): Promise<void>;
   deleteEmailRateLimits(emailKey: string): Promise<void>;
   deleteUser(userId: string): Promise<boolean>;

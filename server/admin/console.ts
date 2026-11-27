@@ -3,7 +3,8 @@ import type { Context } from 'hono';
 import { ApiError } from '../app.js';
 import type { AdminConsoleService } from './console-service.js';
 import { isUuid } from './console-service.js';
-import type { AdminConsoleReadStore, AdminUserReadStore } from './types.js';
+import { requirePermission } from './require-permission.js';
+import type { AdminConsoleReadStore, AdminRoleStore } from './types.js';
 import type { AuthenticatedEnvironment } from '../middleware/authentication.js';
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,9})?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?)?$/i;
@@ -127,7 +128,7 @@ async function readJsonBody(context: Context<AuthenticatedEnvironment>): Promise
 
 export function createAdminConsoleRoutes(
   service: AdminConsoleService,
-  store: AdminConsoleReadStore & Pick<AdminUserReadStore, 'hasAdminRole'>,
+  store: AdminConsoleReadStore & AdminRoleStore,
   options: AdminConsoleRouteOptions = {},
 ): Hono<AuthenticatedEnvironment> {
   const routes = new Hono<AuthenticatedEnvironment>();
@@ -135,17 +136,21 @@ export function createAdminConsoleRoutes(
 
   routes.use('*', async (context, next) => {
     requireHttps(context, allowInsecureHttp);
-    if (!await store.hasAdminRole(context.get('auth').sub)) {
-      throw new ApiError(403, 'admin_required', 'Administrator access is required.');
-    }
     await next();
   });
 
-  routes.get('/overview', async (context) => context.json(await service.getOverview()));
+  routes.get('/overview', async (context) => {
+    await requirePermission(store, context, 'overview:read');
+    return context.json(await service.getOverview());
+  });
 
-  routes.get('/overview/trend', async (context) => context.json(await service.getOverviewTrend(queryDays(context))));
+  routes.get('/overview/trend', async (context) => {
+    await requirePermission(store, context, 'overview:read');
+    return context.json(await service.getOverviewTrend(queryDays(context)));
+  });
 
   routes.post('/db-dump', async (context) => {
+    await requirePermission(store, context, 'dump:read');
     const loginPassword = await readLoginPassword(context);
     const dump = await service.createDbDump(context.get('auth').sub, loginPassword, requestMetadata(context));
     const header = new TextEncoder().encode(`${dump.headerLine}\n`);
@@ -169,9 +174,13 @@ export function createAdminConsoleRoutes(
     });
   });
 
-  routes.get('/settings', async (context) => context.json(await service.getSettings()));
+  routes.get('/settings', async (context) => {
+    await requirePermission(store, context, 'settings:manage');
+    return context.json(await service.getSettings());
+  });
 
   routes.put('/settings', async (context) => {
+    await requirePermission(store, context, 'settings:manage');
     const response = await service.updateSettings(
       context.get('auth').sub,
       requestIp(context.req.raw.headers),
@@ -181,6 +190,7 @@ export function createAdminConsoleRoutes(
   });
 
   routes.get('/audit', async (context) => {
+    await requirePermission(store, context, 'audit:read');
     const page = await service.listAudit({
       actorUserId: queryUuid(context, 'actor_user_id'),
       targetUserId: queryUuid(context, 'target_user_id'),

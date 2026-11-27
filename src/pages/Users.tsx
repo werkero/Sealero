@@ -3,7 +3,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { AdminApiError, type AdminClient } from '../client/admin'
+import { Alert, AlertDescription } from '../components/ui/alert'
 import { Button } from '../components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
@@ -19,18 +21,6 @@ import {
   type UsersResponse,
 } from '../features/admin/contract'
 
-const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
-const panelTitle = 'm-0 text-sm font-[640] text-foreground'
-const panelDesc = 'mt-1.5 text-[12px] leading-[1.6] text-muted-foreground'
-const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'
-const usersInput = 'min-h-[35px] w-full min-w-0 rounded-[7px] border border-border bg-muted px-2 text-[12px] text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
-const usersButton = 'min-h-[35px] cursor-pointer rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60'
-const disabledUsersButton = 'min-h-[35px] rounded-[7px] border border-border bg-muted px-2.5 text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
-const pagerButton = 'h-[27px] w-[27px] rounded-md border border-border bg-muted text-muted-foreground disabled:cursor-not-allowed'
-const usersTh = 'h-auto whitespace-nowrap bg-muted px-2.5 py-2.5 text-[12px] font-[630] text-muted-foreground'
-const tableWrap = 'mt-[14px] min-w-0 overflow-x-auto rounded-lg'
-const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
-const statusText = 'mt-2.5 text-[12px] leading-[1.55] text-muted-foreground'
 
 type AdminTFunction = TFunction<'admin', undefined>
 
@@ -273,24 +263,23 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
     return (
       <>
         <div>
-          <Button type="button" onClick={backToList} className={`${usersButton} inline-flex items-center gap-1.5`}>
+          <Button type="button" onClick={backToList} variant="outline" className="inline-flex items-center gap-1.5">
             <ChevronLeft size={14} aria-hidden="true" />
             {t('users.backToList')}
           </Button>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-4 max-[760px]:grid-cols-1">
-          <section className={`${panel} col-span-full max-[760px]:col-auto`} aria-labelledby="admin-user-detail-title">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 id="admin-user-detail-title" className={panelTitle}>{t('users.detailsTitle')}</h2>
-                <p className={panelDesc}>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : selectedUser.email}</p>
-              </div>
-            </div>
-            {detailError ? <div className={`${noteBox} mt-3`} role="alert"><strong className="text-[12px]">{detailError}</strong></div> : null}
-            {detailLoading ? <p className={statusText} role="status">{t('loading')}</p> : null}
-            {selectedUser === null ? null : (
-              <dl className="mt-4 grid grid-cols-[repeat(3,minmax(0,1fr))] gap-x-4 gap-y-3 max-[760px]:grid-cols-2">
+          <Card className="col-span-full max-[760px]:col-auto">
+            <CardHeader>
+              <CardTitle id="admin-user-detail-title">{t('users.detailsTitle')}</CardTitle>
+              <CardDescription>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : selectedUser.email}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {detailError ? <Alert variant="destructive"><AlertDescription>{detailError}</AlertDescription></Alert> : null}
+              {detailLoading ? <p className="text-xs leading-relaxed text-muted-foreground" role="status">{t('loading')}</p> : null}
+              {selectedUser === null ? null : (
+                <dl className="grid grid-cols-3 gap-x-4 gap-y-3 max-[760px]:grid-cols-2">
                 {([
                   ['email', selectedUser.email],
                   ['created_at', formatDateTime(selectedUser.created_at)],
@@ -303,83 +292,83 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                   ['ciphertext_total_bytes', formatBytes(selectedUser.ciphertext_total_bytes)],
                 ] as [string, string][]).map(([key, value]) => (
                   <div key={key}>
-                    <dt className="text-[12px] font-[570] text-muted-foreground">{t(`users.columns.${key}`)}</dt>
-                    <dd className="m-0 mt-1 break-all text-[12px] text-foreground">{value}</dd>
+                    <dt className="text-xs font-medium text-muted-foreground">{t(`users.columns.${key}`)}</dt>
+                    <dd className="mt-1 break-all text-xs text-foreground">{value}</dd>
                   </div>
                 ))}
-              </dl>
-            )}
-          </section>
+                </dl>
+              )}
+            </CardContent>
+          </Card>
 
-          <section className={panel} aria-labelledby="admin-user-devices-title">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 id="admin-user-devices-title" className={panelTitle}>{t('users.devicesTitle')}</h2>
-              </div>
-            </div>
-            <div className={tableWrap}>
-              <Table className="w-full min-w-[650px] border-collapse text-left">
-                <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_DEVICE_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.deviceColumns.${column}`)}</TableHead>)}<TableHead scope="col" className={usersTh}><span className="sr-only">{t('users.revokeDevice')}</span></TableHead></TableRow></TableHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle id="admin-user-devices-title">{t('users.devicesTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="min-w-0 overflow-x-auto">
+                <Table className="w-full min-w-[650px]">
+                  <TableHeader><TableRow>{ADMIN_USER_DEVICE_COLUMNS.map((column) => <TableHead key={column} scope="col">{t(`users.deviceColumns.${column}`)}</TableHead>)}<TableHead scope="col"><span className="sr-only">{t('users.revokeDevice')}</span></TableHead></TableRow></TableHeader>
                 <TableBody>
                   {detail === null ? (
-                    <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{detailLoading ? t('loading') : t('users.selectUserHint')}</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{detailLoading ? t('loading') : t('users.selectUserHint')}</TableCell></TableRow>
                   ) : activeDevices.length === 0 ? (
-                    <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
                   ) : activeDevices.map((device) => (
-                    <TableRow key={device.id} className="hover:bg-transparent">
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_name}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_type}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">
-                        <Button type="button" disabled={pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
+                    <TableRow key={device.id}>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{device.device_name}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{device.device_type}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">
+                        <Button type="button" disabled={pendingAction !== null} onClick={() => void revokeDevice(device.id)} variant="outline" size="sm">{t('users.revokeDevice')}</Button>
                       </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
-          </section>
+            </CardContent>
+          </Card>
 
-          <section className={panel} aria-labelledby="admin-user-login-title">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 id="admin-user-login-title" className={panelTitle}>{t('users.loginHistoryTitle')}</h2>
-              </div>
-            </div>
-            <div className={tableWrap}>
-              <Table className="w-full min-w-[650px] border-collapse text-left">
-                <TableHeader><TableRow className="hover:bg-transparent">{ADMIN_USER_LOGIN_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.loginColumns.${column}`)}</TableHead>)}</TableRow></TableHeader>
+          <Card>
+            <CardHeader>
+              <CardTitle id="admin-user-login-title">{t('users.loginHistoryTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="min-w-0 overflow-x-auto">
+                <Table className="w-full min-w-[650px]">
+                  <TableHeader><TableRow>{ADMIN_USER_LOGIN_COLUMNS.map((column) => <TableHead key={column} scope="col">{t(`users.loginColumns.${column}`)}</TableHead>)}</TableRow></TableHeader>
                 <TableBody>
                   {detail === null ? (
-                    <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{detailLoading ? t('loading') : t('users.selectUserHint')}</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{detailLoading ? t('loading') : t('users.selectUserHint')}</TableCell></TableRow>
                   ) : loginHistory.length === 0 ? (
-                    <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={ADMIN_USER_LOGIN_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.loginHistoryEmpty')}</TableCell></TableRow>
                   ) : loginHistory.map((entry) => (
-                    <TableRow key={entry.id} className="hover:bg-transparent">
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{entry.result}</TableCell>
-                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
+                    <TableRow key={entry.id}>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(entry.created_at)}</TableCell>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{entry.device_name ?? '—'}</TableCell>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{entry.device_id ?? '—'}</TableCell>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{entry.ip_address ?? '—'}</TableCell>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{entry.user_agent ?? '—'}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{entry.result}</TableCell>
+                      <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground">{entry.failure_code ?? '—'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
-          </section>
+            </CardContent>
+          </Card>
         </div>
 
-        <section className={panel} aria-labelledby="admin-user-actions-title">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 id="admin-user-actions-title" className={panelTitle}>{t('users.actionsTitle')}</h2>
-              <p className={panelDesc}>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : selectedUser.email}</p>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-wrap gap-2">
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle id="admin-user-actions-title">{t('users.actionsTitle')}</CardTitle>
+            <CardDescription>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : selectedUser.email}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
             {ADMIN_USER_ACTIONS.map((action) => {
               const disabled = selectedUser === null || pendingAction !== null ||
                 (action === 'disable' && selectedUser?.disabled_at !== null) ||
@@ -397,7 +386,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                     if (action === 'delete') { setConfirmAction('delete'); setConfirmPassword(''); setActionMessage('') }
                     else void runDirectAction(action, selectedUser)
                   }}
-                  className={disabled ? disabledUsersButton : usersButton}
+                  variant="outline"
                 >
                   {t(`users.actions.${action}`)}
                 </Button>
@@ -407,111 +396,114 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
               type="button"
               disabled={selectedUser === null || pendingAction !== null}
               onClick={() => { setConfirmAction('revoke_all_devices'); setConfirmPassword(''); setActionMessage('') }}
-              className={selectedUser === null || pendingAction !== null ? disabledUsersButton : usersButton}
+              variant="outline"
             >
               {t('users.revokeAllDevices')}
             </Button>
           </div>
-          {confirmAction !== null && selectedUser !== null ? (
-            <div className="mt-4 grid gap-2 rounded-lg border border-border bg-muted p-3">
-              <strong className="text-[12px] text-foreground">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
-              <Label className={filterLabel}>
-                {t('users.adminPasswordLabel')}
-                <Input type="password" autoComplete="current-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} className={usersInput} />
-              </Label>
-              <div className="flex gap-2">
-                <Button type="button" disabled={confirmPassword === '' || pendingAction !== null} onClick={() => void runPasswordAction()} className={confirmPassword === '' || pendingAction !== null ? disabledUsersButton : usersButton}>{pendingAction !== null ? t('loading') : t('confirm')}</Button>
-                <Button type="button" disabled={pendingAction !== null} onClick={() => { setConfirmAction(null); setConfirmPassword('') }} className={usersButton}>{t('cancel')}</Button>
+            {confirmAction !== null && selectedUser !== null ? (
+              <div className="grid gap-2 rounded-lg border bg-muted p-3">
+                <strong className="text-xs text-foreground">{confirmAction === 'delete' ? t('users.confirmDelete') : t('users.confirmRevokeAll')}</strong>
+                <div className="grid gap-1.5">
+                  <Label>{t('users.adminPasswordLabel')}</Label>
+                  <Input type="password" autoComplete="current-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} />
+                </div>
+                <div className="flex gap-2">
+                  <Button type="button" disabled={confirmPassword === '' || pendingAction !== null} onClick={() => void runPasswordAction()} variant="outline">{pendingAction !== null ? t('loading') : t('confirm')}</Button>
+                  <Button type="button" disabled={pendingAction !== null} onClick={() => { setConfirmAction(null); setConfirmPassword('') }} variant="outline">{t('cancel')}</Button>
+                </div>
               </div>
-            </div>
-          ) : null}
-          {actionMessage ? <p className={statusText} role="status">{actionMessage}</p> : null}
-          <p className="mt-2.5 text-[12px] leading-[1.55] text-muted-foreground">{t('users.deleteRequirement')}</p>
-        </section>
+            ) : null}
+            {actionMessage ? <p className="text-xs leading-relaxed text-muted-foreground" role="status">{actionMessage}</p> : null}
+            <p className="text-xs leading-relaxed text-muted-foreground">{t('users.deleteRequirement')}</p>
+          </CardContent>
+        </Card>
       </>
     )
   }
 
   return (
     <>
-      {listError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{listError}</strong></div> : null}
+      {listError ? <Alert variant="destructive"><AlertDescription>{listError}</AlertDescription></Alert> : null}
 
-      <section className={panel} aria-label={t('users.title')}>
-        <div className="mt-4 grid grid-cols-[minmax(170px,1.5fr)_repeat(3,minmax(105px,1fr))_auto] items-end gap-2.5 max-[760px]:grid-cols-2 max-[430px]:grid-cols-1" aria-label={t('users.filtersLabel')}>
-          <Label className={`${filterLabel} max-[760px]:col-span-full max-[430px]:col-auto`}>
-            {t('users.searchLabel')}
-            <Input type="search" value={draftFilters.search} onChange={(event) => setDraftFilters((prev) => ({ ...prev, search: event.target.value }))} placeholder={t('users.searchPlaceholder')} className={usersInput} />
-          </Label>
-          <Label className={filterLabel}>
-            {t('users.statusLabel')}
-            <Select value={draftFilters.status} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, status: value as UserFilters['status'] }))}>
-              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+      <Card className="mt-4">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-[minmax(170px,1.5fr)_repeat(3,minmax(105px,1fr))_auto] items-end gap-2.5 max-[760px]:grid-cols-2 max-[430px]:grid-cols-1" aria-label={t('users.filtersLabel')}>
+            <div className="grid gap-1.5 max-[760px]:col-span-full max-[430px]:col-auto">
+              <Label>{t('users.searchLabel')}</Label>
+              <Input type="search" value={draftFilters.search} onChange={(event) => setDraftFilters((prev) => ({ ...prev, search: event.target.value }))} placeholder={t('users.searchPlaceholder')} />
+            </div>
+            <div className="grid gap-1.5">
+              <Label>{t('users.statusLabel')}</Label>
+              <Select value={draftFilters.status} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, status: value as UserFilters['status'] }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ADMIN_USER_FILTER_OPTIONS.status.map((value) => (
                   <SelectItem key={value} value={value}>{t(`users.status.${value}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </Label>
-          <Label className={filterLabel}>
-            {t('users.verifiedLabel')}
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('users.verifiedLabel')}</Label>
             <Select value={draftFilters.verified} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, verified: value as UserFilters['verified'] }))}>
-              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ADMIN_USER_FILTER_OPTIONS.verified.map((value) => (
                   <SelectItem key={value} value={value}>{t(`users.verified.${value}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </Label>
-          <Label className={filterLabel}>
-            {t('users.roleLabel')}
+          </div>
+          <div className="grid gap-1.5">
+            <Label>{t('users.roleLabel')}</Label>
             <Select value={draftFilters.role} onValueChange={(value) => setDraftFilters((prev) => ({ ...prev, role: value as UserFilters['role'] }))}>
-              <SelectTrigger className={usersInput}><SelectValue /></SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {ADMIN_USER_FILTER_OPTIONS.role.map((value) => (
                   <SelectItem key={value} value={value}>{t(`users.roles.${value}`)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </Label>
-          <Button type="button" disabled={listLoading} onClick={applyFilters} className={`${usersButton} max-[760px]:col-span-full max-[430px]:col-auto`}>{t('users.applyFilters')}</Button>
-        </div>
+          </div>
+          <Button type="button" disabled={listLoading} onClick={applyFilters} variant="outline" className="max-[760px]:col-span-full max-[430px]:col-auto">{t('users.applyFilters')}</Button>
+          </div>
 
-        <div className={tableWrap}>
-          <Table className="w-full min-w-[970px] border-collapse text-left">
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">{ADMIN_USER_LIST_COLUMNS.map((column) => <TableHead key={column} scope="col" className={usersTh}>{t(`users.columns.${column}`)}</TableHead>)}</TableRow>
-            </TableHeader>
+          <div className="min-w-0 overflow-x-auto">
+            <Table className="w-full min-w-[970px]">
+              <TableHeader>
+                <TableRow>{ADMIN_USER_LIST_COLUMNS.map((column) => <TableHead key={column} scope="col">{t(`users.columns.${column}`)}</TableHead>)}</TableRow>
+              </TableHeader>
             <TableBody>
               {listLoading && list === null ? (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('loading')}</TableCell></TableRow>
               ) : list !== null && list.users.length > 0 ? list.users.map((user) => (
-                <TableRow key={user.id} className={selectedId === user.id ? 'bg-muted hover:bg-transparent' : 'hover:bg-transparent'}>
-                  <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-[12px] font-[600] text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{user.device_count}</TableCell>
-                  <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
+                <TableRow key={user.id} className={selectedId === user.id ? 'bg-muted' : undefined}>
+                  <TableCell className="whitespace-normal break-all px-2 py-3 text-xs text-muted-foreground"><button type="button" onClick={() => void selectUser(user.id)} className="cursor-pointer border-0 bg-transparent p-0 text-left text-xs font-semibold text-primary underline-offset-2 hover:underline">{user.email}</button></TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(user.created_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(user.last_login_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(user.email_verified_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{user.is_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{user.is_super_admin ? t('common.yes') : t('common.no')}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatDateTime(user.disabled_at)}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{user.device_count}</TableCell>
+                  <TableCell className="whitespace-nowrap px-2 py-3 text-xs text-muted-foreground">{formatBytes(user.ciphertext_total_bytes)}</TableCell>
                 </TableRow>
               )) : (
-                <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={ADMIN_USER_LIST_COLUMNS.length} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.noUsers')}</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-        <div className="mt-[14px] flex items-center justify-end gap-3 text-[12px] leading-[1.5] text-muted-foreground">
-          <div className="flex items-center gap-[9px]">
-            <Button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} className={`${pagerButton} px-0`}>‹</Button>
-            <span>{list === null ? '—' : `${list.total_count}`}</span>
-            <Button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} className={`${pagerButton} px-0`}><ChevronRight size={16} aria-hidden="true" /></Button>
+          <div className="flex items-center justify-end gap-3 text-xs leading-relaxed text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Button type="button" disabled={cursorStack.length < 2 || listLoading} onClick={previousPage} aria-label={t('audit.previousPage')} variant="outline" size="icon" className="size-7">‹</Button>
+              <span>{list === null ? '—' : `${list.total_count}`}</span>
+              <Button type="button" disabled={!list?.has_more || listLoading} onClick={nextPage} aria-label={t('audit.nextPage')} variant="outline" size="icon" className="size-7"><ChevronRight size={16} aria-hidden="true" /></Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </CardContent>
+      </Card>
     </>
   )
 }

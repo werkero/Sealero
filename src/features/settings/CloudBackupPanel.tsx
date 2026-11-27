@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultListItem } from '../../client/contracts'
 import { Button } from '../../components/ui/button'
+import { Input } from '../../components/ui/input'
 import {
   CLOUD_DESTINATIONS,
   loadCloudCredentials,
@@ -317,8 +318,8 @@ export function CloudBackupPanel({ user, items, exportBackup }: {
 
   return (
     <>
-      <p className="settings-cloud-intro">{t('backup:cloudPosition')}</p>
-      <div className="cloud-provider-list">
+      <p className="text-sm text-muted-foreground">{t('backup:cloudPosition')}</p>
+      <div className="flex flex-col gap-3">
         {CLOUD_DESTINATIONS.map((destination) => {
           const state = cloudState[destination]
           const isOAuth = destination !== 'webdav'
@@ -326,62 +327,62 @@ export function CloudBackupPanel({ user, items, exportBackup }: {
           const configured = !isOAuth || clientId !== undefined
           const decision = fingerprint ? shouldAutoBackup(state, fingerprint, new Date()) : null
           return (
-            <div className="cloud-provider-row" key={destination}>
-              <span className="cloud-provider-mark" aria-hidden="true">{providerMarks[destination]}</span>
-              <div>
-                <strong>{providerLabels[destination]}</strong>
-                <span>{t('backup:providerV1')}</span>
-                <span>{state.connected ? t('backup:connected') : configured ? t('backup:notConnected') : t('backup:notConfigured')}</span>
-                <span>{t('backup:lastBackup')}: {formatLastBackup(state.lastBackupAt)}</span>
-                {state.connected && decision ? <span>{decision.due ? t('backup:dueNow') : decision.reason === 'unchanged' ? t('backup:upToDate') : decision.reason === 'too-soon' ? t('backup:tooSoon') : t('backup:autoBackupOff')}</span> : null}
-                {cloudNotice[destination] ? <span role="status">{t(cloudNotice[destination])}</span> : null}
+            <div className="flex flex-wrap items-start gap-3 rounded-lg bg-muted px-4 py-3" key={destination}>
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-background text-sm font-bold" aria-hidden="true">{providerMarks[destination]}</span>
+              <div className="min-w-0 flex-1">
+                <strong className="block text-sm font-medium">{providerLabels[destination]}</strong>
+                <span className="block text-xs text-muted-foreground">{t('backup:providerV1')}</span>
+                <span className="block text-xs text-muted-foreground">{state.connected ? t('backup:connected') : configured ? t('backup:notConnected') : t('backup:notConfigured')}</span>
+                <span className="block text-xs text-muted-foreground">{t('backup:lastBackup')}: {formatLastBackup(state.lastBackupAt)}</span>
+                {state.connected && decision ? <span className="block text-xs text-muted-foreground">{decision.due ? t('backup:dueNow') : decision.reason === 'unchanged' ? t('backup:upToDate') : decision.reason === 'too-soon' ? t('backup:tooSoon') : t('backup:autoBackupOff')}</span> : null}
+                {cloudNotice[destination] ? <span className="block text-xs font-medium text-primary" role="status">{t(cloudNotice[destination])}</span> : null}
                 {destination === 'webdav' && (!state.connected || webdavEditing) ? (
-                  <span className="cloud-webdav-form">
-                    <label><span>{t('backup:webdavUrl')}</span><input type="url" value={webdavForm.baseUrl} placeholder="https://nas.example.test/dav/Sealero" onChange={(event) => setWebdavForm((current) => ({ ...current, baseUrl: event.target.value }))} /></label>
+                  <span className="mt-2 grid gap-2">
+                    <label className="grid gap-1.5"><span className="text-xs font-medium">{t('backup:webdavUrl')}</span><Input type="url" value={webdavForm.baseUrl} placeholder="https://nas.example.test/dav/Sealero" onChange={(event) => setWebdavForm((current) => ({ ...current, baseUrl: event.target.value }))} /></label>
                     {webdavForm.baseUrl.trim().toLowerCase().startsWith('http://') ? (
-                      <span className="cloud-webdav-warning" role="note">{t('backup:webdavInsecureWarning')}</span>
+                      <span className="text-xs font-medium text-amber-600 dark:text-amber-400" role="note">{t('backup:webdavInsecureWarning')}</span>
                     ) : null}
-                    <label><span>{t('backup:webdavUsername')}</span><input type="text" value={webdavForm.username} autoComplete="username" onChange={(event) => setWebdavForm((current) => ({ ...current, username: event.target.value }))} /></label>
-                    <label><span>{t('backup:webdavPassword')}</span><input type="password" value={webdavForm.password} autoComplete="current-password" onChange={(event) => setWebdavForm((current) => ({ ...current, password: event.target.value }))} /></label>
+                    <label className="grid gap-1.5"><span className="text-xs font-medium">{t('backup:webdavUsername')}</span><Input type="text" value={webdavForm.username} autoComplete="username" onChange={(event) => setWebdavForm((current) => ({ ...current, username: event.target.value }))} /></label>
+                    <label className="grid gap-1.5"><span className="text-xs font-medium">{t('backup:webdavPassword')}</span><Input type="password" value={webdavForm.password} autoComplete="current-password" onChange={(event) => setWebdavForm((current) => ({ ...current, password: event.target.value }))} /></label>
                   </span>
                 ) : null}
               </div>
               {state.connected ? (
                 <>
-                  <Button className="security-button security-button--quiet" type="button" disabled={cloudBusy[destination]} onClick={() => void attemptBackup(destination)}>
+                  <Button variant="outline" size="sm" type="button" disabled={cloudBusy[destination]} onClick={() => void attemptBackup(destination)}>
                     {cloudBusy[destination] ? t('backup:backingUp') : t('backup:backupNow')}
                   </Button>
-                  <Button className="security-button security-button--quiet" type="button" onClick={() => toggleAutoBackup(destination)} aria-pressed={state.enabled}>
+                  <Button variant="outline" size="sm" type="button" onClick={() => toggleAutoBackup(destination)} aria-pressed={state.enabled}>
                     {state.enabled ? t('backup:autoBackupOn') : t('backup:autoBackupOff')}
                   </Button>
-                  <Button className="security-button security-button--quiet" type="button" onClick={() => disconnect(destination)}>{t('backup:disconnect')}</Button>
+                  <Button variant="outline" size="sm" type="button" onClick={() => disconnect(destination)}>{t('backup:disconnect')}</Button>
                 </>
               ) : destination === 'webdav' ? (
                 <>
-                  <Button className="security-button security-button--quiet" type="button" disabled={cloudBusy.webdav} onClick={() => void connectWebdav()}>
+                  <Button variant="outline" size="sm" type="button" disabled={cloudBusy.webdav} onClick={() => void connectWebdav()}>
                     {t('backup:saveAndTest')}
                   </Button>
                   {webdavEditing ? (
-                    <Button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(false)}>{t('backup:cancel')}</Button>
+                    <Button variant="outline" size="sm" type="button" onClick={() => setWebdavEditing(false)}>{t('backup:cancel')}</Button>
                   ) : null}
                 </>
               ) : (
-                <Button className="security-button security-button--quiet" type="button" disabled={!configured || cloudBusy[destination]} onClick={() => void connectOAuth(destination)}>
+                <Button variant="outline" size="sm" type="button" disabled={!configured || cloudBusy[destination]} onClick={() => void connectOAuth(destination)}>
                   {configured ? t('backup:connect') : t('backup:connectUnavailable')}
                 </Button>
               )}
               {destination === 'webdav' && state.connected && !webdavEditing ? (
-                <Button className="security-button security-button--quiet" type="button" onClick={() => setWebdavEditing(true)}>{t('backup:edit')}</Button>
+                <Button variant="outline" size="sm" type="button" onClick={() => setWebdavEditing(true)}>{t('backup:edit')}</Button>
               ) : null}
             </div>
           )
         })}
       </div>
-      <div className="cloud-policy-grid">
-        <div><span>{t('backup:autoBackupLabel')}</span><strong>{t('backup:autoBackupOff')}</strong><small>{t('backup:autoBackupPolicy')}</small></div>
-        <div><span>{t('backup:retentionLabel')}</span><strong>{t('backup:retentionValue')}</strong><small>{t('backup:retentionPolicy')}</small></div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-1 rounded-lg bg-muted px-4 py-3"><span className="text-xs text-muted-foreground">{t('backup:autoBackupLabel')}</span><strong className="text-sm font-medium">{t('backup:autoBackupOff')}</strong><small className="text-xs text-muted-foreground">{t('backup:autoBackupPolicy')}</small></div>
+        <div className="grid gap-1 rounded-lg bg-muted px-4 py-3"><span className="text-xs text-muted-foreground">{t('backup:retentionLabel')}</span><strong className="text-sm font-medium">{t('backup:retentionValue')}</strong><small className="text-xs text-muted-foreground">{t('backup:retentionPolicy')}</small></div>
       </div>
-      <p className="settings-footnote">{t('backup:credentialsBoundary')}</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{t('backup:credentialsBoundary')}</p>
     </>
   )
 }

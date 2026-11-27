@@ -31,10 +31,6 @@ type AdminUserDetail = AdminUserDetailBase & {
   readonly login_history: AdminPage<AdminLoginHistoryEntry>;
 };
 
-function hasAdminRole(roles: readonly string[]): boolean {
-  return roles.includes('admin') || roles.includes('super_admin');
-}
-
 function isSet(value: Date | string | null): boolean {
   return value !== null;
 }
@@ -127,7 +123,8 @@ export class AdminUserService {
         if (!passwordStillMatches) return 'invalid_password' as const;
 
         const actorRoles = await transaction.findUserRolesForUpdate(actorId);
-        if (!hasAdminRole(actorRoles)) return 'forbidden' as const;
+      const actorPermissions = await transaction.findUserPermissionsForUpdate(actorId);
+        if (!actorPermissions.includes('users:manage')) return 'forbidden' as const;
         const target = users.find((user) => user.id === targetId) ?? null;
         if (target === null) return 'not_found' as const;
         const targetRoles = targetId === actorId
@@ -204,7 +201,8 @@ export class AdminUserService {
             : await verifyLoginPassword(actor.passwordHash, loginPassword);
           if (!passwordStillMatches) return 'invalid_password' as const;
           const actorRoles = await transaction.findUserRolesForUpdate(actorId);
-          if (!hasAdminRole(actorRoles)) return 'forbidden' as const;
+      const actorPermissions = await transaction.findUserPermissionsForUpdate(actorId);
+          if (!actorPermissions.includes('users:manage')) return 'forbidden' as const;
           const target = users.find((user) => user.id === targetId) ?? null;
           if (target === null) return 'not_found' as const;
           const targetRoles = targetId === actorId
@@ -283,7 +281,8 @@ export class AdminUserService {
       if (actor === null) return 'actor_missing' as const;
       if (isSet(actor.disabledAt)) return 'actor_disabled' as const;
       const actorRoles = await transaction.findUserRolesForUpdate(actorId);
-      if (!hasAdminRole(actorRoles)) return 'forbidden' as const;
+      const actorPermissions = await transaction.findUserPermissionsForUpdate(actorId);
+      if (!actorPermissions.includes('users:manage')) return 'forbidden' as const;
       const target = users.find((user) => user.id === targetId) ?? null;
       if (target === null) return 'not_found' as const;
       const targetRoles = targetId === actorId
@@ -320,7 +319,8 @@ export class AdminUserService {
       if (actor === null) return 'actor_missing' as const;
       if (isSet(actor.disabledAt)) return 'actor_disabled' as const;
       const actorRoles = await transaction.findUserRolesForUpdate(actorId);
-      if (!hasAdminRole(actorRoles)) return 'forbidden' as const;
+      const actorPermissions = await transaction.findUserPermissionsForUpdate(actorId);
+      if (!actorPermissions.includes('users:manage')) return 'forbidden' as const;
       const owner = users.find((user) => user.id === ownerId) ?? null;
       if (owner === null) return 'not_found' as const;
       // Same guard as deleteUser / removeAdmin / revoke-all-devices: a
@@ -362,7 +362,8 @@ export class AdminUserService {
       if (actor === null) return 'actor_missing';
       if (isSet(actor.disabledAt)) return 'actor_disabled';
       const actorRoles = await transaction.findUserRolesForUpdate(actorId);
-      if (!hasAdminRole(actorRoles)) return 'forbidden';
+      const actorPermissions = await transaction.findUserPermissionsForUpdate(actorId);
+      if (!actorPermissions.includes('users:manage')) return 'forbidden';
       const target = users.find((user) => user.id === targetId) ?? null;
       if (target === null) return 'not_found';
       if (options.guardProtectedTarget === true) {

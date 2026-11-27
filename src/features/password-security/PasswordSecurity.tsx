@@ -10,8 +10,12 @@ import {
   type PasswordCharacterClass,
   type PasswordGeneratorOptions,
 } from './password-security'
-import './password-security.css'
+import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
+import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { Checkbox } from '../../components/ui/checkbox'
+import { Input } from '../../components/ui/input'
+import { Label } from '../../components/ui/label'
 
 interface PasswordGeneratorPageProps {
   onCopy: (password: string, label: string) => void
@@ -43,21 +47,28 @@ const CHARACTER_OPTIONS: Array<{ key: PasswordCharacterClass; label: string }> =
   { key: 'symbols', label: 'symbols' },
 ]
 
+function strengthBadgeVariant(strength: PasswordAssessment['strength'], unknown: boolean): 'default' | 'secondary' | 'destructive' | 'outline' {
+  if (unknown) return 'outline'
+  if (strength === 'must-change') return 'destructive'
+  if (strength === 'acceptable') return 'secondary'
+  return 'default'
+}
+
 function PasswordAssessmentView({ assessment }: { assessment: PasswordAssessment }) {
   const { t } = useTranslation('vault')
   return (
-    <div className="security-assessment" aria-live="polite">
-      <span className={`security-badge security-badge--${assessment.leakStatus === 'unavailable' && assessment.strength !== 'must-change' ? 'unknown' : assessment.strength}`}>
+    <div className="grid gap-2" aria-live="polite">
+      <Badge variant={strengthBadgeVariant(assessment.strength, assessment.leakStatus === 'unavailable' && assessment.strength !== 'must-change')} className="w-fit">
         {assessment.leakStatus === 'unavailable' && assessment.strength !== 'must-change' ? t('health.unverified') : t(`strength.${assessment.strength}`)}
-      </span>
-      <ul className="security-findings">
+      </Badge>
+      <ul className="grid gap-1 text-xs text-muted-foreground">
         <li>{t('health.lengthAndClasses', { length: assessment.length, count: assessment.characterClassCount })}</li>
         {assessment.commonWeak ? <li>{t('health.commonWeak')}</li> : null}
         {assessment.reused ? <li>{t('health.reused')}</li> : null}
         {assessment.leakStatus === 'leaked' ? <li>{t('health.leaked')}</li> : null}
-        {assessment.leakStatus === 'unavailable' ? <li className="security-warning">{t('health.unavailable')}</li> : null}
+        {assessment.leakStatus === 'unavailable' ? <li className="font-medium text-amber-600 dark:text-amber-400">{t('health.unavailable')}</li> : null}
       </ul>
-      {assessment.strength === 'acceptable' ? <p className="security-recommendation">{t('health.acceptableHint')}</p> : null}
+      {assessment.strength === 'acceptable' ? <p className="text-xs leading-relaxed text-muted-foreground">{t('health.acceptableHint')}</p> : null}
     </div>
   )
 }
@@ -99,17 +110,17 @@ export function PasswordHealthInline({ itemId, password, itemName, items, loadIt
   }
 
   return (
-    <section className="security-inline" aria-label={t('health.itemCheckLabel', { name: itemName })}>
-      <div className="security-inline-copy">
-        <strong>{t('health.itemCheckTitle')}</strong>
-        <span>{t('health.localOnlyHint')}</span>
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-muted px-4 py-3" aria-label={t('health.itemCheckLabel', { name: itemName })}>
+      <div className="min-w-0 flex-1">
+        <strong className="block text-sm font-medium">{t('health.itemCheckTitle')}</strong>
+        <span className="block text-xs text-muted-foreground">{t('health.localOnlyHint')}</span>
       </div>
-      <Button className="security-button security-button--quiet" type="button" onClick={() => void checkPassword()} disabled={checking}>
+      <Button variant="outline" type="button" onClick={() => void checkPassword()} disabled={checking}>
         {checking ? t('health.checking') : t('health.checkPassword')}
       </Button>
-      {loadFailed ? <p className="security-warning" role="alert">{t('health.loadFailed')}</p> : null}
-      {assessment ? <PasswordAssessmentView assessment={assessment} /> : null}
-    </section>
+      {loadFailed ? <p className="w-full text-xs font-medium text-destructive" role="alert">{t('health.loadFailed')}</p> : null}
+      {assessment ? <div className="w-full"><PasswordAssessmentView assessment={assessment} /></div> : null}
+    </div>
   )
 }
 
@@ -159,48 +170,50 @@ export function PasswordHealthDashboard({ items, loadItem }: PasswordHealthPageP
   const isWorking = phase === 'loading' || phase === 'checking'
 
   return (
-    <div className="vault-content security-page">
-      <section className="security-panel" aria-labelledby="health-panel-title">
-        <div className="security-panel-heading">
-          <div>
-            <h2 id="health-panel-title">{t('health.settingsTitle')}</h2>
-            <p>{t('health.localOnlyHint')}</p>
-          </div>
-          <Button className="security-button security-button--primary" type="button" onClick={() => void runHealthCheck()} disabled={isWorking || items.length === 0}>
-            {isWorking ? t('health.checking') : rows.length ? t('health.checkAgain') : t('health.runHealthCheck')}
-          </Button>
-        </div>
-        <p className="security-privacy-note">{t('health.privacyNote')}</p>
-        {items.length === 0 ? <p className="security-empty">{t('health.emptyVault')}</p> : null}
-        {isWorking ? (
-          <div className="security-progress" role="status" aria-live="polite">
-            <span>{phase === 'loading' ? t('health.loadingDetails') : progressText}</span>
-            {phase === 'checking' ? <progress max={Math.max(items.length, 1)} value={progress} /> : null}
-          </div>
-        ) : null}
-        {phase === 'error' ? <p className="security-warning" role="alert">{t('health.loadFailed')}</p> : null}
-        {phase === 'complete' && rows.length === 0 ? <p className="security-empty">{t('health.noResults')}</p> : null}
-        {rows.length ? (
-          <ul className="security-result-list">
-            {rows.map((row) => (
-              <li className="security-result-row" key={row.id}>
-                <div className="security-result-name"><strong>{row.name}</strong><small>{t('health.lengthAndClasses', { length: row.assessment.length, count: row.assessment.characterClassCount })}</small></div>
-                <div className="security-result-badges">
-                  <span className={`security-badge security-badge--${row.assessment.leakStatus === 'unavailable' && row.assessment.strength !== 'must-change' ? 'unknown' : row.assessment.strength}`}>{row.assessment.leakStatus === 'unavailable' && row.assessment.strength !== 'must-change' ? t('health.unverified') : t(`strength.${row.assessment.strength}`)}</span>
-                  {row.assessment.reused ? <span className="security-badge security-badge--reused">{t('health.reusedBadge')}</span> : null}
-                </div>
-                <ul className="security-findings">
-                  {row.assessment.commonWeak ? <li>{t('health.commonWeak')}</li> : null}
-                  {row.assessment.reused ? <li>{t('health.reused')}</li> : null}
-                  {row.assessment.leakStatus === 'leaked' ? <li>{t('health.leaked')}</li> : null}
-                  {row.assessment.leakStatus === 'unavailable' ? <li className="security-warning">{t('health.unavailable')}</li> : null}
-                  {row.assessment.strength === 'acceptable' ? <li>{t('health.acceptableHint')}</li> : null}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
+    <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+      <Card>
+        <CardHeader>
+          <CardTitle id="health-panel-title">{t('health.settingsTitle')}</CardTitle>
+          <CardDescription>{t('health.localOnlyHint')}</CardDescription>
+          <CardAction>
+            <Button type="button" onClick={() => void runHealthCheck()} disabled={isWorking || items.length === 0}>
+              {isWorking ? t('health.checking') : rows.length ? t('health.checkAgain') : t('health.runHealthCheck')}
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs leading-relaxed text-muted-foreground">{t('health.privacyNote')}</p>
+          {items.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">{t('health.emptyVault')}</p> : null}
+          {isWorking ? (
+            <div className="space-y-2" role="status" aria-live="polite">
+              <span className="text-sm text-muted-foreground">{phase === 'loading' ? t('health.loadingDetails') : progressText}</span>
+              {phase === 'checking' ? <div className="h-1.5 overflow-hidden rounded-full bg-muted"><span className="block h-full bg-primary transition-all" style={{ width: `${(progress / Math.max(items.length, 1)) * 100}%` }} /></div> : null}
+            </div>
+          ) : null}
+          {phase === 'error' ? <p className="text-sm font-medium text-destructive" role="alert">{t('health.loadFailed')}</p> : null}
+          {phase === 'complete' && rows.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">{t('health.noResults')}</p> : null}
+          {rows.length ? (
+            <ul className="flex flex-col gap-2">
+              {rows.map((row) => (
+                <li className="grid gap-2 rounded-lg bg-muted px-4 py-3" key={row.id}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2"><strong className="text-sm font-medium">{row.name}</strong><small className="text-xs text-muted-foreground">{t('health.lengthAndClasses', { length: row.assessment.length, count: row.assessment.characterClassCount })}</small></div>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant={strengthBadgeVariant(row.assessment.strength, row.assessment.leakStatus === 'unavailable' && row.assessment.strength !== 'must-change')}>{row.assessment.leakStatus === 'unavailable' && row.assessment.strength !== 'must-change' ? t('health.unverified') : t(`strength.${row.assessment.strength}`)}</Badge>
+                    {row.assessment.reused ? <Badge variant="secondary">{t('health.reusedBadge')}</Badge> : null}
+                  </div>
+                  <ul className="grid gap-1 text-xs text-muted-foreground">
+                    {row.assessment.commonWeak ? <li>{t('health.commonWeak')}</li> : null}
+                    {row.assessment.reused ? <li>{t('health.reused')}</li> : null}
+                    {row.assessment.leakStatus === 'leaked' ? <li>{t('health.leaked')}</li> : null}
+                    {row.assessment.leakStatus === 'unavailable' ? <li className="font-medium text-amber-600 dark:text-amber-400">{t('health.unavailable')}</li> : null}
+                    {row.assessment.strength === 'acceptable' ? <li>{t('health.acceptableHint')}</li> : null}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </CardContent>
+      </Card>
     </div>
   )
 }
@@ -260,51 +273,57 @@ export function PasswordGeneratorPage({ onCopy }: PasswordGeneratorPageProps) {
   }
 
   return (
-    <div className="vault-content security-page">
-      <section className="security-panel generator-panel" aria-labelledby="generator-panel-title">
-        <h2 id="generator-panel-title">{t('generator.settingsTitle')}</h2>
-        <label className="security-length-label" htmlFor="security-password-length">
-          <span>{t('generator.length')}</span><strong>{t('generator.lengthValue', { length: options.length })}</strong>
-        </label>
-        <input
-          id="security-password-length"
-          className="security-range"
-          type="range"
-          min={12}
-          max={64}
-          step={1}
-          value={options.length}
-          onChange={(event) => updateLength(Number(event.target.value))}
-          aria-valuetext={t('generator.lengthValue', { length: options.length })}
-          disabled={phase === 'generating'}
-        />
-        <fieldset className="security-class-options" disabled={phase === 'generating'}>
-          <legend>{t('generator.characterClasses')}</legend>
-          <div className="security-class-grid">
-            {CHARACTER_OPTIONS.map(({ key, label }) => (
-              <label className="security-checkbox" key={key}>
-                <input type="checkbox" checked={options[key]} onChange={(event) => updateCharacterClass(key, event.target.checked)} />
-                <span>{t(`generator.classes.${label}`)}</span>
-              </label>
-            ))}
+    <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
+      <Card>
+        <CardHeader>
+          <CardTitle id="generator-panel-title">{t('generator.settingsTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-2">
+            <label className="flex items-center justify-between text-sm" htmlFor="security-password-length">
+              <span className="font-medium">{t('generator.length')}</span><strong>{t('generator.lengthValue', { length: options.length })}</strong>
+            </label>
+            <input
+              id="security-password-length"
+              className="w-full accent-primary"
+              type="range"
+              min={12}
+              max={64}
+              step={1}
+              value={options.length}
+              onChange={(event) => updateLength(Number(event.target.value))}
+              aria-valuetext={t('generator.lengthValue', { length: options.length })}
+              disabled={phase === 'generating'}
+            />
           </div>
-          <p className="security-help">{t('generator.twoClassesRequired')}</p>
-        </fieldset>
-        <Button className="security-button security-button--primary security-generate" type="button" onClick={() => void createPassword()} disabled={phase === 'generating' || classCount < 2}>
-          {phase === 'generating' ? t('generator.generating') : t('generator.generate')}
-        </Button>
-        {notice ? <p className={`security-notice ${phase === 'unavailable' ? 'security-warning' : ''}`} role="status">{notice}</p> : null}
-        {password ? (
-          <div className="security-generated-result">
-            <label htmlFor="security-generated-password">{t('generator.resultLabel')}</label>
-            <div className="security-password-output">
-              <input id="security-generated-password" type="text" value={password} readOnly autoComplete="off" spellCheck={false} />
-              <Button className="security-button security-button--quiet" type="button" onClick={() => onCopy(password, t('generator.passwordLabel'))}>{t('generator.copy')}</Button>
+          <fieldset className="grid gap-2" disabled={phase === 'generating'}>
+            <legend className="text-sm font-medium">{t('generator.characterClasses')}</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {CHARACTER_OPTIONS.map(({ key, label }) => (
+                <Label className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm font-normal" key={key}>
+                  <Checkbox checked={options[key]} onCheckedChange={(checked) => updateCharacterClass(key, checked === true)} />
+                  {t(`generator.classes.${label}`)}
+                </Label>
+              ))}
             </div>
-            <p>{t('generator.verifiedHint')}</p>
-          </div>
-        ) : null}
-      </section>
+            <p className="text-xs text-muted-foreground">{t('generator.twoClassesRequired')}</p>
+          </fieldset>
+          <Button className="w-full" type="button" onClick={() => void createPassword()} disabled={phase === 'generating' || classCount < 2}>
+            {phase === 'generating' ? t('generator.generating') : t('generator.generate')}
+          </Button>
+          {notice ? <p className={phase === 'unavailable' ? 'text-sm font-medium text-destructive' : 'text-sm text-muted-foreground'} role="status">{notice}</p> : null}
+          {password ? (
+            <div className="grid gap-2">
+              <label className="text-sm font-medium" htmlFor="security-generated-password">{t('generator.resultLabel')}</label>
+              <div className="flex gap-2">
+                <Input id="security-generated-password" type="text" value={password} readOnly autoComplete="off" spellCheck={false} className="font-mono" />
+                <Button variant="outline" type="button" onClick={() => onCopy(password, t('generator.passwordLabel'))}>{t('generator.copy')}</Button>
+              </div>
+              <p className="text-xs text-muted-foreground">{t('generator.verifiedHint')}</p>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
     </div>
   )
 }

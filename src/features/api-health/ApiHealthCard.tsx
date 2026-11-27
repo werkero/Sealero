@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from '../../components/ui/button'
 import { createApiHealthClient, type ApiHealthResponse } from '../../client/api-health'
-import './api-health.css'
 
 const healthClient = createApiHealthClient({ apiBaseUrl: import.meta.env.VITE_API_BASE_URL ?? '' })
 
@@ -40,18 +40,20 @@ export function ApiHealthCard() {
       : t('apiStatusUnavailable')
 
   return (
-    <aside className={`api-health-card api-health-card--${health.phase}`} aria-label={t('apiStatus')} role="status" aria-live="polite">
-      <span className="api-health-card__indicator" aria-hidden="true" />
-      <div className="api-health-card__content">
-        <strong>{message}</strong>
+    <aside className="flex items-center gap-3 rounded-lg border bg-card px-4 py-3 text-sm shadow-sm" aria-label={t('apiStatus')} role="status" aria-live="polite">
+      <span className={`size-2 shrink-0 rounded-full ${health.phase === 'online' ? 'bg-emerald-500' : health.phase === 'unavailable' ? 'bg-destructive' : 'bg-amber-500'}`} aria-hidden="true" />
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
+        <strong className="font-medium">{message}</strong>
         {health.phase === 'online' ? (
-          <span className="api-health-card__details">
+          <span className="text-xs text-muted-foreground">
             {t('apiStatusServer', { name: health.response.server_name })} · API {health.response.api_version}
           </span>
         ) : null}
         {health.phase === 'unavailable' ? (
-          <button
-            className="api-health-card__retry"
+          <Button
+            variant="link"
+            size="sm"
+            className="h-auto p-0"
             type="button"
             onClick={() => {
               setHealth({ phase: 'checking' })
@@ -59,7 +61,7 @@ export function ApiHealthCard() {
             }}
           >
             {t('apiStatusRetry')}
-          </button>
+          </Button>
         ) : null}
       </div>
     </aside>

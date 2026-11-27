@@ -180,7 +180,7 @@ export interface AdminOverviewTrend {
 /** One dumped table row: column name to its JSON value (dates as ISO 8601 strings). */
 export type DbDumpRow = Readonly<Record<string, string | number | boolean | null>>;
 
-/** All 16 tables by name, in dump order, each row already normalized for canonical JSON. */
+/** All 18 tables by name, in dump order, each row already normalized for canonical JSON. */
 export type DbDumpTables = Readonly<Record<string, readonly DbDumpRow[]>>;
 
 export interface AdminConsoleReadStore {
@@ -188,4 +188,45 @@ export interface AdminConsoleReadStore {
   listAdminAuditLogs(query: AdminAuditQuery): Promise<AdminPage<AdminAuditEntry> | null>;
   getAdminOverview(now: Date): Promise<AdminOverview>;
   getAdminOverviewTrend(now: Date, days: number): Promise<AdminOverviewTrend>;
+}
+
+/** One RBAC permission: a `<module>:<action>` key from the catalog (SD §3.1). */
+export interface AdminPermission {
+  readonly key: string;
+  readonly module: string;
+  readonly description: string | null;
+}
+
+/** One role with its permission keys and user count (SD §3.1, §5.2). */
+export interface AdminRole {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string | null;
+  readonly created_at: string;
+  /** True for the seed roles admin, user, super_admin. */
+  readonly is_system: boolean;
+  /** Permission keys; super_admin always lists all 7. */
+  readonly permission_keys: readonly string[];
+  readonly user_count: number;
+}
+
+export type AdminRoleMutationOutcome =
+  | 'success'
+  | 'not_found'
+  | 'forbidden'
+  | 'action_forbidden'
+  | 'invalid_name'
+  | 'name_taken'
+  | 'invalid_permissions'
+  | 'actor_missing'
+  | 'actor_disabled'
+  | 'target_missing';
+
+export interface AdminRoleStore {
+  hasPermission(userId: string, permissionKey: string): Promise<boolean>;
+  getUserPermissions(userId: string): Promise<readonly string[]>;
+  listPermissions(): Promise<readonly AdminPermission[]>;
+  listRoles(): Promise<readonly AdminRole[]>;
+  getRole(roleId: string): Promise<AdminRole | null>;
+  listRoleUsers(roleId: string, cursor: string | null, limit: number): Promise<AdminPage<AdminUserSummary> | null>;
 }
