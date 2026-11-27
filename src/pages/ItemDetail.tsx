@@ -65,7 +65,7 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
 
   if (editing) {
     return (
-      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
           <Button variant="ghost" className="w-fit" type="button" onClick={() => setEditing(false)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
           <ItemEditor
@@ -85,7 +85,7 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
   }
 
   return (
-    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <Button variant="ghost" className="w-fit" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
         <div className="flex items-start gap-4">

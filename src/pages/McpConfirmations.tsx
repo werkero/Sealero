@@ -89,7 +89,7 @@ export function McpConfirmations({ user, items, isAdmin, autoLockMinutes, onNavi
   }
 
   return (
-    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="confirmations" isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" activeNav="confirmations" isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         {notice ? <Alert><AlertDescription>{notice}</AlertDescription></Alert> : null}
         {actionError ? <Alert variant="destructive"><AlertDescription>{t('vault:mcpConfirmations.actionFailed')}</AlertDescription></Alert> : null}

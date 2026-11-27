@@ -14,7 +14,7 @@ import type { UnlockedSessionBlob } from '../client/contracts'
  */
 
 const SESSION_KEY_PREFIX = 'sealero.vault.session.'
-const LAST_ACTIVE_KEY = 'sealero.vault.lastActiveAt'
+export const LAST_ACTIVE_KEY = 'sealero.vault.lastActiveAt'
 
 function sessionStore(): Storage | null {
   return typeof sessionStorage === 'undefined' ? null : sessionStorage

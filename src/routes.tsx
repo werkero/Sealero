@@ -67,6 +67,8 @@ export interface AppRoutesProps {
   onSessionLogin: (email: string, loginPassword: string) => Promise<VaultIdentity | null>
   user: VaultIdentity | null
   isUnlocked: boolean
+  /** True once the vault was unlocked or the user logged in during this page session; the unlock page shows "Vault locked" when true, "Unlock your vault" when false. */
+  lockedAfterLogin: boolean
   /** Cached admin-role probe result for this login session. */
   isAdmin: boolean
   items: VaultListItem[]
@@ -105,9 +107,9 @@ export interface AppRoutesProps {
 
 function UnlockRoute(props: AppRoutesProps) {
   const { userId } = useParams()
-  const { user, onUnlock, onLogout, onNavigate, onLogin, onAppearanceChange } = props
+  const { user, onUnlock, onLogout, onNavigate, onLogin, onAppearanceChange, lockedAfterLogin } = props
   if (user && userId === user.id) {
-    return <Unlock user={user} onUnlock={onUnlock} onBackToLogin={onLogout} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
+    return <Unlock user={user} onUnlock={onUnlock} onSignOut={onLogout} lockedAfterLogin={lockedAfterLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
   }
   return <Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
 }
@@ -148,28 +150,28 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   }
 
   const loading = (
-    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <DetailLoading />
     </VaultLayout>
   )
 
   if (screen === 'generator') {
     return (
-      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="generator" isAdmin={isAdmin} title={t('vault:generator.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" activeNav="generator" isAdmin={isAdmin} title={t('vault:generator.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <PasswordGeneratorPage onCopy={(value, label) => onCopy(value, label)} />
       </VaultLayout>
     )
   }
   if (screen === 'settings') {
     return (
-      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="none" isAdmin={isAdmin} title={t('settings:title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" activeNav="none" isAdmin={isAdmin} title={t('settings:title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <SettingsPage user={user} items={items} loadItem={loadHealthItem} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} autoLockMinutes={autoLockMinutes} onAutoLockMinutesChange={onAutoLockMinutesChange} onUpdateUserProfile={onUpdateUserProfile} />
       </VaultLayout>
     )
   }
   if (screen === 'health') {
     return (
-      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="health" isAdmin={isAdmin} title={t('vault:health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" activeNav="health" isAdmin={isAdmin} title={t('vault:health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <PasswordHealthDashboard items={items} loadItem={loadHealthItem} />
       </VaultLayout>
     )

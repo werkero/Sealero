@@ -31,10 +31,6 @@ export function VaultList({ user, items, isAdmin, autoLockMinutes, onNavigate, o
 
   useEffect(() => {
     const onShortcut = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        searchInputRef.current?.focus()
-      }
       if (event.key === 'Escape' && document.activeElement === searchInputRef.current) {
         setQuery('')
         searchInputRef.current?.blur()
@@ -54,7 +50,7 @@ export function VaultList({ user, items, isAdmin, autoLockMinutes, onNavigate, o
   }, [filter, items, query])
 
   return (
-    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter={filter} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} topbarEndAction={filter === 'all' ? <Button variant="ghost" size="sm" type="button" aria-label={t('vault:add')} title={t('vault:add')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /><span>{t('vault:add')}</span></Button> : undefined} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter={filter} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} topbarEndAction={filter === 'all' ? <Button variant="ghost" size="sm" type="button" aria-label={t('vault:add')} title={t('vault:add')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /><span>{t('vault:add')}</span></Button> : undefined} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <Dialog open={creating} onOpenChange={(open) => { if (!open) setCreating(false) }}>
           <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">
@@ -92,9 +88,7 @@ export function VaultList({ user, items, isAdmin, autoLockMinutes, onNavigate, o
               <button className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground" type="button" onClick={() => setQuery('')} aria-label={t('common:clearSearch')}>
                 <X size={14} aria-hidden="true" />
               </button>
-            ) : (
-              <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 font-[inherit] text-[11px] text-muted-foreground">⌘ K</kbd>
-            )}
+            ) : null}
           </div>
         <div className="hidden grid-cols-[minmax(0,1fr)_150px_95px_20px] gap-3 px-4 pb-2 pl-[58px] text-xs font-semibold tracking-wider text-muted-foreground sm:grid"><span>{t('vault:entryColumn')}</span><span>{t('vault:categoryColumn')}</span><span>{t('vault:updatedColumn')}</span></div>
         <div className="flex flex-col">

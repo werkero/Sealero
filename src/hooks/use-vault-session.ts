@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
+import type { UnlockedSessionBlob, VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
 import { probeAdminAccess } from '../client/admin-status'
 import { DEFAULT_AUTO_LOCK_MINUTES, hasIdleExpired } from './auto-lock-policy'
 import { clearLastActiveAt, clearUnlockedSession, readLastActiveAt, readUnlockedSession, saveUnlockedSession, writeLastActiveAt } from './vault-session-storage'
+import { clearExplicitlyLocked, createSessionChannel, isExplicitlyLocked, isSessionChannelMessage } from './vault-session-channel'
 
 function toListItem(item: VaultItem): VaultListItem {
   return {
@@ -33,6 +34,14 @@ export function useVaultSession(client: VaultClient) {
   const [isUnlocked, setIsUnlocked] = useState(false)
   /** The user's own auto-lock timeout in minutes (user_preferences; 15 when never set). */
   const [autoLockMinutes, setAutoLockMinutes] = useState(DEFAULT_AUTO_LOCK_MINUTES)
+  /**
+   * True once the vault was unlocked or the user logged in during this page
+   * session. The unlock page shows "Vault locked" then, and "Unlock your
+   * vault" for a fresh or restored session that never unlocked here.
+   */
+  const [lockedAfterLogin, setLockedAfterLogin] = useState(false)
+  const isUnlockedRef = useRef(false)
+  const channelRef = useRef<BroadcastChannel | null>(null)
   /** True once the startup session-restore attempt has finished (restored or not). */
   const [sessionChecked, setSessionChecked] = useState(false)
   /** Cached admin-role probe result for this login session; false until proven. */
@@ -48,6 +57,10 @@ export function useVaultSession(client: VaultClient) {
   useEffect(() => {
     userIdRef.current = user?.id ?? null
   }, [user])
+
+  useEffect(() => {
+    isUnlockedRef.current = isUnlocked
+  }, [isUnlocked])
 
   const cancelPending = useCallback(() => {
     generationRef.current += 1
@@ -71,6 +84,95 @@ export function useVaultSession(client: VaultClient) {
   const finishOperation = useCallback((operation: PendingOperation) => {
     if (pendingRef.current === operation) pendingRef.current = null
   }, [])
+
+  /** How long a new tab waits for an unlocked tab to answer a session request. */
+  const SHARED_SESSION_WAIT_MS = 500
+
+  /**
+   * Restores the vault from a blob handed over by another tab of the same
+   * origin. Skipped when an operation is already in flight or the vault is
+   * already unlocked here, so a shared session never interrupts a manual
+   * unlock, login, or restore.
+   */
+  const restoreSharedSession = useCallback(async (blob: UnlockedSessionBlob) => {
+    if (pendingRef.current !== null || isUnlockedRef.current) return
+    const operation = beginOperation()
+    try {
+      await client.restoreSessionUnlock(blob)
+      if (!isCurrent(operation)) return
+      const overviews = await client.list(operation.controller.signal)
+      if (!isCurrent(operation)) return
+      setItems(overviews)
+      setIsUnlocked(true)
+      setLockedAfterLogin(true)
+      const userId = userIdRef.current
+      if (userId) saveUnlockedSession(userId, blob)
+    } catch {
+      if (!isCurrent(operation)) return
+      client.lock()
+      setIsUnlocked(false)
+    } finally {
+      finishOperation(operation)
+    }
+  }, [beginOperation, client, finishOperation, isCurrent])
+
+  /**
+   * Asks an unlocked tab of the same origin for its session. Resolves null
+   * when no tab answers in time (or there is no channel); the vault then
+   * simply stays locked.
+   */
+  const requestSharedSession = useCallback(async (userId: string): Promise<UnlockedSessionBlob | null> => {
+    const channel = channelRef.current
+    if (!channel) return null
+    return new Promise((resolve) => {
+      let done = false
+      const finish = (blob: UnlockedSessionBlob | null) => {
+        if (done) return
+        done = true
+        clearTimeout(timer)
+        channel.removeEventListener('message', onMessage)
+        resolve(blob)
+      }
+      const onMessage = (event: MessageEvent) => {
+        const message = event.data
+        if (!isSessionChannelMessage(message)) return
+        if (message.type === 'session' && message.userId === userId) finish(message.blob)
+      }
+      const timer = setTimeout(() => finish(null), SHARED_SESSION_WAIT_MS)
+      channel.addEventListener('message', onMessage)
+      channel.postMessage({ type: 'session-request', userId })
+    })
+  }, [])
+
+  // Cross-tab session channel: answer session requests while unlocked, and
+  // accept a shared session while locked (unless the user explicitly locked
+  // this tab). The channel is same-origin and in-memory only; nothing is
+  // persisted by it.
+  useEffect(() => {
+    const channel = createSessionChannel()
+    if (!channel) return
+    channelRef.current = channel
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data
+      if (!isSessionChannelMessage(message)) return
+      const userId = userIdRef.current
+      if (!userId || message.userId !== userId) return
+      if (message.type === 'session-request') {
+        if (!isUnlockedRef.current) return
+        const blob = client.exportSessionUnlock()
+        if (blob) channel.postMessage({ type: 'session', userId, blob })
+        return
+      }
+      if (isUnlockedRef.current || isExplicitlyLocked(userId)) return
+      void restoreSharedSession(message.blob)
+    }
+    channel.addEventListener('message', handleMessage)
+    return () => {
+      channel.removeEventListener('message', handleMessage)
+      channel.close()
+      channelRef.current = null
+    }
+  }, [client, restoreSharedSession])
 
   /**
    * Restores the login identity after a page refresh: the refresh token
@@ -101,6 +203,7 @@ export function useVaultSession(client: VaultClient) {
         .catch(() => ({ auto_lock_minutes: DEFAULT_AUTO_LOCK_MINUTES }))
       if (!isCurrent(operation)) return false
       if (isCurrent(operation)) setAutoLockMinutes(preferences.auto_lock_minutes)
+      let restored = false
       if (isCurrent(operation)) {
         const blob = readUnlockedSession(identity.id)
         const lastActiveAt = readLastActiveAt()
@@ -112,12 +215,34 @@ export function useVaultSession(client: VaultClient) {
             if (!isCurrent(operation)) return false
             setItems(overviews)
             setIsUnlocked(true)
+            setLockedAfterLogin(true)
+            restored = true
           } catch {
             clearUnlockedSession(identity.id)
             if (isCurrent(operation)) {
               client.lock()
               setIsUnlocked(false)
             }
+          }
+        }
+      }
+      if (!restored && isCurrent(operation) && !isExplicitlyLocked(identity.id)) {
+        // No usable local blob (a new tab has none): ask an unlocked tab of
+        // the same origin for its session. A tab that answers late is
+        // ignored and the vault simply stays locked.
+        const shared = await requestSharedSession(identity.id)
+        if (shared && isCurrent(operation)) {
+          try {
+            await client.restoreSessionUnlock(shared)
+            if (!isCurrent(operation)) return false
+            const overviews = await client.list(operation.controller.signal)
+            if (!isCurrent(operation)) return false
+            setItems(overviews)
+            setIsUnlocked(true)
+            setLockedAfterLogin(true)
+            saveUnlockedSession(identity.id, shared)
+          } catch {
+            // A bad shared blob is ignored; the vault simply stays locked.
           }
         }
       }
@@ -129,11 +254,14 @@ export function useVaultSession(client: VaultClient) {
       finishOperation(operation)
       setSessionChecked(true)
     }
-  }, [beginOperation, client, finishOperation, isCurrent])
+  }, [beginOperation, client, finishOperation, isCurrent, requestSharedSession])
 
   const login = useCallback(async (email: string, loginPassword: string) => {
     cancelPending()
-    if (userIdRef.current) clearUnlockedSession(userIdRef.current)
+    if (userIdRef.current) {
+      clearUnlockedSession(userIdRef.current)
+      clearExplicitlyLocked(userIdRef.current)
+    }
     clearLastActiveAt()
     client.lock()
     setUser(null)
@@ -149,6 +277,8 @@ export function useVaultSession(client: VaultClient) {
       const identity = await client.login(email, loginPassword, operation.controller.signal)
       if (!isCurrent(operation)) return null
       setUser(identity)
+      setLockedAfterLogin(true)
+      clearExplicitlyLocked(identity.id)
       // One admin probe per login; the vault stays locked until the user
       // unlocks with the master password, but admin status needs no unlock.
       const admin = await probeAdminAccess(
@@ -183,8 +313,15 @@ export function useVaultSession(client: VaultClient) {
       if (!isCurrent(operation)) return false
       setItems(overviews)
       setIsUnlocked(true)
+      setLockedAfterLogin(true)
+      clearExplicitlyLocked(user.id)
       const blob = client.exportSessionUnlock()
-      if (blob) saveUnlockedSession(user.id, blob)
+      if (blob) {
+        saveUnlockedSession(user.id, blob)
+        // Let other open tabs unlock from this one; they ignore it when
+        // the user explicitly locked them.
+        channelRef.current?.postMessage({ type: 'session', userId: user.id, blob })
+      }
       writeLastActiveAt(Date.now())
       return true
     } catch (error) {
@@ -309,7 +446,9 @@ export function useVaultSession(client: VaultClient) {
 
   const logout = useCallback(() => {
     cancelPending()
-    if (userIdRef.current) clearUnlockedSession(userIdRef.current)
+    const userId = userIdRef.current
+    userIdRef.current = null
+    if (userId) clearUnlockedSession(userId)
     clearLastActiveAt()
     client.lock()
     setItems([])
@@ -317,6 +456,7 @@ export function useVaultSession(client: VaultClient) {
     setLoadingItemId(null)
     setIsUnlocked(false)
     setIsAdmin(false)
+    setLockedAfterLogin(false)
     setUser(null)
     void client.logout().catch(() => {
       // Clear the local UI immediately; a production adapter can report remote logout failures separately.
@@ -328,5 +468,5 @@ export function useVaultSession(client: VaultClient) {
     client.lock()
   }, [cancelPending, client])
 
-  return { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
+  return { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, lockedAfterLogin, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
 }

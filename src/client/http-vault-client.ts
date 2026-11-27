@@ -65,6 +65,85 @@ function storeDeviceId(deviceId: string): void {
   }
 }
 
+const REFRESH_LOCK_KEY = 'sealero.refresh_lock'
+/** A cross-tab refresh lock lives at most this long before another tab may take it over. */
+const REFRESH_LOCK_TTL_MS = 10_000
+/** How long a tab waits for another tab's refresh before proceeding without the lock. */
+const REFRESH_LOCK_WAIT_MS = 5_000
+const REFRESH_LOCK_POLL_MS = 100
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+}
+
+function readRefreshLock(): { holder: string; expiresAt: number } | null {
+  try {
+    const raw = localStorage.getItem(REFRESH_LOCK_KEY)
+    if (!raw) return null
+    const sep = raw.lastIndexOf(':')
+    if (sep <= 0) return null
+    const holder = raw.slice(0, sep)
+    const expiresAt = Number(raw.slice(sep + 1))
+    if (!holder || !Number.isFinite(expiresAt)) return null
+    return { holder, expiresAt }
+  } catch {
+    return null
+  }
+}
+
+function acquireRefreshLock(holder: string, nowMs: number): boolean {
+  const current = readRefreshLock()
+  if (current !== null && current.expiresAt > nowMs) return false
+  try {
+    localStorage.setItem(REFRESH_LOCK_KEY, `${holder}:${nowMs + REFRESH_LOCK_TTL_MS}`)
+  } catch {
+    return false
+  }
+  // Another tab may have won the race between our read and write; only the
+  // tab whose holder id survived the write holds the lock.
+  const confirmed = readRefreshLock()
+  return confirmed !== null && confirmed.holder === holder
+}
+
+function releaseRefreshLock(holder: string): void {
+  try {
+    const current = readRefreshLock()
+    if (current !== null && current.holder === holder) localStorage.removeItem(REFRESH_LOCK_KEY)
+  } catch {
+    // The lock expires on its own; a missed release is harmless.
+  }
+}
+
+function isRefreshLockAvailable(): boolean {
+  try {
+    localStorage.getItem(REFRESH_LOCK_KEY)
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Waits for the cross-tab refresh lock and returns our holder id, or null
+ * when the wait times out (the caller then proceeds without the lock).
+ * Without working storage there is no cross-tab lock, so the caller
+ * proceeds at once instead of waiting out the full window for a lock that
+ * can never exist.
+ */
+async function waitForRefreshLock(signal?: AbortSignal): Promise<string | null> {
+  if (!isRefreshLockAvailable()) return null
+  const holder = randomUuid()
+  const startedAt = Date.now()
+  for (;;) {
+    throwIfAborted(signal)
+    if (acquireRefreshLock(holder, Date.now())) return holder
+    if (Date.now() - startedAt >= REFRESH_LOCK_WAIT_MS) return null
+    await sleep(REFRESH_LOCK_POLL_MS)
+  }
+}
+
 /**
  * Production HTTP adapter for the Web vault (online thin client).
  *
@@ -116,21 +195,32 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
     if (refreshing) return refreshing
     refreshing = (async () => {
       throwIfAborted(signal)
-      const response = await fetch(`${baseUrl}/v1/auth/refresh`, { method: 'POST', credentials: 'include', signal })
-      if (!response.ok) {
-        const code = await readErrorCode(response)
-        throw new VaultApiError(code ?? 'unauthorized', response.status)
+      // Serialize refreshes across tabs: the refresh token lives in one
+      // shared cookie, so two tabs refreshing with the same old token would
+      // look like a token-theft replay to the server (which revokes every
+      // device). Only the tab holding the lock posts; the others wait for
+      // it, then post with the cookie the first tab's refresh already
+      // rotated. A tab that cannot get the lock in time proceeds anyway.
+      const holder = await waitForRefreshLock(signal)
+      try {
+        const response = await fetch(`${baseUrl}/v1/auth/refresh`, { method: 'POST', credentials: 'include', signal })
+        if (!response.ok) {
+          const code = await readErrorCode(response)
+          throw new VaultApiError(code ?? 'unauthorized', response.status)
+        }
+        const body = (await response.json()) as { access_token?: unknown; device_id?: unknown }
+        if (typeof body.access_token !== 'string' || !body.access_token) {
+          throw new VaultApiError('unauthorized', response.status)
+        }
+        accessToken = body.access_token
+        if (typeof body.device_id === 'string' && body.device_id) {
+          deviceId = body.device_id
+          storeDeviceId(deviceId)
+        }
+        return accessToken
+      } finally {
+        if (holder !== null) releaseRefreshLock(holder)
       }
-      const body = (await response.json()) as { access_token?: unknown; device_id?: unknown }
-      if (typeof body.access_token !== 'string' || !body.access_token) {
-        throw new VaultApiError('unauthorized', response.status)
-      }
-      accessToken = body.access_token
-      if (typeof body.device_id === 'string' && body.device_id) {
-        deviceId = body.device_id
-        storeDeviceId(deviceId)
-      }
-      return accessToken
     })()
     try {
       return await refreshing

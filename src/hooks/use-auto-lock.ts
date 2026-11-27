@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react'
 import { hasIdleExpired, IDLE_LOCK_MS, remainingIdleMs } from './auto-lock-policy'
-import { readLastActiveAt, writeLastActiveAt } from './vault-session-storage'
+import { LAST_ACTIVE_KEY, readLastActiveAt, writeLastActiveAt } from './vault-session-storage'
 
 /** Activity writes to localStorage are throttled so pointer moves do not hammer storage. */
 const LAST_ACTIVE_WRITE_THROTTLE_MS = 5_000
 
 /**
  * One idle timer (System Design §3.3). The idle budget is the user's
- * own timeout in milliseconds (default 15 minutes). Time in the
- * background counts as idle — there is no separate hidden-tab rule.
+ * own timeout in milliseconds (default 15 minutes). Activity in any tab
+ * counts: a storage event from another tab re-arms this tab's timer, so
+ * the vault only locks once every tab has been idle for the full budget.
  * A page refresh neither locks nor resets the countdown: the
  * last-activity timestamp lives in localStorage, so the timer resumes
  * with the remaining budget. Tab close still locks, because the unlock
@@ -67,11 +68,31 @@ export function useAutoLock(enabled: boolean, onLock: () => void, idleLockMs: nu
       window.addEventListener(eventName, handleActivity, { passive: true })
     }
 
+    // Another tab's activity counts too: when it writes a newer
+    // last-activity timestamp, re-arm this tab's timer with the remaining
+    // budget instead of locking while the user is working elsewhere. The
+    // event never fires in the tab that wrote, so there is no feedback loop.
+    // A stale or older timestamp never shortens this tab's timer.
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== LAST_ACTIVE_KEY || !event.newValue) return
+      const otherActiveAt = Number(event.newValue)
+      if (!Number.isFinite(otherActiveAt) || otherActiveAt <= 0 || otherActiveAt <= lastWriteMs) return
+      const nowMs = Date.now()
+      if (hasIdleExpired(otherActiveAt, nowMs, idleLockMs)) {
+        lock()
+        return
+      }
+      lastWriteMs = otherActiveAt
+      armIdleTimer(remainingIdleMs(otherActiveAt, nowMs, idleLockMs))
+    }
+    window.addEventListener('storage', handleStorage)
+
     return () => {
       clearIdleTimer()
       for (const eventName of activityEvents) {
         window.removeEventListener(eventName, handleActivity)
       }
+      window.removeEventListener('storage', handleStorage)
     }
   }, [enabled, idleLockMs])
 }

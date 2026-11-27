@@ -5,10 +5,11 @@ import { AuthShell } from '../App'
 import type { VaultIdentity } from '../client/contracts'
 import type { AppearancePreference } from '../features/settings/preferences'
 
-export function Unlock({ user, onUnlock, onBackToLogin, onNavigate, onAppearanceChange }: {
+export function Unlock({ user, onUnlock, onSignOut, lockedAfterLogin, onNavigate, onAppearanceChange }: {
   user: VaultIdentity
   onUnlock: (password: string) => Promise<string | null>
-  onBackToLogin: () => void
+  onSignOut: () => void
+  lockedAfterLogin: boolean
   onNavigate: (path: string) => void
   onAppearanceChange: (preference: AppearancePreference) => void
 }) {
@@ -27,10 +28,9 @@ export function Unlock({ user, onUnlock, onBackToLogin, onNavigate, onAppearance
   return (
     <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
       <section className="auth-card unlock-card" aria-labelledby="unlock-title">
-        <button className="back-button" type="button" onClick={onBackToLogin}><span aria-hidden="true">←</span>{t('auth:backToLogin')}</button>
-        <h1 id="unlock-title">{t('auth:unlockTitle')}</h1>
-        <p className="auth-subtitle">{t('auth:unlockSubtitle')}</p>
+        <h1 id="unlock-title">{lockedAfterLogin ? t('auth:lockedTitle') : t('auth:unlockTitle')}</h1>
         <div className="account-chip"><span className="account-avatar">{user.email.slice(0, 1).toUpperCase()}</span><span>{user.email}</span><span className="account-chip-check"><Check size={14} aria-hidden="true" /></span></div>
+        <button className="button button-secondary button-full unlock-signout" type="button" onClick={onSignOut}>{t('auth:signOut')}</button>
         <form className="auth-form" onSubmit={submit}>
           <label className="field-label" htmlFor="master-password">{t('auth:masterPasswordLabel')}</label>
           <div className="password-input-wrap password-input-wrap--icon">

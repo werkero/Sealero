@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, PanelLeft, Settings, Shield, ShieldCheck, Sparkles, Star, Sun, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, PanelLeft, Search, Settings, Shield, ShieldCheck, Sparkles, Star, Sun, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
 import { DetailLoading } from './components/DetailLoading'
 import { UserAvatar } from './components/UserAvatar'
+import { VaultSearchDialog } from './components/VaultSearchDialog'
 import { LanguageSelector } from './components/LanguageSelector'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
@@ -15,10 +16,12 @@ import { applyLanguagePreference } from './features/settings/preferences'
 import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
 import type { VaultIdentity, VaultItemInput } from './client/contracts'
+import type { VaultListItem } from './client/types'
 import { createHttpVaultClient, VaultApiError } from './client/http-vault-client'
 import { DEFAULT_AUTO_LOCK_MINUTES } from './hooks/auto-lock-policy'
 import { useAutoLock } from './hooks/use-auto-lock'
 import { useVaultSession } from './hooks/use-vault-session'
+import { markExplicitlyLocked } from './hooks/vault-session-channel'
 import { useAppearancePreference } from './features/settings/preferences'
 import { clearClipboardIfStillCurrent, createClipboardOperationQueue } from './features/password-security/clipboard'
 import { AppRoutes, useRouteMatch } from './routes'
@@ -215,8 +218,10 @@ export function TopbarBackButton({ label, onClick }: { label: string; onClick: (
   )
 }
 
-export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ? 'favorites' : 'vault', isAdmin, autoLockMinutes = DEFAULT_AUTO_LOCK_MINUTES, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function VaultLayout({ user, items, filter, activeNav = filter === 'favorites' ? 'favorites' : 'vault', isAdmin, autoLockMinutes = DEFAULT_AUTO_LOCK_MINUTES, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
+  /** All vault items, for the sidebar jump-to search. */
+  items: VaultListItem[]
   filter: VaultFilter
   /** Which nav item shows as selected; defaults to the vault filter ('vault' or 'favorites'). */
   activeNav?: 'vault' | 'favorites' | 'generator' | 'health' | 'confirmations' | 'none'
@@ -255,7 +260,19 @@ export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ?
     }
     setAutoLockNoticeVisible(false)
   }
+  const [searchOpen, setSearchOpen] = useState(false)
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', onShortcut)
+    return () => window.removeEventListener('keydown', onShortcut)
+  }, [])
   return (
+    <>
     <BackendShell
       user={user}
       onNavigate={onNavigate}
@@ -269,6 +286,13 @@ export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ?
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={t('vault:searchLabel')} onClick={() => setSearchOpen(true)}>
+                  <Search />
+                  <span className="min-w-0 flex-1 truncate">{t('vault:searchPlaceholder')}</span>
+                  <kbd className="ml-auto shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-[inherit] text-[11px] text-muted-foreground group-data-[collapsible=icon]:hidden">⌘ K</kbd>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton isActive={activeNav === 'vault'} tooltip={t('vault:allItems')} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
                   <LayoutGrid />
@@ -336,6 +360,8 @@ export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ?
     >
       {children}
     </BackendShell>
+      <VaultSearchDialog open={searchOpen} items={items} onOpenChange={setSearchOpen} onSelectItem={(itemId) => onNavigate(`/users/${user.id}/items/${itemId}`)} />
+    </>
   )
 }
 
@@ -417,7 +443,7 @@ function AppShell() {
   const getAccessToken = useCallback(() => vaultClient.getAccessToken?.() ?? null, [vaultClient])
   /** Shared token refresher: the vault adapter deduplicates concurrent refreshes. */
   const refreshAccessToken = useCallback((signal?: AbortSignal) => vaultClient.refreshAccessToken(signal), [vaultClient])
-  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
+  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, lockedAfterLogin, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
   const copyTimers = useRef<number[]>([])
   const copyGenerationRef = useRef(0)
   const [clipboardQueue] = useState(createClipboardOperationQueue)
@@ -432,6 +458,14 @@ function AppShell() {
     lock()
     if (user) navigate(`/users/${user.id}/unlock`, true)
   }, [lock, navigate, user])
+
+  // The menu's lock is explicit: this tab must not auto-unlock from another
+  // tab's broadcast until the user unlocks it by hand (or logs in again).
+  // The auto-lock path keeps plain lockVault and sets no flag.
+  const lockVaultExplicit = useCallback(() => {
+    if (user) markExplicitlyLocked(user.id)
+    lockVault()
+  }, [lockVault, user])
 
   useAutoLock(isUnlocked, lockVault, autoLockMinutes * 60_000)
 
@@ -451,9 +485,9 @@ function AppShell() {
 
   useEffect(() => {
     const isAdminPath = pathname === '/admin' || pathname === '/admin/'
-    const pageTitle = isAdminPath ? t('admin:header.console') : protectedRoute?.screen === 'unlock' ? t('auth:unlockTitle') : protectedRoute?.screen === 'setup' ? t('auth:setupVaultTitle') : protectedRoute?.screen === 'generator' ? t('vault:generator.title') : protectedRoute?.screen === 'settings' ? t('settings:title') : protectedRoute?.screen === 'health' ? t('vault:health.title') : protectedRoute?.screen === 'confirmations' ? t('vault:mcpConfirmations.title') : protectedRoute?.itemId ? t('vault:detailEyebrow') : protectedRoute ? t('vault:vaultHeading') : pathname === '/login' ? t('auth:loginTitle') : t('common:landingTitle')
+    const pageTitle = isAdminPath ? t('admin:header.console') : protectedRoute?.screen === 'unlock' ? (lockedAfterLogin ? t('auth:lockedTitle') : t('auth:unlockTitle')) : protectedRoute?.screen === 'setup' ? t('auth:setupVaultTitle') : protectedRoute?.screen === 'generator' ? t('vault:generator.title') : protectedRoute?.screen === 'settings' ? t('settings:title') : protectedRoute?.screen === 'health' ? t('vault:health.title') : protectedRoute?.screen === 'confirmations' ? t('vault:mcpConfirmations.title') : protectedRoute?.itemId ? t('vault:detailEyebrow') : protectedRoute ? t('vault:vaultHeading') : pathname === '/login' ? t('auth:loginTitle') : t('common:landingTitle')
     document.title = `${pageTitle} · Sealero`
-  }, [pathname, protectedRoute, t, activeI18n.resolvedLanguage])
+  }, [pathname, protectedRoute, t, activeI18n.resolvedLanguage, lockedAfterLogin])
 
   useEffect(() => {
     // Wait for the startup restore before redirecting: without this, a
@@ -639,7 +673,7 @@ function AppShell() {
       onCreateItem={handleCreateItem}
       onUpdateItem={handleUpdateItem}
       onDeleteItem={handleDeleteItem}
-      onLock={lockVault}
+      onLock={lockVaultExplicit}
       onLogout={handleLogout}
       onCopy={(value, label) => void copyToClipboard(value, label)}
       loadHealthItem={loadHealthItem}
@@ -648,6 +682,7 @@ function AppShell() {
       onExportBackup={exportBackup}
       onExportBackupFull={exportBackupFull}
       autoLockMinutes={autoLockMinutes}
+      lockedAfterLogin={lockedAfterLogin}
       onAutoLockMinutesChange={updateAutoLockMinutes}
       onUpdateUserProfile={updateUserProfile}
     />
