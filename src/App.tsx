@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, Sparkles, Star, Sun, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, Sparkles, Star, Sun, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
+import { DetailLoading } from './components/DetailLoading'
 import { LanguageSelector } from './components/LanguageSelector'
 import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
@@ -59,12 +60,14 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
  * sidebar. Toasts are event-driven and render nothing when empty, so
  * both backends can share this shell.
  */
-export function BackendShell({ user, nav, bottom, menu, title, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
+export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   nav: ReactNode
   bottom?: ReactNode
   menu: (requestSignOut: () => void) => ReactNode
   title?: ReactNode
+  /** One tool shown in the top bar next to the collapse button. */
+  topbarAction?: ReactNode
   appearancePreference: AppearancePreference
   onNavigate: (path: string) => void
   onLogout: () => void
@@ -143,6 +146,7 @@ export function BackendShell({ user, nav, bottom, menu, title, appearancePrefere
       <SidebarInset className="bg-sidebar">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
+          {topbarAction}
           {title ? <>
             <SidebarSeparator orientation="vertical" className="mr-2 h-4" />
             <span className="truncate text-sm font-medium">{title}</span>
@@ -172,13 +176,23 @@ function SignOutConfirmDialog({ open, onConfirm, onClose }: { open: boolean; onC
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function TopbarBackButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <Button type="button" variant="ghost" size="icon" className="size-7" aria-label={label} title={label} onClick={onClick}>
+      <ChevronLeft className="size-4" aria-hidden="true" />
+    </Button>
+  )
+}
+
+export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
   /** Shows the admin-console entry in the user menu when the session is an admin. */
   isAdmin?: boolean
   title?: ReactNode
+  /** One tool shown in the top bar next to the collapse button. */
+  topbarAction?: ReactNode
   appearancePreference: AppearancePreference
   onFilterChange: (filter: VaultFilter) => void
   onNavigate: (path: string) => void
@@ -211,6 +225,7 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
       onNavigate={onNavigate}
       onLogout={onLogout}
       title={title}
+      topbarAction={topbarAction}
       appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
       nav={
@@ -554,7 +569,7 @@ function AppShell() {
   // line instead of flashing the login page for a session that is about to
   // be restored. Public routes (landing, login, register) render at once.
   if (protectedRoute && !sessionChecked) {
-    return <div className="detail-loading" role="status" aria-live="polite">{t('vault:loadingEntry')}</div>
+    return <DetailLoading />
   }
 
   return (

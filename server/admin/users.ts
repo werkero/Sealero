@@ -156,7 +156,7 @@ export function createAdminUserRoutes(
   routes.get('/users', async (context) => {
     const status = queryFilter<AdminUserStatusFilter>(context, 'status', ['all', 'active', 'disabled'], 'all');
     const verified = queryFilter<AdminUserVerifiedFilter>(context, 'verified', ['all', 'verified', 'unverified'], 'all');
-    const role = queryFilter<AdminUserRoleFilter>(context, 'role', ['all', 'admin', 'user'], 'all');
+    const role = queryFilter<AdminUserRoleFilter>(context, 'role', ['all', 'admin', 'user', 'super_admin'], 'all');
     const searchInput = context.req.query('search');
     const search = searchInput === undefined ? null : searchInput.trim() || null;
     const page = await service.listUsers({

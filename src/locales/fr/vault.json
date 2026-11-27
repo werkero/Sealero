@@ -53,9 +53,7 @@
   "copyPhrase": "Copier toute la phrase",
   "clipboardAutoClear": "Les secrets copiés sont effacés après 30 secondes si le presse-papiers contient toujours la même valeur.",
   "generator": {
-    "eyebrow": "Outils de mot de passe",
     "title": "Générateur de mots de passe",
-    "description": "Créez un mot de passe robuste dans ce navigateur. Il n’est jamais enregistré automatiquement dans le coffre.",
     "settingsTitle": "Choisir les règles du mot de passe",
     "length": "Longueur",
     "lengthValue": "{{length}} caractères",
@@ -78,9 +76,7 @@
     "backToVault": "Retour au coffre"
   },
   "health": {
-    "settingsEyebrow": "Paramètres du coffre",
     "title": "État des mots de passe",
-    "description": "Repérez les mots de passe faibles, réutilisés ou exposés. Les résultats restent dans cette session du navigateur.",
     "settingsTitle": "Vérifier les mots de passe du coffre",
     "localOnlyHint": "Les mots de passe sont vérifiés en mémoire dans le navigateur ; seul le préfixe SHA-1 de cinq caractères est envoyé à HIBP pour la comparaison.",
     "runHealthCheck": "Vérifier le coffre",
@@ -131,7 +127,6 @@
   "tagsHint": "Séparez les étiquettes par des virgules.",
   "mcpConfirmations": {
     "title": "Confirmations",
-    "subtitle": "Les connecteurs IA demandent ici avant de lire un élément. Vous seul pouvez approuver.",
     "loading": "Chargement des demandes…",
     "loadFailed": "Impossible de charger les demandes de confirmation.",
     "retry": "Réessayer",

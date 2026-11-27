@@ -1,6 +1,7 @@
 import type {
   AdminAuditResponse,
   AdminOverviewResponse,
+  AdminOverviewTrendResponse,
   AdminSettingsResponse,
   AdminSettingsUpdate,
   AdminUserDetailResponse,
@@ -51,13 +52,14 @@ export interface AdminUserListQuery {
   search?: string
   status?: 'all' | 'active' | 'disabled'
   verified?: 'all' | 'verified' | 'unverified'
-  role?: 'all' | 'admin' | 'user'
+  role?: 'all' | 'admin' | 'user' | 'super_admin'
   cursor?: string | null
   limit?: number
 }
 
 export interface AdminClient {
   getOverview(signal?: AbortSignal): Promise<AdminOverviewResponse>
+  getOverviewTrend(days: number, signal?: AbortSignal): Promise<AdminOverviewTrendResponse>
   getSettings(signal?: AbortSignal): Promise<AdminSettingsResponse>
   updateSettings(updates: AdminSettingsUpdate, signal?: AbortSignal): Promise<AdminSettingsResponse>
   listAudit(query: AdminAuditListQuery, signal?: AbortSignal): Promise<AdminAuditResponse>
@@ -179,6 +181,10 @@ export function createAdminClient(options: AdminClientOptions = {}): AdminClient
   return {
     getOverview(signal) {
       return request<AdminOverviewResponse>('/v1/admin/overview', { method: 'GET' }, signal)
+    },
+
+    getOverviewTrend(days, signal) {
+      return request<AdminOverviewTrendResponse>(withQuery('/v1/admin/overview/trend', { days: String(days) }), { method: 'GET' }, signal)
     },
 
     getSettings(signal) {

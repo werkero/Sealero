@@ -53,9 +53,7 @@
   "copyPhrase": "Copy full phrase",
   "clipboardAutoClear": "Copied secrets clear after 30 seconds if the clipboard still contains the same value.",
   "generator": {
-    "eyebrow": "Password tools",
     "title": "Password generator",
-    "description": "Create a strong password in this browser. It is never saved to your vault automatically.",
     "settingsTitle": "Choose your password rules",
     "length": "Length",
     "lengthValue": "{{length}} characters",
@@ -78,9 +76,7 @@
     "backToVault": "Back to vault"
   },
   "health": {
-    "settingsEyebrow": "Vault settings",
     "title": "Password health",
-    "description": "Review weak, reused, and exposed passwords. The results stay in this browser session.",
     "settingsTitle": "Check passwords in your vault",
     "localOnlyHint": "Passwords are checked in browser memory; only a five-character SHA-1 prefix is sent to HIBP for breach matching.",
     "runHealthCheck": "Check vault",
@@ -131,7 +127,6 @@
   "tagsHint": "Separate tags with commas.",
   "mcpConfirmations": {
     "title": "Confirmations",
-    "subtitle": "AI connectors ask here before reading an item. Only you can approve.",
     "loading": "Loading requests…",
     "loadFailed": "Could not load confirmation requests.",
     "retry": "Retry",

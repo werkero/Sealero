@@ -7,7 +7,7 @@ import {
   type McpConfirmationClient,
   type McpConfirmationItem,
 } from '../client/mcp-confirmations'
-import { VaultLayout, hostname } from '../App'
+import { TopbarBackButton, VaultLayout, hostname } from '../App'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { Button } from '../components/ui/button'
 
@@ -85,18 +85,8 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLock, onL
   }
 
   return (
-    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} topbarAction={<TopbarBackButton label={t('vault:mcpConfirmations.backToVault')} onClick={() => onNavigate(`/users/${user.id}`)} />} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="vault-content">
-        <div className="vault-title-row">
-          <div>
-            <p className="eyebrow">{t('vault:mcpConfirmations.title')}</p>
-            <h1>{t('vault:mcpConfirmations.title')}</h1>
-            <p className="vault-page-subtitle">{t('vault:mcpConfirmations.subtitle')}</p>
-          </div>
-          <Button className="security-button security-button--quiet" type="button" onClick={() => onNavigate(`/users/${user.id}`)}>
-            {t('vault:mcpConfirmations.backToVault')}
-          </Button>
-        </div>
         {notice ? <p className="detail-loading" role="status">{notice}</p> : null}
         {actionError ? <p className="detail-loading" role="alert">{t('vault:mcpConfirmations.actionFailed')}</p> : null}
         {confirmations === null ? (

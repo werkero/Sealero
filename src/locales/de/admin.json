@@ -8,7 +8,8 @@
     "overview": "Übersicht",
     "settings": "Servereinstellungen",
     "audit": "Prüfprotokoll",
-    "users": "Nutzer"
+    "users": "Nutzer",
+    "roles": "Rollen"
   },
   "overview": {
     "title": "Konsole",
@@ -27,7 +28,10 @@
     "cleanupStatus": "Letztes Ergebnis",
     "cleanupNever": "Noch keine Bereinigung ausgeführt",
     "cleanupSuccess": "Erfolgreich",
-    "cleanupFailed": "Fehlgeschlagen"
+    "cleanupFailed": "Fehlgeschlagen",
+    "trendTitle": "Benutzertrend · letzte 14 Tage",
+    "trendNewUsers": "Neue Benutzer",
+    "trendActiveUsers": "Aktive Benutzer"
   },
   "settings": {
     "title": "Servereinstellungen",
@@ -153,8 +157,7 @@
       "device_name": "Gerät",
       "device_type": "Typ",
       "created_at": "Registriert",
-      "last_login_at": "Letzte Anmeldung",
-      "revoked_at": "Widerrufen"
+      "last_login_at": "Letzte Anmeldung"
     },
     "loginHistoryTitle": "Anmeldeverlauf",
     "loginColumns": {
@@ -194,5 +197,18 @@
   "loading": "Wird geladen…",
   "loadFailed": "Dieser Bereich konnte nicht geladen werden. Verbindung prüfen und erneut versuchen.",
   "cancel": "Abbrechen",
-  "confirm": "Bestätigen"
+  "confirm": "Bestätigen",
+  "roles": {
+    "title": "Rollenverwaltung",
+    "superAdmin": "Superadmin",
+    "admin": "Administrator",
+    "user": "Benutzer",
+    "superAdminDesc": "Genau einer pro Server; hier weder zu vergeben noch zu entziehen.",
+    "adminDesc": "Kann Benutzer und Einstellungen verwalten.",
+    "userDesc": "Gewöhnliches Konto ohne Administratorrechte.",
+    "unchangeable": "Nicht änderbar",
+    "empty": "Keine Benutzer in dieser Rolle.",
+    "actionColumn": "Aktion",
+    "showsFirst": "Die ersten {count} Benutzer werden angezeigt."
+  }
 }

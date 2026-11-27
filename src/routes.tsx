@@ -5,11 +5,12 @@ import type { VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListIt
 import type { AppearancePreference } from './features/settings/preferences'
 import { PasswordGeneratorPage } from './features/password-security/PasswordSecurity'
 import { SettingsHealthPage, SettingsPage } from './features/settings/SettingsPage'
+import { DetailLoading } from './components/DetailLoading'
 import Landing from './pages/Landing'
 import { LegalPage } from './pages/Legal'
 import { Console } from './pages/Console'
 import { McpConfirmations } from './pages/McpConfirmations'
-import { VaultLayout } from './App'
+import { TopbarBackButton, VaultLayout } from './App'
 import { ItemDetail } from './pages/ItemDetail'
 import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
@@ -133,7 +134,7 @@ function AdminRoute(props: AppRoutesProps) {
 
 function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 'settings' | 'health' | 'confirmations' }) {
   const { userId, itemId } = useParams()
-  const { t } = useTranslation(['common', 'vault'])
+  const { t } = useTranslation(['common', 'vault', 'settings'])
   const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, detailLoadErrorId, screen, onNavigate, onLogin, onLock, onLogout, onOpenItem, onCreateItem, onUpdateItem, onDeleteItem, onCopy, loadHealthItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull, getAccessToken, refreshAccessToken } = props
 
   if (!user || userId !== user.id || !isUnlocked) {
@@ -142,28 +143,28 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 
   const loading = (
     <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-      <div className="detail-loading" role="status" aria-live="polite">{t('vault:loadingEntry')}</div>
+      <DetailLoading />
     </VaultLayout>
   )
 
   if (screen === 'generator') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <PasswordGeneratorPage onBack={() => onNavigate(`/users/${user.id}`)} onCopy={(value, label) => onCopy(value, label)} />
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('generator.title')} topbarAction={<TopbarBackButton label={t('generator.backToVault')} onClick={() => onNavigate(`/users/${user.id}`)} />} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+        <PasswordGeneratorPage onCopy={(value, label) => onCopy(value, label)} />
       </VaultLayout>
     )
   }
   if (screen === 'settings') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('settings:title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <SettingsPage user={user} items={items} loadItem={loadHealthItem} onNavigate={onNavigate} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} />
       </VaultLayout>
     )
   }
   if (screen === 'health') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <SettingsHealthPage items={items} loadItem={loadHealthItem} onBack={() => onNavigate(`/users/${user.id}/settings`)} />
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+        <SettingsHealthPage items={items} loadItem={loadHealthItem} />
       </VaultLayout>
     )
   }

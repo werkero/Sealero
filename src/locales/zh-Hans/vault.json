@@ -53,9 +53,7 @@
   "copyPhrase": "复制整段助记词",
   "clipboardAutoClear": "复制的秘密内容会在 30 秒后清除，前提是剪贴板仍是该内容。",
   "generator": {
-    "eyebrow": "密码工具",
     "title": "密码生成器",
-    "description": "在此浏览器中生成强密码，不会自动保存到保险库。",
     "settingsTitle": "设置密码规则",
     "length": "长度",
     "lengthValue": "{{length}} 位",
@@ -78,9 +76,7 @@
     "backToVault": "返回保险库"
   },
   "health": {
-    "settingsEyebrow": "保险库设置",
     "title": "密码健康检查",
-    "description": "检查弱密码、重复使用和已泄漏密码。结果只保留在本次浏览器会话中。",
     "settingsTitle": "检查保险库中的密码",
     "localOnlyHint": "密码只在浏览器内存中检查；HIBP 仅收到 SHA-1 哈希的前 5 位用于泄漏匹配。",
     "runHealthCheck": "检查保险库",
@@ -131,7 +127,6 @@
   "tagsHint": "多个标签用英文逗号分隔。",
   "mcpConfirmations": {
     "title": "确认请求",
-    "subtitle": "AI 连接器读取条目之前，先在这里请你确认，只有你能批准。",
     "loading": "正在加载请求…",
     "loadFailed": "加载确认请求失败。",
     "retry": "重试",

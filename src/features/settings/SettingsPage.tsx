@@ -249,15 +249,6 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
 
   return (
     <div className="settings-content">
-      <button className="back-button settings-back" type="button" onClick={() => onNavigate(rootPath)}><span aria-hidden="true">←</span>{t('settings:backToVault')}</button>
-      <div className="settings-title-row">
-        <div>
-          <p className="eyebrow">{t('settings:eyebrow')}</p>
-          <h1>{t('settings:title')}</h1>
-          <p className="vault-page-subtitle">{t('settings:description')}</p>
-        </div>
-      </div>
-
       <section className="settings-section" aria-labelledby="settings-account-title">
         <div className="settings-section-heading"><span className="settings-section-icon" aria-hidden="true">◉</span><div><h2 id="settings-account-title">{t('settings:accountTitle')}</h2></div></div>
         <div className="settings-card settings-account-card">
@@ -389,10 +380,9 @@ export function SettingsPage({ user, items, loadItem, onNavigate, appearancePref
   )
 }
 
-export function SettingsHealthPage({ items, loadItem, onBack }: {
+export function SettingsHealthPage({ items, loadItem }: {
   items: VaultListItem[]
   loadItem: (itemId: string) => Promise<VaultItem>
-  onBack: () => void
 }) {
-  return <PasswordHealthDashboard items={items} loadItem={loadItem} onBack={onBack} />
+  return <PasswordHealthDashboard items={items} loadItem={loadItem} />
 }

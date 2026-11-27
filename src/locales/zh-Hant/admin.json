@@ -8,7 +8,8 @@
     "overview": "總覽",
     "settings": "伺服器設定",
     "audit": "稽核記錄",
-    "users": "使用者管理"
+    "users": "使用者管理",
+    "roles": "角色管理"
   },
   "overview": {
     "title": "控制台",
@@ -27,7 +28,10 @@
     "cleanupStatus": "上次結果",
     "cleanupNever": "尚未執行過清理",
     "cleanupSuccess": "成功",
-    "cleanupFailed": "失敗"
+    "cleanupFailed": "失敗",
+    "trendTitle": "用戶趨勢 · 最近 14 天",
+    "trendNewUsers": "新增用戶",
+    "trendActiveUsers": "活躍用戶"
   },
   "settings": {
     "title": "伺服器設定",
@@ -153,8 +157,7 @@
       "device_name": "裝置名稱",
       "device_type": "類型",
       "created_at": "註冊時間",
-      "last_login_at": "最近登入",
-      "revoked_at": "撤銷時間"
+      "last_login_at": "最近登入"
     },
     "loginHistoryTitle": "登入記錄",
     "loginColumns": {
@@ -194,5 +197,18 @@
   "loading": "載入中…",
   "loadFailed": "無法載入此部分。請檢查連線後重試。",
   "cancel": "取消",
-  "confirm": "確認"
+  "confirm": "確認",
+  "roles": {
+    "title": "角色管理",
+    "superAdmin": "超級管理員",
+    "admin": "管理員",
+    "user": "普通用戶",
+    "superAdminDesc": "每台伺服器僅一位；此處不可授予或撤銷。",
+    "adminDesc": "可管理用戶與伺服器設定。",
+    "userDesc": "無管理權限的普通帳號。",
+    "unchangeable": "不可更改",
+    "empty": "該角色下暫無用戶。",
+    "actionColumn": "操作",
+    "showsFirst": "僅顯示前 {count} 位用戶。"
+  }
 }

@@ -278,6 +278,29 @@ describe('admin user APIs', () => {
     expect(disabledBody.users.map((user) => user.id)).toEqual([DISABLED_USER_ID]);
   });
 
+  it('filters the user list by the super_admin role only', async () => {
+    const harness = await createHarness();
+    await seedStandardUsers(harness);
+
+    const superAdmin = await get(harness, '/v1/admin/users?role=super_admin');
+    expect(superAdmin.status).toBe(200);
+    const superAdminBody = await superAdmin.json() as { users: Array<{ id: string }>; total_count: number };
+    expect(superAdminBody.total_count).toBe(1);
+    expect(superAdminBody.users.map((user) => user.id)).toEqual([SUPER_ADMIN_ID]);
+
+    const admins = await get(harness, '/v1/admin/users?role=admin');
+    expect(admins.status).toBe(200);
+    const adminsBody = await admins.json() as { users: Array<{ id: string }>; total_count: number };
+    expect(adminsBody.total_count).toBe(2);
+    expect(adminsBody.users.map((user) => user.id).sort()).toEqual([ADMIN_ID, SUPER_ADMIN_ID].sort());
+
+    const users = await get(harness, '/v1/admin/users?role=user');
+    expect(users.status).toBe(200);
+    const usersBody = await users.json() as { users: Array<{ id: string }>; total_count: number };
+    expect(usersBody.total_count).toBe(3);
+    expect(usersBody.users.map((user) => user.id).sort()).toEqual([USER_ID, DISABLED_USER_ID, TARGET_ID].sort());
+  });
+
   it('paginates users and login history by created_at/id with stable totals', async () => {
     const harness = await createHarness();
     await seedStandardUsers(harness);
@@ -329,7 +352,7 @@ describe('admin user APIs', () => {
   it('rejects invalid filters, pagination, UUIDs and unknown cursors', async () => {
     const harness = await createHarness();
     await seedStandardUsers(harness);
-    expect((await get(harness, '/v1/admin/users?role=super_admin')).status).toBe(400);
+    expect((await get(harness, '/v1/admin/users?role=root')).status).toBe(400);
     expect((await get(harness, '/v1/admin/users?limit=0')).status).toBe(400);
     expect((await get(harness, '/v1/admin/users?limit=501')).status).toBe(400);
     expect((await get(harness, '/v1/admin/users?cursor=not-a-uuid')).status).toBe(400);

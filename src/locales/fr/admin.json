@@ -8,7 +8,8 @@
     "overview": "Vue d’ensemble",
     "settings": "Paramètres serveur",
     "audit": "Journal d’audit",
-    "users": "Utilisateurs"
+    "users": "Utilisateurs",
+    "roles": "Rôles"
   },
   "overview": {
     "title": "Console",
@@ -27,7 +28,10 @@
     "cleanupStatus": "Dernier résultat",
     "cleanupNever": "Aucun nettoyage effectué pour l’instant",
     "cleanupSuccess": "Réussi",
-    "cleanupFailed": "Échoué"
+    "cleanupFailed": "Échoué",
+    "trendTitle": "Tendance des utilisateurs · 14 derniers jours",
+    "trendNewUsers": "Nouveaux utilisateurs",
+    "trendActiveUsers": "Utilisateurs actifs"
   },
   "settings": {
     "title": "Paramètres serveur",
@@ -153,8 +157,7 @@
       "device_name": "Appareil",
       "device_type": "Type",
       "created_at": "Inscription",
-      "last_login_at": "Dernière connexion",
-      "revoked_at": "Révoqué le"
+      "last_login_at": "Dernière connexion"
     },
     "loginHistoryTitle": "Historique des connexions",
     "loginColumns": {
@@ -194,5 +197,18 @@
   "loading": "Chargement…",
   "loadFailed": "Impossible de charger cette section. Vérifiez la connexion et réessayez.",
   "cancel": "Annuler",
-  "confirm": "Confirmer"
+  "confirm": "Confirmer",
+  "roles": {
+    "title": "Gestion des rôles",
+    "superAdmin": "Super-administrateur",
+    "admin": "Administrateur",
+    "user": "Utilisateur",
+    "superAdminDesc": "Un seul par serveur ; ni attribution ni révocation ici.",
+    "adminDesc": "Peut gérer les utilisateurs et les paramètres.",
+    "userDesc": "Compte ordinaire sans droits d’administration.",
+    "unchangeable": "Non modifiable",
+    "empty": "Aucun utilisateur dans ce rôle.",
+    "actionColumn": "Action",
+    "showsFirst": "Affichage des {count} premiers utilisateurs."
+  }
 }

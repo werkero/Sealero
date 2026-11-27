@@ -53,9 +53,7 @@
   "copyPhrase": "複製整段助記詞",
   "clipboardAutoClear": "複製的秘密內容會在 30 秒後清除，前提是剪貼簿仍是該內容。",
   "generator": {
-    "eyebrow": "密碼工具",
     "title": "密碼產生器",
-    "description": "在此瀏覽器中產生強密碼，不會自動儲存至保險庫。",
     "settingsTitle": "設定密碼規則",
     "length": "長度",
     "lengthValue": "{{length}} 位",
@@ -78,9 +76,7 @@
     "backToVault": "返回保險庫"
   },
   "health": {
-    "settingsEyebrow": "保險庫設定",
     "title": "密碼健康檢查",
-    "description": "檢查弱密碼、重複使用和已洩漏密碼。結果只保留在本次瀏覽器工作階段中。",
     "settingsTitle": "檢查保險庫中的密碼",
     "localOnlyHint": "密碼只在瀏覽器記憶體中檢查；HIBP 僅收到 SHA-1 雜湊的前 5 位用於洩漏比對。",
     "runHealthCheck": "檢查保險庫",
@@ -131,7 +127,6 @@
   "tagsHint": "多個標籤用英文逗號分隔。",
   "mcpConfirmations": {
     "title": "確認請求",
-    "subtitle": "AI 連接器讀取條目之前，先在這裡請你確認，只有你能批准。",
     "loading": "正在載入請求…",
     "loadFailed": "載入確認請求失敗。",
     "retry": "重試",

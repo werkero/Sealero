@@ -10,6 +10,7 @@ import type {
   AdminAuditQuery,
   AdminConsoleReadStore,
   AdminOverview,
+  AdminOverviewTrend,
   AdminSettingKey,
   AdminSettingSource,
   AdminSettings,
@@ -338,6 +339,10 @@ export class AdminConsoleService {
 
   async getOverview(): Promise<AdminOverview> {
     return this.store.getAdminOverview(this.now());
+  }
+
+  async getOverviewTrend(days: number): Promise<AdminOverviewTrend> {
+    return this.store.getAdminOverviewTrend(this.now(), days);
   }
 
   /**

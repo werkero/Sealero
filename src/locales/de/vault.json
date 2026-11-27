@@ -53,9 +53,7 @@
   "copyPhrase": "Ganze Phrase kopieren",
   "clipboardAutoClear": "Kopierte Geheimnisse werden nach 30 Sekunden gelöscht, wenn die Zwischenablage noch denselben Wert enthält.",
   "generator": {
-    "eyebrow": "Passwortwerkzeuge",
     "title": "Passwortgenerator",
-    "description": "Erstelle ein starkes Passwort in diesem Browser. Es wird nicht automatisch im Tresor gespeichert.",
     "settingsTitle": "Passwortregeln auswählen",
     "length": "Länge",
     "lengthValue": "{{length}} Zeichen",
@@ -78,9 +76,7 @@
     "backToVault": "Zurück zum Tresor"
   },
   "health": {
-    "settingsEyebrow": "Tresoreinstellungen",
     "title": "Passwortsicherheit",
-    "description": "Finde schwache, wiederverwendete und offengelegte Passwörter. Ergebnisse bleiben in dieser Browsersitzung.",
     "settingsTitle": "Passwörter im Tresor prüfen",
     "localOnlyHint": "Passwörter werden im Browserspeicher geprüft; für den Abgleich sendet HIBP nur die ersten fünf Zeichen des SHA-1-Hashs.",
     "runHealthCheck": "Tresor prüfen",
@@ -131,7 +127,6 @@
   "tagsHint": "Tags mit Kommas trennen.",
   "mcpConfirmations": {
     "title": "Bestätigungen",
-    "subtitle": "KI-Konnektoren fragen hier nach, bevor sie einen Eintrag lesen. Nur Sie können zustimmen.",
     "loading": "Anfragen werden geladen…",
     "loadFailed": "Bestätigungsanfragen konnten nicht geladen werden.",
     "retry": "Erneut versuchen",

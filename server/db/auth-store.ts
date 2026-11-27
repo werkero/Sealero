@@ -53,6 +53,8 @@ import type {
   AdminAuditQuery,
   AdminConsoleReadStore,
   AdminOverview,
+  AdminOverviewTrend,
+  AdminOverviewTrendDay,
   AdminSettingKey,
   DbDumpRow,
   DbDumpTables,
@@ -1237,6 +1239,10 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
                SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
                WHERE ur.user_id = u.id AND r.name IN ('admin', 'super_admin')
              ))
+             OR ($4 = 'super_admin' AND EXISTS (
+               SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
+               WHERE ur.user_id = u.id AND r.name = 'super_admin'
+             ))
              OR ($4 = 'user' AND NOT EXISTS (
                SELECT 1 FROM user_roles ur JOIN roles r ON r.id = ur.role_id
                WHERE ur.user_id = u.id AND r.name IN ('admin', 'super_admin')
@@ -1432,6 +1438,36 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
       db_connections: this.options.connectionCount?.() ?? 1,
       tombstone_cleanup: { last_cleanup_at: lastCleanupAt, last_cleanup_status: lastCleanupStatus },
     };
+  }
+
+  async getAdminOverviewTrend(now: Date, days: number): Promise<AdminOverviewTrend> {
+    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const rangeStart = new Date(todayStart.getTime() - (days - 1) * 24 * 60 * 60 * 1000);
+    const rangeEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+    const newUsers = await this.database.query<{ day: string; count: string | number | bigint }>(
+      `SELECT TO_CHAR(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS day, COUNT(*)::bigint AS count
+       FROM users
+       WHERE created_at >= $1::timestamptz AND created_at < $2::timestamptz
+       GROUP BY DATE_TRUNC('day', created_at AT TIME ZONE 'UTC')`,
+      [rangeStart, rangeEnd],
+    );
+    const activeUsers = await this.database.query<{ day: string; count: string | number | bigint }>(
+      `SELECT TO_CHAR(DATE_TRUNC('day', created_at AT TIME ZONE 'UTC'), 'YYYY-MM-DD') AS day, COUNT(DISTINCT user_id)::bigint AS count
+       FROM login_logs
+       WHERE result = 'success' AND user_id IS NOT NULL
+         AND created_at >= $1::timestamptz AND created_at < $2::timestamptz
+       GROUP BY DATE_TRUNC('day', created_at AT TIME ZONE 'UTC')`,
+      [rangeStart, rangeEnd],
+    );
+    const newByDay = new Map(newUsers.rows.map((row) => [row.day, adminInteger(row.count)]));
+    const activeByDay = new Map(activeUsers.rows.map((row) => [row.day, adminInteger(row.count)]));
+    const result: AdminOverviewTrendDay[] = [];
+    for (let offset = 0; offset < days; offset += 1) {
+      const date = new Date(rangeStart.getTime() + offset * 24 * 60 * 60 * 1000);
+      const day = date.toISOString().slice(0, 10);
+      result.push({ date: day, new_users: newByDay.get(day) ?? 0, active_users: activeByDay.get(day) ?? 0 });
+    }
+    return { days: result };
   }
 
   private async findAdminUserSummary(userId: string): Promise<AdminUserSummary | null> {

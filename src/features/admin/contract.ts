@@ -45,6 +45,16 @@ export interface AdminOverviewResponse {
   }
 }
 
+export interface AdminOverviewTrendDay {
+  readonly date: string
+  readonly new_users: number
+  readonly active_users: number
+}
+
+export interface AdminOverviewTrendResponse {
+  readonly days: readonly AdminOverviewTrendDay[]
+}
+
 /** PUT /v1/admin/settings body: only changed keys; null clears a nullable key. */
 export type AdminSettingsUpdate = Partial<Record<AdminSettingKey, string | number | boolean | null>>
 
@@ -167,7 +177,6 @@ export const ADMIN_USER_DEVICE_COLUMNS = [
   'device_type',
   'created_at',
   'last_login_at',
-  'revoked_at',
 ] as const
 
 export const ADMIN_USER_LOGIN_COLUMNS = [

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { ChevronRight, Database, LayoutGrid, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
+import { Activity, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Shield, Smartphone, UserPlus, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
@@ -19,11 +19,14 @@ import {
   sanitizeAuditMetadata,
   type AdminAuditResponse,
   type AdminOverviewResponse,
+  type AdminOverviewTrendResponse,
   type AdminSettingKey,
+  type AdminUserListItem,
   type AdminSettings,
   type AdminSettingsResponse,
   type AdminSettingsUpdate,
 } from '../features/admin/contract'
+import { OverviewTrendChart } from '../features/admin/OverviewTrendChart'
 
 const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
@@ -36,7 +39,7 @@ const auditTh = 'h-auto whitespace-nowrap bg-muted px-[11px] py-2.5 text-[12px] 
 const noteBox = 'flex flex-col gap-1 rounded-lg border border-border bg-muted p-3 text-[12px] leading-[1.55] text-muted-foreground'
 const statusText = 'mt-[9px] text-[12px] leading-[1.55] text-muted-foreground'
 
-type AdminSection = 'overview' | 'users' | 'settings' | 'audit'
+type AdminSection = 'overview' | 'users' | 'roles' | 'settings' | 'audit'
 const Users = lazy(() => import('./Users').then(({ Users: component }) => ({ default: component })))
 
 type AdminTFunction = TFunction<'admin', undefined>
@@ -151,7 +154,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 }) {
   const { t } = useTranslation(['admin', 'common'])
   const [section, setSection] = useState<AdminSection>('overview')
-  const sections: AdminSection[] = ['overview', 'users', 'settings', 'audit']
+  const sections: AdminSection[] = ['overview', 'users', 'roles', 'settings', 'audit']
   const adminClient: AdminClient = useMemo(() => createAdminClient({ getAccessToken, refreshAccessToken }), [getAccessToken, refreshAccessToken])
 
   const [overview, setOverview] = useState<AdminOverviewResponse | null>(null)
@@ -171,6 +174,76 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     )
     return () => { active = false; controller.abort() }
   }, [adminClient, t])
+
+  const [trend, setTrend] = useState<AdminOverviewTrendResponse | null>(null)
+  const [trendError, setTrendError] = useState('')
+  const [trendLoading, setTrendLoading] = useState(true)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let active = true
+    void adminClient.getOverviewTrend(14, controller.signal).then(
+      (data) => { if (active) { setTrend(data); setTrendLoading(false) } },
+      (error: unknown) => {
+        if (!active) return
+        if (!(error instanceof Error && error.name === 'AbortError')) setTrendError(errorText(error, t))
+        setTrendLoading(false)
+      },
+    )
+    return () => { active = false; controller.abort() }
+  }, [adminClient, t])
+
+  type RoleFilter = 'super_admin' | 'admin' | 'user'
+  const roleFilters: readonly RoleFilter[] = ['super_admin', 'admin', 'user']
+  const [roleFilter, setRoleFilter] = useState<RoleFilter>('admin')
+  const [roleCounts, setRoleCounts] = useState<Record<RoleFilter, number> | null>(null)
+  const [roleUsers, setRoleUsers] = useState<readonly AdminUserListItem[] | null>(null)
+  const [rolesError, setRolesError] = useState('')
+  const [rolesLoading, setRolesLoading] = useState(true)
+  const [rolesPendingUserId, setRolesPendingUserId] = useState<string | null>(null)
+  const [rolesMessage, setRolesMessage] = useState('')
+
+  const loadRoles = useCallback(async (filter: RoleFilter, signal?: AbortSignal) => {
+    setRolesLoading(true)
+    setRolesError('')
+    try {
+      const pages = await Promise.all(roleFilters.map((role) =>
+        adminClient.listUsers({ status: 'all', verified: 'all', role, cursor: null, limit: role === filter ? 100 : 1 }, signal),
+      ))
+      setRoleCounts({
+        super_admin: pages[0]!.total_count,
+        admin: pages[1]!.total_count,
+        user: pages[2]!.total_count,
+      })
+      setRoleUsers(pages[roleFilters.indexOf(filter)]!.users)
+      setRolesLoading(false)
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') return
+      setRolesError(errorText(error, t))
+      setRolesLoading(false)
+    }
+  }, [adminClient, t])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void loadRoles(roleFilter, controller.signal)
+    return () => controller.abort()
+  }, [loadRoles, roleFilter])
+
+  const runRoleAction = useCallback(async (action: 'make_admin' | 'remove_admin', target: AdminUserListItem) => {
+    setRolesPendingUserId(target.id)
+    setRolesMessage('')
+    try {
+      if (action === 'make_admin') await adminClient.makeAdmin(target.id)
+      else await adminClient.removeAdmin(target.id)
+      setRolesMessage(t('users.actionDone'))
+      await loadRoles(roleFilter)
+    } catch (error: unknown) {
+      setRolesMessage(errorText(error, t))
+    } finally {
+      setRolesPendingUserId(null)
+    }
+  }, [adminClient, loadRoles, roleFilter, t])
 
   const [dumpPassword, setDumpPassword] = useState('')
   const [dumpBusy, setDumpBusy] = useState(false)
@@ -340,25 +413,42 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
   }, [auditCursorStack, auditFilters, loadAudit])
 
   const renderOverview = () => {
-    const metrics: [string, string, string, string][] = [
-      ['totalUsers', t('overview.totalUsers'), t('overview.allTime'), overview === null ? '—' : String(overview.total_users)],
-      ['todayNewUsers', t('overview.todayNewUsers'), t('overview.utcDay'), overview === null ? '—' : String(overview.today_new_users)],
-      ['todayActiveUsers', t('overview.todayActiveUsers'), t('overview.utcDay'), overview === null ? '—' : String(overview.today_active_users)],
-      ['totalDevices', t('overview.totalDevices'), t('overview.allDevices'), overview === null ? '—' : String(overview.total_devices)],
-      ['databaseConnections', t('overview.databaseConnections'), t('overview.livePool'), overview === null ? '—' : String(overview.db_connections)],
+    const metrics: [string, string, string, string, typeof UsersIcon][] = [
+      ['totalUsers', t('overview.totalUsers'), t('overview.allTime'), overview === null ? '—' : String(overview.total_users), UsersIcon],
+      ['todayNewUsers', t('overview.todayNewUsers'), t('overview.utcDay'), overview === null ? '—' : String(overview.today_new_users), UserPlus],
+      ['todayActiveUsers', t('overview.todayActiveUsers'), t('overview.utcDay'), overview === null ? '—' : String(overview.today_active_users), Activity],
+      ['totalDevices', t('overview.totalDevices'), t('overview.allDevices'), overview === null ? '—' : String(overview.total_devices), Smartphone],
+      ['databaseConnections', t('overview.databaseConnections'), t('overview.livePool'), overview === null ? '—' : String(overview.db_connections), Database],
     ]
     return (
       <>
         {overviewError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{overviewError}</strong></div> : null}
 
         <section className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-3 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2 max-[760px]:gap-2" aria-label={t('overview.metricsLabel')}>
-          {metrics.map(([key, label, detail, value]) => (
+          {metrics.map(([key, label, detail, value, Icon]) => (
             <article className="glass-panel flex min-h-[142px] min-w-0 flex-col items-start rounded-xl p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
-              <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
+              <div className="flex w-full items-start justify-between gap-2">
+                <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
+                <Icon className="size-[19px] shrink-0 text-muted-foreground" aria-hidden="true" />
+              </div>
               <strong className="mt-[17px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground max-[760px]:mt-[13px] max-[760px]:text-2xl">{overviewLoading && overview === null ? t('loading') : value}</strong>
               <span className="mt-[3px] text-[12px] text-muted-foreground">{detail}</span>
             </article>
           ))}
+        </section>
+
+        <section className={panel} aria-labelledby="admin-trend-title">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="admin-trend-title" className={panelTitle}>{t('overview.trendTitle')}</h2>
+            </div>
+          </div>
+          <div className="mt-[18px]">
+            {trendError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{trendError}</strong></div>
+              : trendLoading && trend === null ? <p className="m-0 text-[12px] text-muted-foreground">{t('loading')}</p>
+              : trend === null ? null
+              : <OverviewTrendChart days={trend.days} newUsersLabel={t('overview.trendNewUsers')} activeUsersLabel={t('overview.trendActiveUsers')} />}
+          </div>
         </section>
 
         <section className={panel} aria-labelledby="admin-cleanup-title">
@@ -532,12 +622,84 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     </>
   )
 
+  const renderRoles = () => {
+    const roleMeta: { key: RoleFilter; label: string; desc: string }[] = [
+      { key: 'super_admin', label: t('roles.superAdmin'), desc: t('roles.superAdminDesc') },
+      { key: 'admin', label: t('roles.admin'), desc: t('roles.adminDesc') },
+      { key: 'user', label: t('roles.user'), desc: t('roles.userDesc') },
+    ]
+    const selectedMeta = roleMeta.find((meta) => meta.key === roleFilter) ?? roleMeta[1]!
+    const shownCount = roleUsers === null ? 0 : roleUsers.length
+    const totalCount = roleCounts?.[roleFilter] ?? 0
+    return (
+      <>
+        {rolesError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{rolesError}</strong></div> : null}
+        {rolesMessage ? <div className={noteBox} role="status"><strong className="text-[12px]">{rolesMessage}</strong></div> : null}
+
+        <section className="grid grid-cols-3 gap-3 max-[760px]:grid-cols-1" aria-label={t('roles.title')}>
+          {roleMeta.map(({ key, label, desc }) => (
+            <button key={key} type="button" onClick={() => setRoleFilter(key)} aria-pressed={roleFilter === key} className={`glass-panel flex min-h-[110px] min-w-0 flex-col items-start rounded-xl p-[15px] text-left shadow-[0_4px_14px_rgb(28_39_58/3%)] ${roleFilter === key ? 'ring-2 ring-ring' : ''}`}>
+              <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
+              <strong className="mt-[12px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground">{rolesLoading && roleCounts === null ? t('loading') : String(roleCounts?.[key] ?? 0)}</strong>
+              <span className="mt-[3px] text-[12px] text-muted-foreground">{desc}</span>
+            </button>
+          ))}
+        </section>
+
+        <section className={panel} aria-labelledby="admin-roles-title">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 id="admin-roles-title" className={panelTitle}>{selectedMeta.label}</h2>
+            </div>
+          </div>
+          <div className="mt-[18px] overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className={auditTh}>{t('users.columns.email')}</TableHead>
+                  <TableHead className={auditTh}>{t('users.columns.created_at')}</TableHead>
+                  <TableHead className={auditTh}>{t('roles.actionColumn')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rolesLoading && roleUsers === null ? (
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('loading')}</TableCell></TableRow>
+                ) : roleUsers !== null && roleUsers.length === 0 ? (
+                  <TableRow className="hover:bg-transparent"><TableCell colSpan={3} className="h-[92px] px-2.5 py-3 text-center text-[12px] text-muted-foreground">{t('roles.empty')}</TableCell></TableRow>
+                ) : (roleUsers ?? []).map((target) => {
+                  const actionDisabled = rolesPendingUserId !== null ||
+                    (roleFilter === 'admin' && (target.is_super_admin || target.id === currentUserId))
+                  return (
+                    <TableRow key={target.id} className="hover:bg-transparent">
+                      <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px]">{target.email}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(target.created_at)}</TableCell>
+                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">
+                        {roleFilter === 'super_admin' ? (
+                          <span className="text-[12px] text-muted-foreground">{t('roles.unchangeable')}</span>
+                        ) : roleFilter === 'user' ? (
+                          <Button type="button" disabled={actionDisabled} onClick={() => void runRoleAction('make_admin', target)} className={actionButton}>{t('users.actions.make_admin')}</Button>
+                        ) : (
+                          <Button type="button" disabled={actionDisabled} onClick={() => void runRoleAction('remove_admin', target)} className={actionButton}>{t('users.actions.remove_admin')}</Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+          {totalCount > shownCount ? <p className="mt-3 text-[12px] leading-[1.6] text-muted-foreground">{t('roles.showsFirst', { count: shownCount })}</p> : null}
+        </section>
+      </>
+    )
+  }
+
   return (
     <BackendShell
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
+      title={section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'roles' ? t('roles.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
       appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
       nav={
@@ -547,7 +709,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
               {sections.map((item) => (
                 <SidebarMenuItem key={item}>
                   <SidebarMenuButton isActive={section === item} tooltip={t(`navigation.${item}`)} onClick={() => setSection(item)}>
-                    {item === 'overview' ? <LayoutGrid /> : item === 'users' ? <UsersIcon /> : item === 'settings' ? <Settings /> : <ScrollText />}
+                    {item === 'overview' ? <LayoutGrid /> : item === 'users' ? <UsersIcon /> : item === 'roles' ? <Shield /> : item === 'settings' ? <Settings /> : <ScrollText />}
                     <span>{t(`navigation.${item}`)}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -564,7 +726,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       </>)}
     >
       <div className="min-w-0 px-[clamp(20px,4vw,54px)] pb-[26px] pt-[34px] max-[760px]:px-4 max-[760px]:pb-5 max-[760px]:pt-6">
-        {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-muted px-1.5 py-[3px] text-[12px] font-[550] text-muted-foreground" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} /></Suspense> : section === 'settings' ? renderSettings() : renderAudit()}
+        {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-muted px-1.5 py-[3px] text-[12px] font-[550] text-muted-foreground" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} /></Suspense> : section === 'roles' ? renderRoles() : section === 'settings' ? renderSettings() : renderAudit()}
       </div>
     </BackendShell>
   )

@@ -8,7 +8,8 @@
     "overview": "Overview",
     "settings": "Server settings",
     "audit": "Audit log",
-    "users": "Users"
+    "users": "Users",
+    "roles": "Roles"
   },
   "overview": {
     "title": "Console",
@@ -27,7 +28,10 @@
     "cleanupStatus": "Last result",
     "cleanupNever": "No cleanup has run yet",
     "cleanupSuccess": "Succeeded",
-    "cleanupFailed": "Failed"
+    "cleanupFailed": "Failed",
+    "trendTitle": "User trend · last 14 days",
+    "trendNewUsers": "New users",
+    "trendActiveUsers": "Active users"
   },
   "settings": {
     "title": "Server settings",
@@ -153,8 +157,7 @@
       "device_name": "Device",
       "device_type": "Type",
       "created_at": "Registered",
-      "last_login_at": "Last login",
-      "revoked_at": "Revoked"
+      "last_login_at": "Last login"
     },
     "loginHistoryTitle": "Login history",
     "loginColumns": {
@@ -194,5 +197,18 @@
   "loading": "Loading…",
   "loadFailed": "Could not load this section. Check the connection and try again.",
   "cancel": "Cancel",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "roles": {
+    "title": "Role management",
+    "superAdmin": "Super admin",
+    "admin": "Admin",
+    "user": "User",
+    "superAdminDesc": "Exactly one per server; cannot be granted or revoked here.",
+    "adminDesc": "Can manage users and settings.",
+    "userDesc": "Ordinary account without admin rights.",
+    "unchangeable": "Cannot be changed",
+    "empty": "No users in this role.",
+    "actionColumn": "Action",
+    "showsFirst": "Showing the first {count} users."
+  }
 }

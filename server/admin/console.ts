@@ -86,6 +86,19 @@ function queryLimit(context: Context<AuthenticatedEnvironment>): number {
   return parsed;
 }
 
+function queryDays(context: Context<AuthenticatedEnvironment>): number {
+  const value = context.req.query('days');
+  if (value === undefined) return 14;
+  if (!/^[0-9]+$/.test(value)) {
+    throw new ApiError(400, 'invalid_request', 'The days parameter must be an integer from 7 to 30.');
+  }
+  const parsed = Number(value);
+  if (!Number.isSafeInteger(parsed) || parsed < 7 || parsed > 30) {
+    throw new ApiError(400, 'invalid_request', 'The days parameter must be an integer from 7 to 30.');
+  }
+  return parsed;
+}
+
 function queryDate(context: Context<AuthenticatedEnvironment>, name: 'from' | 'to'): Date | null {
   const value = context.req.query(name);
   if (value === undefined) return null;
@@ -129,6 +142,8 @@ export function createAdminConsoleRoutes(
   });
 
   routes.get('/overview', async (context) => context.json(await service.getOverview()));
+
+  routes.get('/overview/trend', async (context) => context.json(await service.getOverviewTrend(queryDays(context))));
 
   routes.post('/db-dump', async (context) => {
     const loginPassword = await readLoginPassword(context);

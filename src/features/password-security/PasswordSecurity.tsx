@@ -14,14 +14,12 @@ import './password-security.css'
 import { Button } from '../../components/ui/button'
 
 interface PasswordGeneratorPageProps {
-  onBack: () => void
   onCopy: (password: string, label: string) => void
 }
 
 interface PasswordHealthPageProps {
   items: VaultListItem[]
   loadItem: (itemId: string) => Promise<VaultItem>
-  onBack: () => void
 }
 
 interface PasswordHealthInlineProps {
@@ -115,7 +113,7 @@ export function PasswordHealthInline({ itemId, password, itemName, items, loadIt
   )
 }
 
-export function PasswordHealthDashboard({ items, loadItem, onBack }: PasswordHealthPageProps) {
+export function PasswordHealthDashboard({ items, loadItem }: PasswordHealthPageProps) {
   const { t } = useTranslation('vault')
   const [rows, setRows] = useState<PasswordHealthRow[]>([])
   const [phase, setPhase] = useState<'idle' | 'loading' | 'checking' | 'complete' | 'error'>('idle')
@@ -162,12 +160,6 @@ export function PasswordHealthDashboard({ items, loadItem, onBack }: PasswordHea
 
   return (
     <div className="vault-content security-page">
-      <button className="back-button security-back" type="button" onClick={onBack}><span aria-hidden="true">←</span>{t('vault:backToVault')}</button>
-      <header className="security-page-heading">
-        <p className="eyebrow">{t('health.settingsEyebrow')}</p>
-        <h1>{t('health.title')}</h1>
-        <p className="vault-page-subtitle">{t('health.description')}</p>
-      </header>
       <section className="security-panel" aria-labelledby="health-panel-title">
         <div className="security-panel-heading">
           <div>
@@ -213,7 +205,7 @@ export function PasswordHealthDashboard({ items, loadItem, onBack }: PasswordHea
   )
 }
 
-export function PasswordGeneratorPage({ onBack, onCopy }: PasswordGeneratorPageProps) {
+export function PasswordGeneratorPage({ onCopy }: PasswordGeneratorPageProps) {
   const { t } = useTranslation('vault')
   const [options, setOptions] = useState<PasswordGeneratorOptions>(DEFAULT_PASSWORD_OPTIONS)
   const [password, setPassword] = useState<string | null>(null)
@@ -269,12 +261,6 @@ export function PasswordGeneratorPage({ onBack, onCopy }: PasswordGeneratorPageP
 
   return (
     <div className="vault-content security-page">
-      <button className="back-button security-back" type="button" onClick={onBack}><span aria-hidden="true">←</span>{t('generator.backToVault')}</button>
-      <header className="security-page-heading">
-        <p className="eyebrow">{t('generator.eyebrow')}</p>
-        <h1>{t('generator.title')}</h1>
-        <p className="vault-page-subtitle">{t('generator.description')}</p>
-      </header>
       <section className="security-panel generator-panel" aria-labelledby="generator-panel-title">
         <h2 id="generator-panel-title">{t('generator.settingsTitle')}</h2>
         <label className="security-length-label" htmlFor="security-password-length">

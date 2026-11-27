@@ -1,6 +1,6 @@
 export type AdminUserStatusFilter = 'all' | 'active' | 'disabled';
 export type AdminUserVerifiedFilter = 'all' | 'verified' | 'unverified';
-export type AdminUserRoleFilter = 'all' | 'admin' | 'user';
+export type AdminUserRoleFilter = 'all' | 'admin' | 'user' | 'super_admin';
 
 export interface AdminUserListQuery {
   readonly search: string | null;
@@ -165,6 +165,18 @@ export interface AdminOverview {
   };
 }
 
+/** One UTC day in the admin overview trend. */
+export interface AdminOverviewTrendDay {
+  readonly date: string;
+  readonly new_users: number;
+  readonly active_users: number;
+}
+
+/** Daily new/active users for the last `days` UTC days, ending today. */
+export interface AdminOverviewTrend {
+  readonly days: readonly AdminOverviewTrendDay[];
+}
+
 /** One dumped table row: column name to its JSON value (dates as ISO 8601 strings). */
 export type DbDumpRow = Readonly<Record<string, string | number | boolean | null>>;
 
@@ -175,4 +187,5 @@ export interface AdminConsoleReadStore {
   listAdminSettings(): Promise<Readonly<Record<string, string>>>;
   listAdminAuditLogs(query: AdminAuditQuery): Promise<AdminPage<AdminAuditEntry> | null>;
   getAdminOverview(now: Date): Promise<AdminOverview>;
+  getAdminOverviewTrend(now: Date, days: number): Promise<AdminOverviewTrend>;
 }

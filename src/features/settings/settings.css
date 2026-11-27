@@ -3,25 +3,6 @@
   margin: 0 auto;
   padding: 36px clamp(18px, 4vw, 46px) 76px;
 }
-.settings-back {
-  margin-bottom: 22px;
-}
-.settings-title-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-.settings-title-row h1 {
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(28px, 4vw, 36px);
-  font-weight: 660;
-  letter-spacing: -0.055em;
-}
-.settings-title-row .eyebrow {
-  margin-bottom: 10px;
-}
 .settings-preview-callout {
   display: flex;
   gap: 12px;

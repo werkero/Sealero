@@ -257,6 +257,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
 
   const selectedUser: AdminUserListItem | null = detail?.user ?? null
   const loginHistory = detail === null ? [] : detail.login_history.items.slice(0, 10)
+  const activeDevices = detail === null ? [] : detail.devices.filter((device) => device.revoked_at === null)
   const isSelf = selectedUser !== null && selectedUser.id === currentUserId
 
   const backToList = useCallback(() => {
@@ -322,17 +323,16 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                 <TableBody>
                   {detail === null ? (
                     <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{detailLoading ? t('loading') : t('users.selectUserHint')}</TableCell></TableRow>
-                  ) : detail.devices.length === 0 ? (
+                  ) : activeDevices.length === 0 ? (
                     <TableRow className="hover:bg-transparent"><TableCell colSpan={ADMIN_USER_DEVICE_COLUMNS.length + 1} className="h-[92px] whitespace-normal break-anywhere px-2.5 py-3 text-center text-[12px] text-muted-foreground max-[760px]:pl-[14px] max-[760px]:text-left">{t('users.devicesEmpty')}</TableCell></TableRow>
-                  ) : detail.devices.map((device) => (
+                  ) : activeDevices.map((device) => (
                     <TableRow key={device.id} className="hover:bg-transparent">
                       <TableCell className="whitespace-normal break-all px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_name}</TableCell>
                       <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{device.device_type}</TableCell>
                       <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.created_at)}</TableCell>
                       <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.last_login_at)}</TableCell>
-                      <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">{formatDateTime(device.revoked_at)}</TableCell>
                       <TableCell className="whitespace-nowrap px-2.5 py-3 text-[12px] text-muted-foreground">
-                        <Button type="button" disabled={device.revoked_at !== null || pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={device.revoked_at !== null || pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
+                        <Button type="button" disabled={pendingAction !== null} onClick={() => void revokeDevice(device.id)} className={pendingAction !== null ? disabledUsersButton : usersButton}>{t('users.revokeDevice')}</Button>
                       </TableCell>
                     </TableRow>
                   ))}
