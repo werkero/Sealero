@@ -10,7 +10,7 @@ import { ThemeToggle } from './components/ThemeToggle'
 import { Dialog, DialogContent, DialogTitle } from './components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from './components/ui/dropdown-menu'
 import { Button } from './components/ui/button'
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger, useSidebar } from './components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger, useSidebar } from './components/ui/sidebar'
 import { applyLanguagePreference } from './features/settings/preferences'
 import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
@@ -107,7 +107,7 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, top
                     <ChevronUp className="ml-auto size-4" aria-hidden="true" />
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side="top" align="end" className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg">
+                <DropdownMenuContent side="top" align="end" className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg bg-sidebar/80 backdrop-blur-[18px] backdrop-saturate-[1.35]">
                   {menu(() => setConfirmSignOutOpen(true))}
                   <DropdownMenuSeparator />
                   <DropdownMenuSub>
@@ -115,7 +115,7 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, top
                       <Sun className="size-4" aria-hidden="true" />
                       <span>{t('settings:appearanceTitle')}</span>
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
+                    <DropdownMenuSubContent className="bg-sidebar/80 backdrop-blur-[18px] backdrop-saturate-[1.35]">
                       <DropdownMenuRadioGroup value={appearancePreference} onValueChange={(value) => onAppearanceChange(value as AppearancePreference)}>
                         <DropdownMenuRadioItem value="system">{t('settings:followSystem')}</DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="light">{t('settings:light')}</DropdownMenuRadioItem>
@@ -128,7 +128,7 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, top
                       <Languages className="size-4" aria-hidden="true" />
                       <span>{t('common:language')}</span>
                     </DropdownMenuSubTrigger>
-                    <DropdownMenuSubContent>
+                    <DropdownMenuSubContent className="bg-sidebar/80 backdrop-blur-[18px] backdrop-saturate-[1.35]">
                       <DropdownMenuRadioGroup value={currentLanguage} onValueChange={(value) => void applyLanguagePreference(value as Language)}>
                         {languages.map((language) => (
                           <DropdownMenuRadioItem key={language.code} value={language.code}>{language.label}</DropdownMenuRadioItem>
@@ -214,10 +214,11 @@ export function TopbarBackButton({ label, onClick }: { label: string; onClick: (
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ? 'favorites' : 'vault', isAdmin, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
-  itemCount: number
+  /** Which nav item shows as selected; defaults to the vault filter ('vault' or 'favorites'). */
+  activeNav?: 'vault' | 'favorites' | 'generator' | 'health' | 'confirmations' | 'none'
   /** Shows the admin-console entry in the user menu when the session is an admin. */
   isAdmin?: boolean
   title?: ReactNode
@@ -266,32 +267,31 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton isActive={filter === 'all'} tooltip={t('vault:allItems')} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
+                <SidebarMenuButton isActive={activeNav === 'vault'} tooltip={t('vault:allItems')} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
                   <LayoutGrid />
                   <span>{t('vault:allItems')}</span>
                 </SidebarMenuButton>
-                <SidebarMenuBadge>{itemCount}</SidebarMenuBadge>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton isActive={filter === 'favorites'} tooltip={t('vault:favorites')} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
+                <SidebarMenuButton isActive={activeNav === 'favorites'} tooltip={t('vault:favorites')} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>
                   <Star />
                   <span>{t('vault:favorites')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t('vault:generator.title')} onClick={() => onNavigate(`/users/${user.id}/generator`)}>
+                <SidebarMenuButton isActive={activeNav === 'generator'} tooltip={t('vault:generator.title')} onClick={() => onNavigate(`/users/${user.id}/generator`)}>
                   <Sparkles />
                   <span>{t('vault:generator.title')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t('vault:health.title')} onClick={() => onNavigate(`/users/${user.id}/health`)}>
+                <SidebarMenuButton isActive={activeNav === 'health'} tooltip={t('vault:health.title')} onClick={() => onNavigate(`/users/${user.id}/health`)}>
                   <ShieldCheck />
                   <span>{t('vault:health.title')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t('vault:mcpConfirmations.title')} onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
+                <SidebarMenuButton isActive={activeNav === 'confirmations'} tooltip={t('vault:mcpConfirmations.title')} onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
                   <Check />
                   <span>{t('vault:mcpConfirmations.title')}</span>
                 </SidebarMenuButton>

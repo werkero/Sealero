@@ -7,7 +7,6 @@
   "autoLockTitle": "Verrouillage automatique activé",
   "autoLockDescription": "Verrouillage après 15 minutes d’inactivité. Actualiser la page ne verrouille pas le coffre.",
   "collectionSubtitle": "Vos identifiants enregistrés, disponibles quand vous en avez besoin.",
-  "itemsLabel": "éléments",
   "searchLabel": "Rechercher dans le coffre",
   "searchPlaceholder": "Nom, site web ou nom d’utilisateur",
   "entryColumn": "ÉLÉMENT",

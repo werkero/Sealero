@@ -7,7 +7,6 @@
   "autoLockTitle": "自动锁定已开启",
   "autoLockDescription": "闲置 15 分钟后锁定，刷新页面不锁定。",
   "collectionSubtitle": "保存的登录信息，随时可用。",
-  "itemsLabel": "条目",
   "searchLabel": "搜索保险库",
   "searchPlaceholder": "搜索名称、网址或用户名",
   "entryColumn": "条目",

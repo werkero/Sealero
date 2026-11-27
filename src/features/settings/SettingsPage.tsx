@@ -1,8 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useCallback, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { isLanguage, languages } from '../../i18n-config'
-import i18n from '../../i18n'
 import type { VaultIdentity, VaultItem, VaultListItem } from '../../client/contracts'
 import { getCsvHeaders, getImportFileModifiedAt, inspectBackupContainer, parseCsvWithMapping, parseImportText, type BackupContainerSummary, type ImportField, type ImportedVaultEntry, type ParsedImportFile } from './backup-local'
 import { backupFilename } from './cloud-backup'
@@ -11,7 +9,6 @@ import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent } from '../../components/ui/card'
 import { Input } from '../../components/ui/input'
-import { applyLanguagePreference, getLanguagePreference, type AppearancePreference, type LanguagePreference } from './preferences'
 
 const requiredImportFields: ImportField[] = ['name', 'url', 'username', 'password']
 const importFields: ImportField[] = ['name', 'url', 'username', 'password', 'note', 'category', 'tags', 'favorite']
@@ -47,19 +44,16 @@ function importErrorTranslationKey(code: string): string {
   return known[code] ?? 'errors.parseFailed'
 }
 
-export function SettingsPage({ user, items, loadItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull }: {
+export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBackupFull }: {
   user: VaultIdentity
   items: VaultListItem[]
   loadItem: (itemId: string) => Promise<VaultItem>
-  appearancePreference: AppearancePreference
-  onAppearanceChange: (preference: AppearancePreference) => void
   /** KEK-only v3 container for cloud backup; null when the vault is locked. */
   onExportBackup: () => Promise<Uint8Array | null>
   /** Full v3 container (KEK + recovery-key wrappings) for manual export. */
   onExportBackupFull: (masterPassword: string, recoveryKey: string) => Promise<Uint8Array>
 }) {
   const { t, i18n: activeI18n } = useTranslation(['settings', 'backup', 'vault'])
-  const [languagePreference, setLanguagePreference] = useState<LanguagePreference>(getLanguagePreference)
   const [selectedFileName, setSelectedFileName] = useState('')
   const [sourceFileModifiedAt, setSourceFileModifiedAt] = useState<string | null>(null)
   const [importError, setImportError] = useState('')
@@ -89,12 +83,6 @@ export function SettingsPage({ user, items, loadItem, appearancePreference, onAp
       changed: rows.filter((row) => row.kind === 'changed').length,
     }
   }, [choices, importPreview])
-
-  useEffect(() => {
-    const updatePreference = () => setLanguagePreference(getLanguagePreference())
-    i18n.on('languageChanged', updatePreference)
-    return () => { i18n.off('languageChanged', updatePreference) }
-  }, [])
 
   const clearImportPreview = useCallback(() => {
     csvSourceRef.current = null
@@ -240,12 +228,6 @@ export function SettingsPage({ user, items, loadItem, appearancePreference, onAp
     }
   }
 
-  const changeLanguage = (value: string) => {
-    const nextPreference: LanguagePreference = value === 'system' || isLanguage(value) ? value : 'system'
-    setLanguagePreference(nextPreference)
-    void applyLanguagePreference(nextPreference)
-  }
-
   return (
     <div className="w-full space-y-6 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
       <section className="space-y-3" aria-labelledby="settings-account-title">
@@ -369,20 +351,6 @@ export function SettingsPage({ user, items, loadItem, appearancePreference, onAp
         <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:autoLockTitle')}</h2></div></div>
         <Card>
           <CardContent className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">{t('settings:idleLabel')}</span><strong className="text-sm font-medium">{t('settings:fifteenMinutes')}</strong></CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-3" aria-labelledby="settings-language-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">文</span><div><h2 id="settings-language-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:languageTitle')}</h2></div></div>
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3"><div><strong className="block text-sm font-medium">{t('settings:languageTitle')}</strong><span className="block text-xs text-muted-foreground">{t('settings:preferenceLocal')}</span></div><label className="grid gap-1.5"><span className="sr-only">{t('settings:languageTitle')}</span><select className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={languagePreference} onChange={(event) => changeLanguage(event.target.value)}><option value="system">{t('settings:followSystem')}</option>{languages.map((language) => <option value={language.code} key={language.code}>{language.label}</option>)}</select></label></CardContent>
-        </Card>
-      </section>
-
-      <section className="space-y-3" aria-labelledby="settings-appearance-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">◐</span><div><h2 id="settings-appearance-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:appearanceTitle')}</h2></div></div>
-        <Card>
-          <CardContent className="flex flex-wrap items-center justify-between gap-3"><div><strong className="block text-sm font-medium">{t('settings:appearanceTitle')}</strong><span className="block text-xs text-muted-foreground">{t('settings:preferenceLocal')}</span></div><div className="flex gap-1 rounded-lg bg-muted p-1" role="group" aria-label={t('settings:appearanceTitle')}>{(['system', 'light', 'dark'] as const).map((value) => <button key={value} type="button" className={appearancePreference === value ? 'rounded-md bg-background px-3 py-1.5 text-sm font-medium shadow-sm' : 'rounded-md px-3 py-1.5 text-sm text-muted-foreground'} aria-pressed={appearancePreference === value} onClick={() => onAppearanceChange(value)}>{t(`settings:${value === 'system' ? 'followSystem' : value}`)}</button>)}</div></CardContent>
         </Card>
       </section>
     </div>

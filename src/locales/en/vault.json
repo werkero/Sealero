@@ -7,7 +7,6 @@
   "autoLockTitle": "Auto-lock is on",
   "autoLockDescription": "Locks after 15 minutes idle. Refreshing the page keeps the vault unlocked.",
   "collectionSubtitle": "Your saved logins, ready when you need them.",
-  "itemsLabel": "items",
   "searchLabel": "Search your vault",
   "searchPlaceholder": "Search name, website, or username",
   "entryColumn": "ENTRY",
