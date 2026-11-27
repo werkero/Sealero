@@ -11,7 +11,7 @@
     "users": "用户管理"
   },
   "overview": {
-    "title": "控制台总览",
+    "title": "控制台",
     "metricsLabel": "服务器总览指标",
     "totalUsers": "用户总数",
     "todayNewUsers": "今日新增用户",
@@ -31,7 +31,6 @@
   },
   "settings": {
     "title": "服务器设置",
-    "whitelistCount": "13 个允许键",
     "builtInDefault": "内置回退值：{{value}}",
     "notConfigured": "未配置",
     "writeOnly": "仅写入 · 永不显示",
@@ -190,11 +189,9 @@
     "revokeAllDevices": "吊销全部设备",
     "revokeDevice": "吊销设备",
     "deviceRevoked": "设备已吊销。",
-    "showMore": "显示更多",
-    "noMoreRecords": "没有更多登录记录。"
+    "backToList": "返回用户列表"
   },
   "loading": "加载中…",
-  "retry": "重试",
   "loadFailed": "无法加载此部分。请检查连接后重试。",
   "cancel": "取消",
   "confirm": "确认"

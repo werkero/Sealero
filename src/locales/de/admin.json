@@ -11,7 +11,7 @@
     "users": "Nutzer"
   },
   "overview": {
-    "title": "Konsolenübersicht",
+    "title": "Konsole",
     "metricsLabel": "Serverübersicht-Kennzahlen",
     "totalUsers": "Nutzer insgesamt",
     "todayNewUsers": "Neue Nutzer heute",
@@ -31,7 +31,6 @@
   },
   "settings": {
     "title": "Servereinstellungen",
-    "whitelistCount": "13 erlaubte Schlüssel",
     "builtInDefault": "Eingebauter Rückfallwert: {{value}}",
     "notConfigured": "Nicht konfiguriert",
     "writeOnly": "Nur Schreiben · wird nie angezeigt",
@@ -190,11 +189,9 @@
     "revokeAllDevices": "Alle Geräte widerrufen",
     "revokeDevice": "Gerät widerrufen",
     "deviceRevoked": "Gerät widerrufen.",
-    "showMore": "Mehr anzeigen",
-    "noMoreRecords": "Keine weiteren Anmeldeprotokolle."
+    "backToList": "Zurück zur Benutzerliste"
   },
   "loading": "Wird geladen…",
-  "retry": "Erneut versuchen",
   "loadFailed": "Dieser Bereich konnte nicht geladen werden. Verbindung prüfen und erneut versuchen.",
   "cancel": "Abbrechen",
   "confirm": "Bestätigen"

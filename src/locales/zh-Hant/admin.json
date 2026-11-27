@@ -11,7 +11,7 @@
     "users": "使用者管理"
   },
   "overview": {
-    "title": "控制台總覽",
+    "title": "控制台",
     "metricsLabel": "伺服器總覽指標",
     "totalUsers": "使用者總數",
     "todayNewUsers": "今日新增使用者",
@@ -31,7 +31,6 @@
   },
   "settings": {
     "title": "伺服器設定",
-    "whitelistCount": "13 個允許鍵",
     "builtInDefault": "內建回退值：{{value}}",
     "notConfigured": "未設定",
     "writeOnly": "僅寫入 · 永不顯示",
@@ -190,11 +189,9 @@
     "revokeAllDevices": "吊銷全部裝置",
     "revokeDevice": "吊銷裝置",
     "deviceRevoked": "裝置已吊銷。",
-    "showMore": "顯示更多",
-    "noMoreRecords": "沒有更多登入記錄。"
+    "backToList": "返回用戶列表"
   },
   "loading": "載入中…",
-  "retry": "重試",
   "loadFailed": "無法載入此部分。請檢查連線後重試。",
   "cancel": "取消",
   "confirm": "確認"

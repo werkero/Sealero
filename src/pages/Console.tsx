@@ -25,7 +25,6 @@ import {
   type AdminSettingsUpdate,
 } from '../features/admin/contract'
 
-const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
 const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
 const actionButton = 'min-h-[38px] rounded-[7px] border border-border bg-muted px-[13px] text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
@@ -158,19 +157,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
   const [overview, setOverview] = useState<AdminOverviewResponse | null>(null)
   const [overviewError, setOverviewError] = useState('')
   const [overviewLoading, setOverviewLoading] = useState(true)
-
-  const loadOverview = useCallback(async (signal?: AbortSignal) => {
-    setOverviewLoading(true)
-    setOverviewError('')
-    try {
-      setOverview(await adminClient.getOverview(signal))
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') return
-      setOverviewError(errorText(error, t))
-    } finally {
-      setOverviewLoading(false)
-    }
-  }, [adminClient, t])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -363,10 +349,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     ]
     return (
       <>
-        <div className="mb-[25px] flex items-start justify-end gap-[18px]">
-          <Button type="button" disabled={overviewLoading} onClick={() => void loadOverview()} className={overviewLoading ? actionButton : enabledButton}>{overviewLoading ? t('loading') : t('retry')}</Button>
-        </div>
-
         {overviewError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{overviewError}</strong></div> : null}
 
         <section className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-3 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2 max-[760px]:gap-2" aria-label={t('overview.metricsLabel')}>
@@ -413,10 +395,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 
   const renderSettings = () => (
     <>
-      <div className="mb-[25px] flex items-start justify-end gap-[18px]">
-        <span className={pill}>{t('settings.whitelistCount')}</span>
-      </div>
-
       {settingsError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{settingsError}</strong></div> : null}
       {settingsLoading && settingsResponse === null ? <p className={statusText} role="status">{t('loading')}</p> : null}
 

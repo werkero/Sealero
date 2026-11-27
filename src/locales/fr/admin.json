@@ -11,7 +11,7 @@
     "users": "Utilisateurs"
   },
   "overview": {
-    "title": "Vue d’ensemble de la console",
+    "title": "Console",
     "metricsLabel": "Indicateurs du serveur",
     "totalUsers": "Nombre total d’utilisateurs",
     "todayNewUsers": "Nouveaux utilisateurs aujourd’hui",
@@ -31,7 +31,6 @@
   },
   "settings": {
     "title": "Paramètres serveur",
-    "whitelistCount": "13 clés autorisées",
     "builtInDefault": "Valeur de repli intégrée : {{value}}",
     "notConfigured": "Non configuré",
     "writeOnly": "Écriture seule · jamais affiché",
@@ -190,11 +189,9 @@
     "revokeAllDevices": "Révoquer tous les appareils",
     "revokeDevice": "Révoquer l’appareil",
     "deviceRevoked": "Appareil révoqué.",
-    "showMore": "Afficher plus",
-    "noMoreRecords": "Plus aucun historique de connexion."
+    "backToList": "Retour à la liste des utilisateurs"
   },
   "loading": "Chargement…",
-  "retry": "Réessayer",
   "loadFailed": "Impossible de charger cette section. Vérifiez la connexion et réessayez.",
   "cancel": "Annuler",
   "confirm": "Confirmer"
