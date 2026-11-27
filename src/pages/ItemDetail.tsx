@@ -10,11 +10,12 @@ import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
-export function ItemDetail({ user, item, items, isAdmin, loadItem, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
+export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadItem, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
   user: VaultIdentity
   item: VaultItem
   items: VaultListItem[]
   isAdmin?: boolean
+  autoLockMinutes: number
   loadItem: (itemId: string) => Promise<VaultItem>
   onNavigate: (path: string) => void
   onLock: () => void
@@ -64,7 +65,7 @@ export function ItemDetail({ user, item, items, isAdmin, loadItem, onNavigate, o
 
   if (editing) {
     return (
-      <VaultLayout user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
           <Button variant="ghost" className="w-fit" type="button" onClick={() => setEditing(false)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
           <ItemEditor
@@ -84,7 +85,7 @@ export function ItemDetail({ user, item, items, isAdmin, loadItem, onNavigate, o
   }
 
   return (
-    <VaultLayout user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <Button variant="ghost" className="w-fit" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
         <div className="flex items-start gap-4">

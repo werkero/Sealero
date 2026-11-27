@@ -6,7 +6,6 @@
   "devicesTitle": "设备",
   "followSystem": "跟随系统",
   "idleLabel": "闲置后",
-  "fifteenMinutes": "15 分钟",
   "officialCloud": "Sealero 官方云",
   "readOnly": "只读",
   "serverTitle": "服务器",
@@ -26,5 +25,6 @@
     "parseFailed": "文件中没有找到登录条目。",
     "noLoginRows": "无法在本地读取保险库以比较条目。",
     "localCompareUnavailable": "所选列无效。"
-  }
+  },
+  "minutes": "分钟"
 }

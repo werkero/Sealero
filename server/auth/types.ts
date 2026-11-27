@@ -256,6 +256,10 @@ export interface AuthStore {
   findUserByEmail(email: string): Promise<AuthUser | null>;
   /** Non-locking identity read for GET /v1/auth/me; null when the account is gone. */
   findUserById(userId: string): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null } | null>;
+  /** Reads the user's preference row; null when the user never set one (the default applies). */
+  getUserPreferences(userId: string): Promise<{ readonly auto_lock_minutes: number } | null>;
+  /** Creates or replaces the user's preference row. */
+  upsertUserPreferences(userId: string, autoLockMinutes: number): Promise<{ readonly auto_lock_minutes: number }>;
   getAccessOwnerStatus(userId: string, deviceId: string): Promise<AccessOwnerStatus | null>;
   transaction<T>(callback: (transaction: AuthTransaction) => Promise<T>): Promise<T>;
 }

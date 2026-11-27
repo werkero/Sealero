@@ -5,7 +5,7 @@
   "allItems": "Coffre de mots de passe",
   "favorites": "Favoris",
   "autoLockTitle": "Verrouillage automatique activé",
-  "autoLockDescription": "Verrouillage après 15 minutes d’inactivité. Actualiser la page ne verrouille pas le coffre.",
+  "autoLockDescription": "Verrouillage après {{minutes}} minutes d’inactivité. Actualiser la page ne verrouille pas le coffre.",
   "collectionSubtitle": "Vos identifiants enregistrés, disponibles quand vous en avez besoin.",
   "searchLabel": "Rechercher dans le coffre",
   "searchPlaceholder": "Nom, site web ou nom d’utilisateur",

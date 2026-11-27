@@ -6,7 +6,6 @@
   "devicesTitle": "Устройства",
   "followSystem": "Как в системе",
   "idleLabel": "После бездействия",
-  "fifteenMinutes": "15 минут",
   "officialCloud": "Официальное облако Sealero",
   "readOnly": "Только чтение",
   "serverTitle": "Сервер",
@@ -26,5 +25,6 @@
     "parseFailed": "В файле не найдено записей для входа.",
     "noLoginRows": "Не удалось локально прочитать хранилище для сравнения записей.",
     "localCompareUnavailable": "Один или несколько выбранных столбцов недопустимы."
-  }
+  },
+  "minutes": "минут"
 }

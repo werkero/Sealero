@@ -6,7 +6,6 @@
   "devicesTitle": "Appareils",
   "followSystem": "Suivre le système",
   "idleLabel": "Après inactivité",
-  "fifteenMinutes": "15 minutes",
   "officialCloud": "Cloud officiel Sealero",
   "readOnly": "Lecture seule",
   "serverTitle": "Serveur",
@@ -26,5 +25,6 @@
     "parseFailed": "Aucune entrée de connexion n’a été trouvée dans ce fichier.",
     "noLoginRows": "Impossible de lire le coffre localement pour comparer les entrées.",
     "localCompareUnavailable": "Une ou plusieurs colonnes sélectionnées sont invalides."
-  }
+  },
+  "minutes": "minutes"
 }

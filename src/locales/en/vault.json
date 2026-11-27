@@ -5,7 +5,7 @@
   "allItems": "Password vault",
   "favorites": "Favorites",
   "autoLockTitle": "Auto-lock is on",
-  "autoLockDescription": "Locks after 15 minutes idle. Refreshing the page keeps the vault unlocked.",
+  "autoLockDescription": "Locks after {{minutes}} minutes idle. Refreshing the page keeps the vault unlocked.",
   "collectionSubtitle": "Your saved logins, ready when you need them.",
   "searchLabel": "Search your vault",
   "searchPlaceholder": "Search name, website, or username",

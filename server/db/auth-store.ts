@@ -414,6 +414,7 @@ const DB_DUMP_TABLES: readonly { readonly name: string; readonly orderBy: string
   { name: 'dek_wrappings', orderBy: 'id' },
   { name: 'oauth_auth_codes', orderBy: 'id' },
   { name: 'mcp_confirmations', orderBy: 'id' },
+  { name: 'user_preferences', orderBy: 'user_id' },
 ];
 
 /** Normalizes one raw row for canonical JSON: dates become ISO 8601 strings. */
@@ -1327,6 +1328,22 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
     const row = await first<{ id: string; email: string; display_name: string | null; avatar_url: string | null }>(this.database,
       'SELECT id, email, display_name, avatar_url FROM users WHERE id = $1', [userId]);
     return row === null ? null : { id: row.id, email: row.email, display_name: row.display_name, avatar_url: row.avatar_url };
+  }
+
+  async getUserPreferences(userId: string): Promise<{ readonly auto_lock_minutes: number } | null> {
+    const row = await first<{ auto_lock_minutes: number }>(this.database,
+      'SELECT auto_lock_minutes FROM user_preferences WHERE user_id = $1', [userId]);
+    return row === null ? null : { auto_lock_minutes: row.auto_lock_minutes };
+  }
+
+  async upsertUserPreferences(userId: string, autoLockMinutes: number): Promise<{ readonly auto_lock_minutes: number }> {
+    const row = await first<{ auto_lock_minutes: number }>(this.database,
+      `INSERT INTO user_preferences (user_id, auto_lock_minutes) VALUES ($1, $2)
+       ON CONFLICT (user_id) DO UPDATE SET auto_lock_minutes = EXCLUDED.auto_lock_minutes
+       RETURNING auto_lock_minutes`,
+      [userId, autoLockMinutes]);
+    if (row === null) throw new Error('Failed to save user preferences.');
+    return { auto_lock_minutes: row.auto_lock_minutes };
   }
 
   async hasAdminRole(userId: string): Promise<boolean> {

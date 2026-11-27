@@ -1,5 +1,4 @@
 import { useCallback, useMemo, useRef, useState, type ChangeEvent } from 'react'
-import { Lock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultListItem } from '../../client/contracts'
 import { getCsvHeaders, getImportFileModifiedAt, inspectBackupContainer, parseCsvWithMapping, parseImportText, type BackupContainerSummary, type ImportField, type ImportedVaultEntry, type ParsedImportFile } from './backup-local'
@@ -7,7 +6,7 @@ import { backupFilename } from './cloud-backup'
 import { CloudBackupPanel } from './CloudBackupPanel'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
-import { Card, CardContent } from '../../components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
 import { Input } from '../../components/ui/input'
 
 const requiredImportFields: ImportField[] = ['name', 'url', 'username', 'password']
@@ -44,7 +43,7 @@ function importErrorTranslationKey(code: string): string {
   return known[code] ?? 'errors.parseFailed'
 }
 
-export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBackupFull }: {
+export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBackupFull, autoLockMinutes, onAutoLockMinutesChange }: {
   user: VaultIdentity
   items: VaultListItem[]
   loadItem: (itemId: string) => Promise<VaultItem>
@@ -52,6 +51,8 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
   onExportBackup: () => Promise<Uint8Array | null>
   /** Full v3 container (KEK + recovery-key wrappings) for manual export. */
   onExportBackupFull: (masterPassword: string, recoveryKey: string) => Promise<Uint8Array>
+  autoLockMinutes: number
+  onAutoLockMinutesChange: (minutes: number) => Promise<boolean>
 }) {
   const { t, i18n: activeI18n } = useTranslation(['settings', 'backup', 'vault'])
   const [selectedFileName, setSelectedFileName] = useState('')
@@ -230,33 +231,37 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
 
   return (
     <div className="w-full space-y-6 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
-      <section className="space-y-3" aria-labelledby="settings-account-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">◉</span><div><h2 id="settings-account-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:accountTitle')}</h2></div></div>
-        <Card>
-          <CardContent className="flex items-center gap-3">
-            <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
-            <div className="min-w-0 flex-1"><strong className="block truncate text-sm font-medium">{user.email}</strong><small className="block truncate text-xs text-muted-foreground">{t('settings:accountId')} · {user.id}</small></div>
-          </CardContent>
-        </Card>
-      </section>
+      <Card aria-labelledby="settings-account-title">
+        <CardHeader>
+          <CardTitle id="settings-account-title" className="text-lg tracking-tight">{t('settings:accountTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
+          <strong className="min-w-0 flex-1 truncate text-sm font-medium">{user.email}</strong>
+        </CardContent>
+        <CardFooter className="border-t"><small className="block min-w-0 truncate text-xs text-muted-foreground">{t('settings:accountId')} · {user.id}</small></CardFooter>
+      </Card>
 
-      <section className="space-y-3" aria-labelledby="settings-server-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⌘</span><div><h2 id="settings-server-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:serverTitle')}</h2></div></div>
-        <Card>
-          <CardContent className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 flex-1 items-center gap-3"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-foreground" aria-hidden="true">S</span><div className="min-w-0"><strong className="block text-sm font-medium">{t('settings:officialCloud')}</strong><span className="block text-xs text-muted-foreground">{t('settings:v1ReadOnly')}</span></div></div>
-            <Badge variant="secondary">{t('settings:readOnly')}</Badge>
-          </CardContent>
-        </Card>
-      </section>
+      <Card aria-labelledby="settings-server-title">
+        <CardHeader>
+          <CardTitle id="settings-server-title" className="text-lg tracking-tight">{t('settings:serverTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary text-sm font-bold text-primary-foreground" aria-hidden="true">S</span><strong className="block text-sm font-medium">{t('settings:officialCloud')}</strong></div>
+        </CardContent>
+        <CardFooter className="border-t"><span className="text-xs text-muted-foreground">{t('settings:v1ReadOnly')}</span><Badge variant="secondary" className="ml-auto">{t('settings:readOnly')}</Badge></CardFooter>
+      </Card>
 
-      <section className="space-y-3" aria-labelledby="settings-device-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">▣</span><div><h2 id="settings-device-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:devicesTitle')}</h2></div></div>
-      </section>
+      <Card aria-labelledby="settings-device-title">
+        <CardHeader>
+          <CardTitle id="settings-device-title" className="text-lg tracking-tight">{t('settings:devicesTitle')}</CardTitle>
+        </CardHeader>
+      </Card>
 
-      <section className="space-y-3" aria-labelledby="settings-import-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⇧</span><div><h2 id="settings-import-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:importTitle')}</h2></div></div>
-        <Card>
+      <Card aria-labelledby="settings-import-title">
+        <CardHeader>
+          <CardTitle id="settings-import-title" className="text-lg tracking-tight">{t('backup:importTitle')}</CardTitle>
+        </CardHeader>
           <CardContent className="space-y-4">
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:localImportTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:localImportDescription')}</p></div><Badge variant="secondary">{t('backup:localOnly')}</Badge></div>
           <div className="flex flex-wrap items-center gap-2">
@@ -304,15 +309,13 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           ) : null}
           </CardContent>
         </Card>
-      </section>
 
-      <section className="space-y-3" aria-labelledby="settings-export-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">⇩</span><div><h2 id="settings-export-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:exportTitle')}</h2></div></div>
-        <Card>
+      <Card aria-labelledby="settings-export-title">
+        <CardHeader>
+          <CardTitle id="settings-export-title" className="text-lg tracking-tight">{t('backup:exportTitle')}</CardTitle>
+        </CardHeader>
           <CardContent className="space-y-4">
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:encryptedBackupTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:encryptedBackupDescription')}</p></div><Badge variant="secondary">{t('backup:formatV3')}</Badge></div>
-          <div className="text-xs leading-relaxed text-muted-foreground">{t('backup:secretBoundary')}</div>
-          <div className="flex flex-wrap items-center gap-2"><Button type="button" onClick={openExportDialog}>{t('backup:exportButton')}</Button></div>
           {exportDoneFile ? <p className="text-sm text-muted-foreground" role="status">{t('backup:exportDone')}: <strong className="font-medium text-foreground">{exportDoneFile}</strong></p> : null}
           {exportDialogOpen ? (
             <div className="grid gap-3 rounded-lg bg-muted p-4" aria-label={t('backup:exportDialogTitle')}>
@@ -335,24 +338,24 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           {backupError ? <p className="text-sm font-medium text-destructive" role="alert">{t(backupError)}</p> : null}
           {backupSummary ? <div className="grid gap-1 rounded-lg bg-muted p-3" role="status"><strong className="text-sm font-medium">{t('backup:containerRecognized', { version: backupSummary.version })}</strong><p className="text-xs text-muted-foreground">{t('backup:integrityNotChecked')}</p><span className="text-xs text-muted-foreground">{t('backup:restoreUnavailable')}</span></div> : null}
           </CardContent>
+        <CardFooter className="border-t"><div className="min-w-0 flex-1 text-xs leading-relaxed text-muted-foreground">{t('backup:secretBoundary')}</div><Button type="button" onClick={openExportDialog} className="ml-auto">{t('backup:exportButton')}</Button></CardFooter>
         </Card>
-      </section>
 
-      <section className="space-y-3" aria-labelledby="settings-cloud-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true">☁</span><div><h2 id="settings-cloud-title" className="text-lg font-semibold tracking-tight text-foreground">{t('backup:cloudTitle')}</h2></div></div>
-        <Card>
+      <Card aria-labelledby="settings-cloud-title">
+        <CardHeader>
+          <CardTitle id="settings-cloud-title" className="text-lg tracking-tight">{t('backup:cloudTitle')}</CardTitle>
+        </CardHeader>
           <CardContent className="space-y-4">
           <CloudBackupPanel user={user} items={items} exportBackup={onExportBackup} />
           </CardContent>
         </Card>
-      </section>
 
-      <section className="space-y-3" aria-labelledby="settings-autolock-title">
-        <div className="flex items-start gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground" aria-hidden="true"><Lock size={14} aria-hidden="true" /></span><div><h2 id="settings-autolock-title" className="text-lg font-semibold tracking-tight text-foreground">{t('settings:autoLockTitle')}</h2></div></div>
-        <Card>
-          <CardContent className="flex items-center justify-between gap-3"><span className="text-sm text-muted-foreground">{t('settings:idleLabel')}</span><strong className="text-sm font-medium">{t('settings:fifteenMinutes')}</strong></CardContent>
-        </Card>
-      </section>
+      <Card aria-labelledby="settings-autolock-title">
+        <CardHeader>
+          <CardTitle id="settings-autolock-title" className="text-lg tracking-tight">{t('settings:autoLockTitle')}</CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-3"><label className="text-sm text-muted-foreground" htmlFor="settings-autolock-minutes">{t('settings:idleLabel')}</label><select id="settings-autolock-minutes" className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={autoLockMinutes} onChange={(event) => void onAutoLockMinutesChange(Number(event.target.value))} aria-label={t('settings:autoLockTitle')}>{[5, 15, 30, 60].map((minutes) => <option key={minutes} value={minutes}>{minutes} {t('settings:minutes')}</option>)}</select></CardContent>
+      </Card>
     </div>
   )
 }

@@ -83,6 +83,11 @@ class AuthCodeNotificationFailure extends Error {
   }
 }
 
+/** Allowed auto-lock timeouts in minutes (System Design §3.1/§5.1). */
+const AUTO_LOCK_MINUTES_OPTIONS: readonly number[] = [5, 15, 30, 60];
+/** Auto-lock timeout when the user never set one. */
+const DEFAULT_AUTO_LOCK_MINUTES = 15;
+
 export class AuthServiceError extends Error {
   constructor(
     readonly status: 400 | 401 | 403 | 429,
@@ -240,6 +245,28 @@ export class AuthService {
       throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');
     }
     return user;
+  }
+
+  /** Reads the caller's auto-lock timeout; no preference row means the 15-minute default. */
+  async getUserPreferences(userId: string): Promise<{ readonly auto_lock_minutes: number }> {
+    const user = await this.store.findUserById(userId);
+    if (user === null) {
+      throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');
+    }
+    const preferences = await this.store.getUserPreferences(userId);
+    return { auto_lock_minutes: preferences?.auto_lock_minutes ?? DEFAULT_AUTO_LOCK_MINUTES };
+  }
+
+  /** Replaces the caller's auto-lock timeout; creates the preference row when missing. */
+  async updateUserPreferences(userId: string, autoLockMinutes: unknown): Promise<{ readonly auto_lock_minutes: number }> {
+    if (typeof autoLockMinutes !== 'number' || !Number.isInteger(autoLockMinutes) || !AUTO_LOCK_MINUTES_OPTIONS.includes(autoLockMinutes)) {
+      throw new AuthServiceError(400, 'invalid_request', 'auto_lock_minutes must be one of 5, 15, 30, 60.');
+    }
+    const user = await this.store.findUserById(userId);
+    if (user === null) {
+      throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');
+    }
+    return this.store.upsertUserPreferences(userId, autoLockMinutes);
   }
 
   async register(

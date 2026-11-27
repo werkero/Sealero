@@ -6,7 +6,6 @@
   "devicesTitle": "Devices",
   "followSystem": "Follow system",
   "idleLabel": "After inactivity",
-  "fifteenMinutes": "15 minutes",
   "officialCloud": "Official Sealero cloud",
   "readOnly": "Read-only",
   "serverTitle": "Server",
@@ -26,5 +25,6 @@
     "parseFailed": "No login entries were found in this file.",
     "noLoginRows": "The vault could not be read locally to compare entries.",
     "localCompareUnavailable": "One or more selected columns are invalid."
-  }
+  },
+  "minutes": "minutes"
 }

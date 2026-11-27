@@ -13,6 +13,7 @@ import type { JwtKeyEnvironment } from './keyring.js';
 import { requireAccessToken } from '../middleware/authentication.js';
 import type { AuthenticatedEnvironment } from '../middleware/authentication.js';
 import { createSensitiveAuthRoutes } from '../routes/auth-security.js';
+import { createUserPreferencesRoutes } from '../routes/user-preferences.js';
 import { createVaultRoutes } from '../routes/vault.js';
 import { createVaultKeyRoutes } from '../routes/vault-key.js';
 import type { VaultKeyStore, VaultStore } from '../vault/types.js';
@@ -118,6 +119,9 @@ export function createAuthenticatedApp(
   const securedRoutes = new Hono<AuthenticatedEnvironment>();
   securedRoutes.use('*', requireAccessToken(dependencies.jwtKeys, dependencies.store, dependencies.serviceOptions?.now));
   securedRoutes.route('/auth', createSensitiveAuthRoutes(service, {
+    allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
+  }));
+  securedRoutes.route('/user', createUserPreferencesRoutes(service, {
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
   }));
   const adminUserService = new AdminUserService(dependencies.store, service, dependencies.serviceOptions?.now);

@@ -5,7 +5,7 @@
   "allItems": "Passworttresor",
   "favorites": "Favoriten",
   "autoLockTitle": "Automatische Sperre aktiv",
-  "autoLockDescription": "Sperrt nach 15 Minuten Inaktivität. Ein Neuladen der Seite lässt den Tresor entsperrt.",
+  "autoLockDescription": "Sperrt nach {{minutes}} Minuten Inaktivität. Ein Neuladen der Seite lässt den Tresor entsperrt.",
   "collectionSubtitle": "Gespeicherte Logins, wenn du sie brauchst.",
   "searchLabel": "Tresor durchsuchen",
   "searchPlaceholder": "Name, Website oder Benutzername suchen",

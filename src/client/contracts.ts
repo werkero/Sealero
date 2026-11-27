@@ -82,6 +82,18 @@ export interface VaultClient {
    * with the master password.
    */
   getCurrentUser(signal?: AbortSignal): Promise<VaultIdentity>
+  /**
+   * Reads the current user's preferences (GET /v1/user/preferences,
+   * System Design §5.1). Returns the stored auto-lock timeout in
+   * minutes, or the 15-minute default when the user never set one.
+   */
+  getUserPreferences(signal?: AbortSignal): Promise<{ auto_lock_minutes: number }>
+  /**
+   * Replaces the current user's auto-lock timeout (PUT
+   * /v1/user/preferences). The value must be one of 5 / 15 / 30 / 60;
+   * anything else is rejected by the server with 400 invalid_request.
+   */
+  updateUserPreferences(autoLockMinutes: number, signal?: AbortSignal): Promise<{ auto_lock_minutes: number }>
   verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
   resendVerification(email: string, signal?: AbortSignal): Promise<void>
   /**

@@ -20,10 +20,11 @@ import { Card, CardContent } from '../components/ui/card'
  * item name and domain are resolved locally from the unlocked vault —
  * the server never decrypts anything for this page.
  */
-export function McpConfirmations({ user, items, isAdmin, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, getAccessToken, refreshAccessToken }: {
+export function McpConfirmations({ user, items, isAdmin, autoLockMinutes, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, getAccessToken, refreshAccessToken }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
+  autoLockMinutes: number
   onNavigate: (path: string) => void
   onLock: () => void
   onLogout: () => void
@@ -88,7 +89,7 @@ export function McpConfirmations({ user, items, isAdmin, onNavigate, onLock, onL
   }
 
   return (
-    <VaultLayout user={user} filter="all" activeNav="confirmations" isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="confirmations" isAdmin={isAdmin} title={t('vault:mcpConfirmations.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         {notice ? <Alert><AlertDescription>{notice}</AlertDescription></Alert> : null}
         {actionError ? <Alert variant="destructive"><AlertDescription>{t('vault:mcpConfirmations.actionFailed')}</AlertDescription></Alert> : null}

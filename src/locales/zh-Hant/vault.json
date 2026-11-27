@@ -5,7 +5,7 @@
   "allItems": "密碼庫",
   "favorites": "我的最愛",
   "autoLockTitle": "自動鎖定已開啟",
-  "autoLockDescription": "閒置 15 分鐘後鎖定，重新整理頁面不鎖定。",
+  "autoLockDescription": "閒置 {{minutes}} 分鐘後鎖定，重新整理頁面不鎖定。",
   "collectionSubtitle": "已儲存的登入資料，隨時可用。",
   "searchLabel": "搜尋保險庫",
   "searchPlaceholder": "搜尋名稱、網站或使用者名稱",

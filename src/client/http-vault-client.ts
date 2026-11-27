@@ -381,6 +381,30 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       }
     },
 
+    async getUserPreferences(signal?: AbortSignal): Promise<{ auto_lock_minutes: number }> {
+      throwIfAborted(signal)
+      if (!accessToken) throw new VaultApiError('unauthorized', 401)
+      const preferences = await request<{ auto_lock_minutes?: unknown }>('/v1/user/preferences', { method: 'GET' }, signal)
+      if (typeof preferences.auto_lock_minutes !== 'number') {
+        throw new VaultApiError('invalid_response', 500)
+      }
+      return { auto_lock_minutes: preferences.auto_lock_minutes }
+    },
+
+    async updateUserPreferences(autoLockMinutes: number, signal?: AbortSignal): Promise<{ auto_lock_minutes: number }> {
+      throwIfAborted(signal)
+      if (!accessToken) throw new VaultApiError('unauthorized', 401)
+      const preferences = await request<{ auto_lock_minutes?: unknown }>('/v1/user/preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_lock_minutes: autoLockMinutes }),
+      }, signal)
+      if (typeof preferences.auto_lock_minutes !== 'number') {
+        throw new VaultApiError('invalid_response', 500)
+      }
+      return { auto_lock_minutes: preferences.auto_lock_minutes }
+    },
+
     async verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void> {
       throwIfAborted(signal)
       const response = await fetch(`${baseUrl}/v1/auth/verify-email`, {

@@ -6,14 +6,16 @@ import { readLastActiveAt, writeLastActiveAt } from './vault-session-storage'
 const LAST_ACTIVE_WRITE_THROTTLE_MS = 5_000
 
 /**
- * One 15-minute idle timer (System Design §3.3). Time in the background
- * counts as idle — there is no separate hidden-tab rule. A page refresh
- * neither locks nor resets the countdown: the last-activity timestamp
- * lives in localStorage, so the timer resumes with the remaining budget.
- * Tab close still locks, because the unlock itself lives only in
- * sessionStorage. Signature unchanged: `(enabled, onLock)`.
+ * One idle timer (System Design §3.3). The idle budget is the user's
+ * own timeout in milliseconds (default 15 minutes). Time in the
+ * background counts as idle — there is no separate hidden-tab rule.
+ * A page refresh neither locks nor resets the countdown: the
+ * last-activity timestamp lives in localStorage, so the timer resumes
+ * with the remaining budget. Tab close still locks, because the unlock
+ * itself lives only in sessionStorage. Changing the timeout re-arms
+ * the timer with the new budget.
  */
-export function useAutoLock(enabled: boolean, onLock: () => void) {
+export function useAutoLock(enabled: boolean, onLock: () => void, idleLockMs: number = IDLE_LOCK_MS) {
   const onLockRef = useRef(onLock)
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function useAutoLock(enabled: boolean, onLock: () => void) {
         lastWriteMs = nowMs
         writeLastActiveAt(nowMs)
       }
-      armIdleTimer(IDLE_LOCK_MS)
+      armIdleTimer(idleLockMs)
     }
     const handleActivity = () => {
       if (document.visibilityState === 'visible') noteActivity(Date.now())
@@ -46,18 +48,18 @@ export function useAutoLock(enabled: boolean, onLock: () => void) {
     const lastActiveAt = readLastActiveAt()
     const now = Date.now()
     if (lastActiveAt !== null) {
-      if (hasIdleExpired(lastActiveAt, now)) {
+      if (hasIdleExpired(lastActiveAt, now, idleLockMs)) {
         lock()
         return
       }
       lastWriteMs = lastActiveAt
-      armIdleTimer(remainingIdleMs(lastActiveAt, now))
+      armIdleTimer(remainingIdleMs(lastActiveAt, now, idleLockMs))
     } else {
       // No stored timestamp (for example a fresh unlock before the
       // session hook wrote one): start a full idle window.
       lastWriteMs = now
       writeLastActiveAt(now)
-      armIdleTimer(IDLE_LOCK_MS)
+      armIdleTimer(idleLockMs)
     }
 
     const activityEvents: (keyof WindowEventMap)[] = ['pointerdown', 'pointermove', 'keydown', 'scroll', 'touchstart']
@@ -71,5 +73,5 @@ export function useAutoLock(enabled: boolean, onLock: () => void) {
         window.removeEventListener(eventName, handleActivity)
       }
     }
-  }, [enabled])
+  }, [enabled, idleLockMs])
 }

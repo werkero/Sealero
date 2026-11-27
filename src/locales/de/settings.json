@@ -6,7 +6,6 @@
   "devicesTitle": "Geräte",
   "followSystem": "Systemeinstellung folgen",
   "idleLabel": "Nach Inaktivität",
-  "fifteenMinutes": "15 Minuten",
   "officialCloud": "Offizielle Sealero-Cloud",
   "readOnly": "Schreibgeschützt",
   "serverTitle": "Server",
@@ -26,5 +25,6 @@
     "parseFailed": "In dieser Datei wurden keine Login-Einträge gefunden.",
     "noLoginRows": "Der Tresor konnte zum Vergleichen nicht lokal gelesen werden.",
     "localCompareUnavailable": "Eine oder mehrere ausgewählte Spalten sind ungültig."
-  }
+  },
+  "minutes": "Minuten"
 }

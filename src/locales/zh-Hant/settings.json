@@ -6,7 +6,6 @@
   "devicesTitle": "裝置",
   "followSystem": "跟隨系統",
   "idleLabel": "閒置後",
-  "fifteenMinutes": "15 分鐘",
   "officialCloud": "Sealero 官方雲端",
   "readOnly": "唯讀",
   "serverTitle": "伺服器",
@@ -26,5 +25,6 @@
     "parseFailed": "檔案中找不到登入項目。",
     "noLoginRows": "無法在本機讀取保險庫以比較項目。",
     "localCompareUnavailable": "所選欄位無效。"
-  }
+  },
+  "minutes": "分鐘"
 }

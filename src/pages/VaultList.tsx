@@ -10,10 +10,11 @@ import { Input } from '../components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog'
 import { ItemEditor } from './ItemEditor'
 
-export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, appearancePreference, onAppearanceChange }: {
+export function VaultList({ user, items, isAdmin, autoLockMinutes, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, appearancePreference, onAppearanceChange }: {
   user: VaultIdentity
   items: VaultListItem[]
   isAdmin?: boolean
+  autoLockMinutes: number
   onNavigate: (path: string) => void
   onOpenItem: (itemId: string) => void
   onCreateItem: (input: VaultItemInput) => Promise<unknown>
@@ -53,7 +54,7 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} topbarEndAction={filter === 'all' ? <Button variant="ghost" size="sm" type="button" aria-label={t('vault:add')} title={t('vault:add')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /><span>{t('vault:add')}</span></Button> : undefined} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter={filter} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} topbarEndAction={filter === 'all' ? <Button variant="ghost" size="sm" type="button" aria-label={t('vault:add')} title={t('vault:add')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /><span>{t('vault:add')}</span></Button> : undefined} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <Dialog open={creating} onOpenChange={(open) => { if (!open) setCreating(false) }}>
           <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">

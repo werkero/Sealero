@@ -16,6 +16,7 @@ import { isLanguage, languages, type Language } from './i18n-config'
 import type { AppearancePreference } from './features/settings/preferences'
 import type { VaultIdentity, VaultItemInput } from './client/contracts'
 import { createHttpVaultClient, VaultApiError } from './client/http-vault-client'
+import { DEFAULT_AUTO_LOCK_MINUTES } from './hooks/auto-lock-policy'
 import { useAutoLock } from './hooks/use-auto-lock'
 import { useVaultSession } from './hooks/use-vault-session'
 import { useAppearancePreference } from './features/settings/preferences'
@@ -148,12 +149,12 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, top
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="bg-sidebar">
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+        <header className="relative flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1 md:hidden" />
           {topbarAction}
           {title ? <>
             <SidebarSeparator orientation="vertical" className="mr-2 h-4 md:hidden" />
-            <span className="truncate text-sm font-medium">{title}</span>
+            <span className="absolute left-1/2 top-1/2 max-w-[70%] -translate-x-1/2 -translate-y-1/2 truncate text-sm font-medium">{title}</span>
           </> : null}
           {topbarEndAction ? <span className="ml-auto flex items-center">{topbarEndAction}</span> : null}
         </header>
@@ -214,13 +215,15 @@ export function TopbarBackButton({ label, onClick }: { label: string; onClick: (
   )
 }
 
-export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ? 'favorites' : 'vault', isAdmin, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ? 'favorites' : 'vault', isAdmin, autoLockMinutes = DEFAULT_AUTO_LOCK_MINUTES, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
   /** Which nav item shows as selected; defaults to the vault filter ('vault' or 'favorites'). */
   activeNav?: 'vault' | 'favorites' | 'generator' | 'health' | 'confirmations' | 'none'
   /** Shows the admin-console entry in the user menu when the session is an admin. */
   isAdmin?: boolean
+  /** The user's own auto-lock timeout in minutes, shown in the auto-lock notice. */
+  autoLockMinutes?: number
   title?: ReactNode
   /** One tool shown in the top bar next to the collapse button. */
   topbarAction?: ReactNode
@@ -311,7 +314,7 @@ export function VaultLayout({ user, filter, activeNav = filter === 'favorites' ?
               <X size={14} aria-hidden="true" />
             </button>
           </div>
-          {t('vault:autoLockDescription')}
+          {t('vault:autoLockDescription', { minutes: autoLockMinutes })}
         </div>
       ) : undefined}
       menu={() => (<>
@@ -414,7 +417,7 @@ function AppShell() {
   const getAccessToken = useCallback(() => vaultClient.getAccessToken?.() ?? null, [vaultClient])
   /** Shared token refresher: the vault adapter deduplicates concurrent refreshes. */
   const refreshAccessToken = useCallback((signal?: AbortSignal) => vaultClient.refreshAccessToken(signal), [vaultClient])
-  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
+  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
   const copyTimers = useRef<number[]>([])
   const copyGenerationRef = useRef(0)
   const [clipboardQueue] = useState(createClipboardOperationQueue)
@@ -430,7 +433,7 @@ function AppShell() {
     if (user) navigate(`/users/${user.id}/unlock`, true)
   }, [lock, navigate, user])
 
-  useAutoLock(isUnlocked, lockVault)
+  useAutoLock(isUnlocked, lockVault, autoLockMinutes * 60_000)
 
   // Restore the login identity once on startup: the refresh token survives
   // a page refresh in its HttpOnly cookie, but the user lived only in
@@ -644,6 +647,8 @@ function AppShell() {
       refreshAccessToken={refreshAccessToken}
       onExportBackup={exportBackup}
       onExportBackupFull={exportBackupFull}
+      autoLockMinutes={autoLockMinutes}
+      onAutoLockMinutesChange={updateAutoLockMinutes}
     />
   )
 }

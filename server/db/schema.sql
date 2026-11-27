@@ -22,6 +22,7 @@
 -- Changes in v1.48: oauth_auth_codes adds client_name (optional AI client name snapshot, carried into oauth_authorizations so the trusted-confirmation page can show it).
 -- Changes in v1.48: seed the three roles rows (admin, user, super_admin) idempotently, so a fresh database has roles without a separate seed step; registration also re-seeds for pre-existing databases with an empty roles table.
 -- Changes in v1.48 (RBAC): permissions + role_permissions tables; roles.name CHECK is now a format pattern so custom roles can be created; the 7 permissions are seeded and the admin role is granted all 7.
+-- Changes in v1.50: server tables 18 -> 19. New table user_preferences (one row per user; auto_lock_minutes SMALLINT DEFAULT 15, CHECK IN (5, 15, 30, 60)).
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -298,6 +299,14 @@ CREATE TABLE mcp_confirmations (
 CREATE INDEX mcp_confirmations_user_created_idx ON mcp_confirmations(user_id, created_at DESC);
 CREATE INDEX mcp_confirmations_expires_idx ON mcp_confirmations(expires_at);
 
+-- user_preferences 用户偏好表 (System Design v1.50 §3.1)
+CREATE TABLE user_preferences (
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    auto_lock_minutes SMALLINT NOT NULL DEFAULT 15 CHECK (auto_lock_minutes IN (5, 15, 30, 60)),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- updated_at 触发器（第 10 条定稿：触发器，不用应用代码显式置）
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN
@@ -322,4 +331,5 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_vault_items_updated_at BEFORE UPDATE ON vault_items FOR EACH ROW EXECUTE FUNCTION set_vault_updated_at();
 CREATE TRIGGER trg_devices_updated_at BEFORE UPDATE ON devices FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_user_preferences_updated_at BEFORE UPDATE ON user_preferences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
