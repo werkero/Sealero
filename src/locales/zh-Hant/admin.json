@@ -2,11 +2,7 @@
   "header": {
     "console": "管理控制台",
     "navigation": "管理後台",
-    "backToSite": "返回網站",
     "backToVault": "返回保險庫"
-  },
-  "authentication": {
-    "loginPasswordOnly": "管理 API 需要已驗證的管理員帳號；敏感的帳號刪除操作須驗證帳號登入密碼，不能使用主密碼。"
   },
   "navigation": {
     "overview": "總覽",
@@ -15,7 +11,6 @@
     "users": "使用者管理"
   },
   "overview": {
-    "eyebrow": "營運",
     "title": "控制台總覽",
     "metricsLabel": "伺服器總覽指標",
     "totalUsers": "使用者總數",
@@ -35,7 +30,6 @@
     "cleanupFailed": "失敗"
   },
   "settings": {
-    "eyebrow": "設定",
     "title": "伺服器設定",
     "whitelistCount": "13 個允許鍵",
     "builtInDefault": "內建回退值：{{value}}",
@@ -94,7 +88,6 @@
     "wrongPassword": "登入密碼不正確。"
   },
   "audit": {
-    "eyebrow": "可追溯性",
     "title": "稽核記錄",
     "actorFilter": "操作者使用者 ID",
     "targetFilter": "目標使用者 ID",
@@ -121,7 +114,6 @@
     "no": "否"
   },
   "users": {
-    "eyebrow": "使用者與存取",
     "title": "使用者管理",
     "filtersLabel": "使用者清單篩選",
     "searchLabel": "電子郵件",

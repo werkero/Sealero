@@ -143,6 +143,7 @@
   "apiStatusRetry": "重试",
   "signOut": "退出登录",
   "cancel": "取消",
+  "close": "关闭",
   "signOutConfirm": "确定要退出登录吗？",
   "confirmSignOut": "确认退出",
   "notFoundTitle": "找不到此页面",

@@ -143,6 +143,7 @@
   "apiStatusRetry": "Повторить",
   "signOut": "Выйти",
   "cancel": "Отмена",
+  "close": "Закрыть",
   "signOutConfirm": "Вы уверены, что хотите выйти?",
   "confirmSignOut": "Подтвердить выход",
   "notFoundTitle": "Такой страницы здесь нет",

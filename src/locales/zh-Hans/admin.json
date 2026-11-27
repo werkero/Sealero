@@ -2,11 +2,7 @@
   "header": {
     "console": "管理控制台",
     "navigation": "管理后台",
-    "backToSite": "返回网站",
     "backToVault": "返回保险库"
-  },
-  "authentication": {
-    "loginPasswordOnly": "管理 API 需要已认证的管理员账号；敏感的账号删除操作须验证账号登录密码，不能使用主密码。"
   },
   "navigation": {
     "overview": "总览",
@@ -15,7 +11,6 @@
     "users": "用户管理"
   },
   "overview": {
-    "eyebrow": "运营",
     "title": "控制台总览",
     "metricsLabel": "服务器总览指标",
     "totalUsers": "用户总数",
@@ -35,7 +30,6 @@
     "cleanupFailed": "失败"
   },
   "settings": {
-    "eyebrow": "配置",
     "title": "服务器设置",
     "whitelistCount": "13 个允许键",
     "builtInDefault": "内置回退值：{{value}}",
@@ -94,7 +88,6 @@
     "wrongPassword": "登录密码不正确。"
   },
   "audit": {
-    "eyebrow": "可追溯性",
     "title": "审计日志",
     "actorFilter": "操作人用户 ID",
     "targetFilter": "目标用户 ID",
@@ -121,7 +114,6 @@
     "no": "否"
   },
   "users": {
-    "eyebrow": "用户与访问",
     "title": "用户管理",
     "filtersLabel": "用户列表筛选",
     "searchLabel": "邮箱",

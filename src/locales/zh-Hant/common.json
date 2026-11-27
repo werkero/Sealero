@@ -143,6 +143,7 @@
   "apiStatusRetry": "重試",
   "signOut": "登出",
   "cancel": "取消",
+  "close": "關閉",
   "signOutConfirm": "確定要登出嗎？",
   "confirmSignOut": "確認登出",
   "notFoundTitle": "找不到此頁面",

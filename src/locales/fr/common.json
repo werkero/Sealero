@@ -143,6 +143,7 @@
   "apiStatusRetry": "Réessayer",
   "signOut": "Se déconnecter",
   "cancel": "Annuler",
+  "close": "Fermer",
   "signOutConfirm": "Êtes-vous sûr de vouloir vous déconnecter ?",
   "confirmSignOut": "Confirmer la déconnexion",
   "notFoundTitle": "Cette page n’existe pas ici",

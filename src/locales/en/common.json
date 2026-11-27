@@ -143,6 +143,7 @@
   "apiStatusRetry": "Retry",
   "signOut": "Sign out",
   "cancel": "Cancel",
+  "close": "Close",
   "signOutConfirm": "Are you sure you want to sign out?",
   "confirmSignOut": "Confirm sign out",
   "notFoundTitle": "This page isn’t here",

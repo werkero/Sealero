@@ -291,11 +291,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
 
   return (
     <>
-      <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
-        <div>
-          <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('users.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('users.title')}</h1>
-        </div>
+      <div className="mb-[25px] flex items-start justify-end gap-[18px]">
         <span className={pill}>{list === null ? '—' : `${list.total_count}`}</span>
       </div>
 

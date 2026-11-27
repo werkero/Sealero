@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Sparkles, Star, Sun } from 'lucide-react'
+import { Check, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, Sparkles, Star, Sun, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
@@ -22,6 +22,9 @@ import { AppRoutes, useRouteMatch } from './routes'
 import './app.css'
 
 export type VaultFilter = 'all' | 'favorites'
+
+/** localStorage flag set when the user dismisses the auto-lock notice; once set, the card stays hidden. */
+const AUTO_LOCK_NOTICE_KEY = 'sealero.vault.autoLockNoticeDismissed'
 
 export function AuthShell({ children, onNavigate, onAppearanceChange }: {
   children: ReactNode
@@ -137,7 +140,7 @@ export function BackendShell({ user, nav, bottom, menu, title, appearancePrefere
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="bg-sidebar backend-shell">
+      <SidebarInset className="bg-sidebar">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           {title ? <>
@@ -173,7 +176,7 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
-  /** Shows the admin-console entry in the sidebar when the session is an admin. */
+  /** Shows the admin-console entry in the user menu when the session is an admin. */
   isAdmin?: boolean
   title?: ReactNode
   appearancePreference: AppearancePreference
@@ -185,6 +188,23 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
   children: ReactNode
 }) {
   const { t } = useTranslation(['common', 'vault', 'settings', 'admin'])
+  // The auto-lock notice shows until the user dismisses it; the dismissal
+  // is remembered in localStorage, so it never comes back on its own.
+  const [autoLockNoticeVisible, setAutoLockNoticeVisible] = useState(() => {
+    try {
+      return localStorage.getItem(AUTO_LOCK_NOTICE_KEY) !== '1'
+    } catch {
+      return true
+    }
+  })
+  const dismissAutoLockNotice = () => {
+    try {
+      localStorage.setItem(AUTO_LOCK_NOTICE_KEY, '1')
+    } catch {
+      // Storage may be unavailable; the notice still hides for this session.
+    }
+    setAutoLockNoticeVisible(false)
+  }
   return (
     <BackendShell
       user={user}
@@ -217,38 +237,29 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t('settings:title')} onClick={() => onNavigate(`/users/${user.id}/settings`)}>
-                  <Settings />
-                  <span>{t('settings:title')}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
                 <SidebarMenuButton tooltip={t('vault:mcpConfirmations.title')} onClick={() => onNavigate(`/users/${user.id}/confirmations`)}>
                   <Check />
                   <span>{t('vault:mcpConfirmations.title')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              {isAdmin ? (
-                <SidebarMenuItem>
-                  <SidebarMenuButton tooltip={t('admin:header.navigation')} onClick={() => onNavigate('/admin')}>
-                    <Lock />
-                    <span>{t('admin:header.navigation')}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ) : null}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       }
-      bottom={
+      bottom={autoLockNoticeVisible ? (
         <div className="rounded-lg bg-muted p-3 text-xs leading-relaxed text-muted-foreground">
-          <span className="mb-1.5 flex items-center gap-1.5 font-semibold text-foreground">
-            <Lock className="size-3.5" aria-hidden="true" />
-            {t('vault:autoLockTitle')}
-          </span>
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-semibold text-foreground">
+              <Lock className="size-3.5" aria-hidden="true" />
+              {t('vault:autoLockTitle')}
+            </span>
+            <button className="ml-auto -mr-1 -mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground" type="button" onClick={dismissAutoLockNotice} aria-label={t('common:close')}>
+              <X size={14} aria-hidden="true" />
+            </button>
+          </div>
           {t('vault:autoLockDescription')}
         </div>
-      }
+      ) : undefined}
       menu={() => (<>
         <DropdownMenuItem onClick={onLock}>
           <Lock className="size-4" aria-hidden="true" />
@@ -258,6 +269,12 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, appearanc
           <Settings className="size-4" aria-hidden="true" />
           <span>{t('settings:title')}</span>
         </DropdownMenuItem>
+        {isAdmin ? (
+          <DropdownMenuItem onClick={() => onNavigate('/admin')}>
+            <Shield className="size-4" aria-hidden="true" />
+            <span>{t('admin:header.navigation')}</span>
+          </DropdownMenuItem>
+        ) : null}
       </>)}
     >
       {children}

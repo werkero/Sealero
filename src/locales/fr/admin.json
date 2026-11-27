@@ -2,11 +2,7 @@
   "header": {
     "console": "Console d’administration",
     "navigation": "Administration",
-    "backToSite": "Retour au site",
     "backToVault": "Retour au coffre"
-  },
-  "authentication": {
-    "loginPasswordOnly": "L’API admin nécessite un compte administrateur authentifié ; une suppression sensible exige le mot de passe de connexion du compte, jamais le mot de passe principal."
   },
   "navigation": {
     "overview": "Vue d’ensemble",
@@ -15,7 +11,6 @@
     "users": "Utilisateurs"
   },
   "overview": {
-    "eyebrow": "Opérations",
     "title": "Vue d’ensemble de la console",
     "metricsLabel": "Indicateurs du serveur",
     "totalUsers": "Nombre total d’utilisateurs",
@@ -35,7 +30,6 @@
     "cleanupFailed": "Échoué"
   },
   "settings": {
-    "eyebrow": "Configuration",
     "title": "Paramètres serveur",
     "whitelistCount": "13 clés autorisées",
     "builtInDefault": "Valeur de repli intégrée : {{value}}",
@@ -94,7 +88,6 @@
     "wrongPassword": "Le mot de passe de connexion est incorrect."
   },
   "audit": {
-    "eyebrow": "Traçabilité",
     "title": "Journal d’audit",
     "actorFilter": "ID utilisateur de l’acteur",
     "targetFilter": "ID utilisateur cible",
@@ -121,7 +114,6 @@
     "no": "Non"
   },
   "users": {
-    "eyebrow": "Comptes et accès",
     "title": "Gestion des utilisateurs",
     "filtersLabel": "Filtres de la liste",
     "searchLabel": "E-mail",

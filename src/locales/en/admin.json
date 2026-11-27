@@ -2,11 +2,7 @@
   "header": {
     "console": "Admin console",
     "navigation": "Administration",
-    "backToSite": "Back to website",
     "backToVault": "Back to vault"
-  },
-  "authentication": {
-    "loginPasswordOnly": "The admin API uses an authenticated administrator account; sensitive account deletion requires the account login password, never the master password."
   },
   "navigation": {
     "overview": "Overview",
@@ -15,7 +11,6 @@
     "users": "Users"
   },
   "overview": {
-    "eyebrow": "Operations",
     "title": "Console overview",
     "metricsLabel": "Server overview metrics",
     "totalUsers": "Total users",
@@ -35,7 +30,6 @@
     "cleanupFailed": "Failed"
   },
   "settings": {
-    "eyebrow": "Configuration",
     "title": "Server settings",
     "whitelistCount": "13 allowed keys",
     "builtInDefault": "Built-in fallback: {{value}}",
@@ -94,7 +88,6 @@
     "wrongPassword": "The login password is incorrect."
   },
   "audit": {
-    "eyebrow": "Accountability",
     "title": "Audit log",
     "actorFilter": "Actor user ID",
     "targetFilter": "Target user ID",
@@ -121,7 +114,6 @@
     "no": "No"
   },
   "users": {
-    "eyebrow": "Directory",
     "title": "User management",
     "filtersLabel": "User list filters",
     "searchLabel": "Email",

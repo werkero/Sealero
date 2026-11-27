@@ -2,11 +2,7 @@
   "header": {
     "console": "Admin-Konsole",
     "navigation": "Administration",
-    "backToSite": "Zur Website",
     "backToVault": "Zurück zum Tresor"
-  },
-  "authentication": {
-    "loginPasswordOnly": "Die Admin-API erfordert ein authentifiziertes Administratorkonto; für sensible Kontolöschungen ist das Konto-Anmeldepasswort erforderlich, niemals das Master-Passwort."
   },
   "navigation": {
     "overview": "Übersicht",
@@ -15,7 +11,6 @@
     "users": "Nutzer"
   },
   "overview": {
-    "eyebrow": "Betrieb",
     "title": "Konsolenübersicht",
     "metricsLabel": "Serverübersicht-Kennzahlen",
     "totalUsers": "Nutzer insgesamt",
@@ -35,7 +30,6 @@
     "cleanupFailed": "Fehlgeschlagen"
   },
   "settings": {
-    "eyebrow": "Konfiguration",
     "title": "Servereinstellungen",
     "whitelistCount": "13 erlaubte Schlüssel",
     "builtInDefault": "Eingebauter Rückfallwert: {{value}}",
@@ -94,7 +88,6 @@
     "wrongPassword": "Das Anmeldepasswort ist falsch."
   },
   "audit": {
-    "eyebrow": "Nachvollziehbarkeit",
     "title": "Prüfprotokoll",
     "actorFilter": "Akteur-Nutzer-ID",
     "targetFilter": "Ziel-Nutzer-ID",
@@ -121,7 +114,6 @@
     "no": "Nein"
   },
   "users": {
-    "eyebrow": "Konten und Zugriff",
     "title": "Nutzerverwaltung",
     "filtersLabel": "Filter der Nutzerliste",
     "searchLabel": "E-Mail",

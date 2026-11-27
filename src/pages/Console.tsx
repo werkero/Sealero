@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { ArrowLeft, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
+import { ChevronRight, Database, LayoutGrid, ScrollText, Settings, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
@@ -363,11 +363,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
     ]
     return (
       <>
-        <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
-          <div>
-            <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('overview.eyebrow')}</p>
-            <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('overview.title')}</h1>
-          </div>
+        <div className="mb-[25px] flex items-start justify-end gap-[18px]">
           <Button type="button" disabled={overviewLoading} onClick={() => void loadOverview()} className={overviewLoading ? actionButton : enabledButton}>{overviewLoading ? t('loading') : t('retry')}</Button>
         </div>
 
@@ -417,11 +413,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 
   const renderSettings = () => (
     <>
-      <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
-        <div>
-          <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('settings.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('settings.title')}</h1>
-        </div>
+      <div className="mb-[25px] flex items-start justify-end gap-[18px]">
         <span className={pill}>{t('settings.whitelistCount')}</span>
       </div>
 
@@ -512,13 +504,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 
   const renderAudit = () => (
     <>
-      <div className="mb-[25px] flex items-start justify-between gap-[18px] max-[430px]:flex-col max-[430px]:gap-2.5">
-        <div>
-          <p className="m-0 mb-2 text-[12px] font-bold uppercase tracking-[0.1em] text-muted-foreground">{t('audit.eyebrow')}</p>
-          <h1 className="m-0 text-[clamp(23px,3vw,29px)] font-[650] tracking-[-0.04em] text-foreground">{t('audit.title')}</h1>
-        </div>
-      </div>
-
       {auditError ? <div className={noteBox} role="alert"><strong className="text-[12px]">{auditError}</strong></div> : null}
 
       <section className={panel} aria-label={t('audit.title')}>
@@ -574,6 +559,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
+      title={section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
       appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
       nav={
@@ -592,10 +578,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
           </SidebarGroupContent>
         </SidebarGroup>
       }
-      bottom={<>
-        <div className="flex items-start gap-2 rounded-[9px] border border-border bg-muted p-2.5 text-[12px] leading-[1.55] text-muted-foreground"><span className="mt-1 h-[7px] w-[7px] shrink-0 rounded-full bg-[#c1a570]" aria-hidden="true" /><span>{t('authentication.loginPasswordOnly')}</span></div>
-        <button className="mt-4 inline-flex cursor-pointer items-center gap-2 border-0 bg-transparent px-[5px] py-2 text-left text-[12px] text-muted-foreground hover:text-(--blue)" type="button" onClick={() => onNavigate('/')}><span aria-hidden="true"><ArrowLeft size={12} aria-hidden="true" /></span>{t('header.backToSite')}</button>
-      </>}
       menu={() => (<>
         <DropdownMenuItem onClick={() => onNavigate(`/users/${user.id}`)}>
           <LayoutGrid className="size-4" aria-hidden="true" />

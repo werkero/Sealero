@@ -69,10 +69,7 @@ button {
   padding: 0 clamp(20px, 5vw, 64px);
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 5%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
-    var(--page);
+  background: var(--page);
   color: var(--ink);
 }
 
@@ -856,10 +853,7 @@ button {
   flex-direction: column;
   min-height: 100svh;
   padding: 0 clamp(20px, 5vw, 64px) 30px;
-  background:
-    radial-gradient(560px 420px at 50% 42%, rgb(68 121 245 / 5%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
-    var(--page);
+  background: var(--page);
 }
 
 .auth-main {
@@ -1297,87 +1291,11 @@ button {
   font-size: 12px;
 }
 
-.vault-items-count {
-  display: grid;
-  justify-items: end;
-  gap: 2px;
-  padding-bottom: 3px;
-  color: var(--muted-text);
-  font-size: 12px;
-}
-
-.vault-items-count strong {
-  color: var(--ink);
-  font-size: 17px;
-  font-weight: 650;
-}
-
 .vault-search-row {
   display: flex;
   align-items: center;
   gap: 12px;
   margin-top: 30px;
-}
-
-.search-box {
-  height: 43px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #e5e8ed;
-  border-radius: 10px;
-  background: var(--glass-input-bg);
-  padding: 0 12px;
-  transition: border-color 140ms ease, box-shadow 140ms ease;
-}
-
-.search-box:focus-within {
-  border-color: #a5bdf2;
-  box-shadow: 0 0 0 3px rgb(39 100 232 / 8%);
-}
-
-.search-box input {
-  min-width: 0;
-  flex: 1;
-  border: 0;
-  background: transparent;
-  color: #303844;
-  font-size: 12px;
-  outline: 0;
-}
-
-.search-box input::placeholder {
-  color: #a1a8b2;
-}
-
-.search-box kbd {
-  border: 1px solid #e6e9ee;
-  border-radius: 5px;
-  background: #fafbfc;
-  padding: 3px 6px;
-  color: #9299a5;
-  font-family: inherit;
-  font-size: 12px;
-}
-
-.search-clear {
-  width: 23px;
-  height: 23px;
-  border: 0;
-  border-radius: 50%;
-  background: #f1f3f6;
-  color: #77808c;
-  font-size: 17px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.search-scope {
-  max-width: 220px;
-  color: #9ba2ac;
-  font-size: 12px;
-  line-height: 1.4;
 }
 
 .item-list-header {
@@ -1554,7 +1472,6 @@ button {
   cursor: pointer;
 }
 
-.list-footnote,
 .detail-footnote {
   display: flex;
   align-items: center;
@@ -1565,7 +1482,6 @@ button {
   line-height: 1.5;
 }
 
-.list-footnote span,
 .detail-footnote span {
   color: #7b8fad;
 }
@@ -2163,16 +2079,6 @@ button {
     margin-top: 22px;
   }
 
-  .search-box {
-    flex: none;
-  }
-
-  .search-scope {
-    max-width: none;
-    padding-left: 2px;
-    font-size: 12px;
-  }
-
   .item-list-header {
     grid-template-columns: minmax(0, 1fr) 20px;
     margin-top: 22px;
@@ -2412,8 +2318,6 @@ button {
   }
 :root[data-theme="dark"] .account-chip,
 :root[data-theme="dark"] .text-input,
-:root[data-theme="dark"] .search-box,
-:root[data-theme="dark"] .search-box kbd,
 :root[data-theme="dark"] .detail-metadata i,
 :root[data-theme="dark"] .mnemonic-word {
     border-color: oklch(0.345 0.024 268.6);
@@ -2421,7 +2325,6 @@ button {
     color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .text-input::placeholder,
-:root[data-theme="dark"] .search-box input::placeholder,
 :root[data-theme="dark"] .field-hint,
 :root[data-theme="dark"] .item-row-category,
 :root[data-theme="dark"] .item-row-updated,
@@ -2429,11 +2332,9 @@ button {
 :root[data-theme="dark"] .detail-card-heading p,
 :root[data-theme="dark"] .detail-metadata > span > span,
 :root[data-theme="dark"] .passkey-info > span,
-:root[data-theme="dark"] .list-footnote,
 :root[data-theme="dark"] .detail-footnote {
     color: oklch(0.774 0.022 261.8);
   }
-:root[data-theme="dark"] .search-clear,
 :root[data-theme="dark"] .quiet-button:hover,
 :root[data-theme="dark"] .copy-button:hover,
 :root[data-theme="dark"] .word-copy:hover {
@@ -2487,41 +2388,13 @@ button {
   color: #6fce8f;
 }
 
-/* Frosted glass: translucent cards over the page glow. --glass-bg and
-   --glass-border switch per theme; the blur itself is theme-independent. */
+/* Frosted glass: translucent cards. --glass-bg and --glass-border switch
+   per theme; the blur itself is theme-independent. */
 .glass-panel {
   border: 1px solid var(--glass-border);
   background: var(--glass-bg);
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
   backdrop-filter: blur(18px) saturate(1.35);
-}
-
-.backend-shell {
-  background:
-    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 5%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
-    var(--sidebar);
-}
-
-:root[data-theme="dark"] .backend-shell {
-  background:
-    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 11%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 8%), transparent 70%),
-    var(--sidebar);
-}
-
-:root[data-theme="dark"] .public-shell {
-  background:
-    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 11%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 8%), transparent 70%),
-    var(--page);
-}
-
-:root[data-theme="dark"] .auth-shell {
-  background:
-    radial-gradient(560px 420px at 50% 42%, rgb(68 121 245 / 10%), transparent 70%),
-    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 7%), transparent 70%),
-    var(--page);
 }
 
 @media (prefers-reduced-motion: reduce) {
