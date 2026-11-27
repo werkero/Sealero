@@ -25,7 +25,20 @@
   "backToVault": "Zurück zu allen Einträgen",
   "loginDetails": "Anmeldedaten",
   "loginDetailsSubtitle": "Deine Kontoinformationen für diesen Dienst.",
-  "username": "Benutzername",
+  "username": {
+    "title": "Benutzername-Generator",
+    "includeNumber": "Zahl einfügen",
+    "capitalize": "Wörter großschreiben",
+    "separator": "Trennzeichen",
+    "separatorHyphen": "Bindestrich",
+    "separatorUnderscore": "Unterstrich",
+    "separatorNone": "Keines",
+    "generate": "Benutzername generieren",
+    "resultLabel": "Generierter Benutzername",
+    "usernameLabel": "Generierter Benutzername",
+    "copy": "Kopieren",
+    "hint": "Aus gängigen englischen Wörtern zusammengesetzt, direkt als Benutzername verwendbar."
+  },
   "password": "Passwort",
   "website": "Website",
   "note": "Notiz",
@@ -51,9 +64,8 @@
   "mnemonicSubtitle": "{{count}} Wörter · standardmäßig maskiert",
   "mnemonicRisk": "Mit der Wiederherstellungsphrase kann eine Wallet kontrolliert werden. Die Speicherung hier erhöht das Risiko bei einer Tresorkompromittierung.",
   "copyPhrase": "Ganze Phrase kopieren",
-  "clipboardAutoClear": "Kopierte Geheimnisse werden nach 30 Sekunden gelöscht, wenn die Zwischenablage noch denselben Wert enthält.",
   "generator": {
-    "title": "Passwortgenerator",
+    "title": "Generator",
     "settingsTitle": "Passwortregeln auswählen",
     "length": "Länge",
     "lengthValue": "{{length}} Zeichen",
@@ -72,8 +84,7 @@
     "resultLabel": "Erzeugtes Passwort",
     "passwordLabel": "erzeugtes Passwort",
     "copy": "Kopieren",
-    "verifiedHint": "Dieses Passwort hat die lokale Liste schwacher Passwörter und die Leckprüfung bestanden.",
-    "backToVault": "Zurück zum Tresor"
+    "verifiedHint": "Dieses Passwort hat die lokale Liste schwacher Passwörter und die Leckprüfung bestanden."
   },
   "health": {
     "title": "Passwortsicherheit",
@@ -98,7 +109,11 @@
     "acceptableHint": "Derzeit akzeptabel; beim nächsten Ändern mindestens 20 Zeichen verwenden.",
     "itemCheckLabel": "Passwortsicherheit für {{name}} prüfen",
     "itemCheckTitle": "Passwortsicherheit",
-    "checkPassword": "Passwort prüfen"
+    "checkPassword": "Passwort prüfen",
+    "summaryTitle": "Prüfzusammenfassung",
+    "summaryLeaked": "Geleakt",
+    "summaryReused": "Wiederverwendet",
+    "summaryWeak": "Schwach"
   },
   "strength": {
     "must-change": "Muss geändert werden",

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
-import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, Sparkles, Star, Sun, X } from 'lucide-react'
+import { Check, ChevronLeft, ChevronUp, Copy, Languages, LayoutGrid, Lock, LogOut, Settings, Shield, ShieldCheck, Sparkles, Star, Sun, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { BrowserRouter, useLocation, useNavigate } from 'react-router-dom'
 import { Brand } from './components/Brand'
@@ -249,6 +249,12 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
                 <SidebarMenuButton tooltip={t('vault:generator.title')} onClick={() => onNavigate(`/users/${user.id}/generator`)}>
                   <Sparkles />
                   <span>{t('vault:generator.title')}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip={t('vault:health.title')} onClick={() => onNavigate(`/users/${user.id}/health`)}>
+                  <ShieldCheck />
+                  <span>{t('vault:health.title')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>

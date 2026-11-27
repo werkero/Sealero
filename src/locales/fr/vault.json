@@ -25,7 +25,20 @@
   "backToVault": "Retour à tous les éléments",
   "loginDetails": "Informations de connexion",
   "loginDetailsSubtitle": "Vos informations de compte pour ce service.",
-  "username": "Nom d’utilisateur",
+  "username": {
+    "title": "Générateur de nom d'utilisateur",
+    "includeNumber": "Inclure un chiffre",
+    "capitalize": "Majuscules initiales",
+    "separator": "Séparateur",
+    "separatorHyphen": "trait d’union",
+    "separatorUnderscore": "tiret bas",
+    "separatorNone": "Aucun",
+    "generate": "Générer un nom d'utilisateur",
+    "resultLabel": "Nom d'utilisateur généré",
+    "usernameLabel": "Nom d'utilisateur généré",
+    "copy": "Copier",
+    "hint": "Composé de mots anglais courants, prêt à être utilisé comme nom d'utilisateur."
+  },
   "password": "Mot de passe",
   "website": "Site web",
   "note": "Note",
@@ -51,9 +64,8 @@
   "mnemonicSubtitle": "{{count}} mots · masqués par défaut",
   "mnemonicRisk": "La phrase de récupération d’un portefeuille peut en donner le contrôle. La stocker ici augmente le risque si le coffre est compromis.",
   "copyPhrase": "Copier toute la phrase",
-  "clipboardAutoClear": "Les secrets copiés sont effacés après 30 secondes si le presse-papiers contient toujours la même valeur.",
   "generator": {
-    "title": "Générateur de mots de passe",
+    "title": "Générateur",
     "settingsTitle": "Choisir les règles du mot de passe",
     "length": "Longueur",
     "lengthValue": "{{length}} caractères",
@@ -72,8 +84,7 @@
     "resultLabel": "Mot de passe généré",
     "passwordLabel": "mot de passe généré",
     "copy": "Copier",
-    "verifiedHint": "Ce mot de passe a passé la liste locale des mots de passe faibles et la vérification des fuites.",
-    "backToVault": "Retour au coffre"
+    "verifiedHint": "Ce mot de passe a passé la liste locale des mots de passe faibles et la vérification des fuites."
   },
   "health": {
     "title": "État des mots de passe",
@@ -98,7 +109,11 @@
     "acceptableHint": "Acceptable pour le moment ; utilisez au moins 20 caractères lors du prochain changement.",
     "itemCheckLabel": "État du mot de passe pour {{name}}",
     "itemCheckTitle": "État du mot de passe",
-    "checkPassword": "Vérifier le mot de passe"
+    "checkPassword": "Vérifier le mot de passe",
+    "summaryTitle": "Résumé de la vérification",
+    "summaryLeaked": "Divulgués",
+    "summaryReused": "Réutilisés",
+    "summaryWeak": "Faibles"
   },
   "strength": {
     "must-change": "À changer",

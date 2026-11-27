@@ -25,7 +25,20 @@
   "backToVault": "Back to all items",
   "loginDetails": "Login details",
   "loginDetailsSubtitle": "Your account information for this service.",
-  "username": "Username",
+  "username": {
+    "title": "Username generator",
+    "includeNumber": "Include a number",
+    "capitalize": "Capitalize words",
+    "separator": "Separator",
+    "separatorHyphen": "hyphen",
+    "separatorUnderscore": "underscore",
+    "separatorNone": "None",
+    "generate": "Generate username",
+    "resultLabel": "Generated username",
+    "usernameLabel": "Generated username",
+    "copy": "Copy",
+    "hint": "Made from common English words, ready to use as a username."
+  },
   "password": "Password",
   "website": "Website",
   "note": "Note",
@@ -51,9 +64,8 @@
   "mnemonicSubtitle": "{{count}} words · masked by default",
   "mnemonicRisk": "A wallet’s recovery phrase can control the wallet. Storing it here increases risk if your vault is compromised.",
   "copyPhrase": "Copy full phrase",
-  "clipboardAutoClear": "Copied secrets clear after 30 seconds if the clipboard still contains the same value.",
   "generator": {
-    "title": "Password generator",
+    "title": "Generator",
     "settingsTitle": "Choose your password rules",
     "length": "Length",
     "lengthValue": "{{length}} characters",
@@ -72,8 +84,7 @@
     "resultLabel": "Generated password",
     "passwordLabel": "generated password",
     "copy": "Copy",
-    "verifiedHint": "This password passed the local weak-password list and the breach check.",
-    "backToVault": "Back to vault"
+    "verifiedHint": "This password passed the local weak-password list and the breach check."
   },
   "health": {
     "title": "Password health",
@@ -98,7 +109,11 @@
     "acceptableHint": "Acceptable for now; consider using at least 20 characters next time.",
     "itemCheckLabel": "Password health check for {{name}}",
     "itemCheckTitle": "Password health",
-    "checkPassword": "Check password"
+    "checkPassword": "Check password",
+    "summaryTitle": "Check summary",
+    "summaryLeaked": "Leaked",
+    "summaryReused": "Reused",
+    "summaryWeak": "Weak"
   },
   "strength": {
     "must-change": "Must change",

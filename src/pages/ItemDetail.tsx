@@ -229,7 +229,6 @@ export function ItemDetail({ user, item, itemCount, items, isAdmin, loadItem, on
             ) : null}
           </div>
         </div>
-        <p className="flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground"><Info size={12} className="mt-0.5 shrink-0" aria-hidden="true" />{t('vault:clipboardAutoClear')}</p>
       </div>
     </VaultLayout>
   )

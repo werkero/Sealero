@@ -25,7 +25,20 @@
   "backToVault": "返回全部条目",
   "loginDetails": "登录信息",
   "loginDetailsSubtitle": "此服务的账号信息。",
-  "username": "用户名",
+  "username": {
+    "title": "用户名生成器",
+    "includeNumber": "包含数字",
+    "capitalize": "首字母大写",
+    "separator": "分隔符",
+    "separatorHyphen": "连字符",
+    "separatorUnderscore": "下划线",
+    "separatorNone": "无",
+    "generate": "生成用户名",
+    "resultLabel": "生成的用户名",
+    "usernameLabel": "生成的用户名",
+    "copy": "复制",
+    "hint": "由常见英文单词组成，可直接用作用户名。"
+  },
   "password": "密码",
   "website": "网址",
   "note": "备注",
@@ -51,9 +64,8 @@
   "mnemonicSubtitle": "{{count}} 个词 · 默认隐藏",
   "mnemonicRisk": "钱包助记词可以控制钱包。若保险库遭到入侵，将助记词存于此处会增加风险。",
   "copyPhrase": "复制整段助记词",
-  "clipboardAutoClear": "复制的秘密内容会在 30 秒后清除，前提是剪贴板仍是该内容。",
   "generator": {
-    "title": "密码生成器",
+    "title": "生成器",
     "settingsTitle": "设置密码规则",
     "length": "长度",
     "lengthValue": "{{length}} 位",
@@ -72,8 +84,7 @@
     "resultLabel": "生成的密码",
     "passwordLabel": "生成的密码",
     "copy": "复制",
-    "verifiedHint": "该密码已通过本地弱密码列表和泄漏检查。",
-    "backToVault": "返回保险库"
+    "verifiedHint": "该密码已通过本地弱密码列表和泄漏检查。"
   },
   "health": {
     "title": "密码健康检查",
@@ -98,7 +109,11 @@
     "acceptableHint": "目前可接受；下次修改时建议使用至少 20 位密码。",
     "itemCheckLabel": "检查 {{name}} 的密码健康状态",
     "itemCheckTitle": "密码健康检查",
-    "checkPassword": "检查密码"
+    "checkPassword": "检查密码",
+    "summaryTitle": "检查结果汇总",
+    "summaryLeaked": "已泄露",
+    "summaryReused": "重复使用",
+    "summaryWeak": "安全性较弱"
   },
   "strength": {
     "must-change": "必须更换",

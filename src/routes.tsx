@@ -3,14 +3,14 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, matchPath, useLocation, useParams } from 'react-router-dom'
 import type { VaultClient, VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from './client/contracts'
 import type { AppearancePreference } from './features/settings/preferences'
-import { PasswordGeneratorPage } from './features/password-security/PasswordSecurity'
-import { SettingsHealthPage, SettingsPage } from './features/settings/SettingsPage'
+import { PasswordGeneratorPage, PasswordHealthDashboard } from './features/password-security/PasswordSecurity'
+import { SettingsPage } from './features/settings/SettingsPage'
 import { DetailLoading } from './components/DetailLoading'
 import Landing from './pages/Landing'
 import { LegalPage } from './pages/Legal'
 import { Console } from './pages/Console'
 import { McpConfirmations } from './pages/McpConfirmations'
-import { TopbarBackButton, VaultLayout } from './App'
+import { VaultLayout } from './App'
 import { ItemDetail } from './pages/ItemDetail'
 import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
@@ -40,7 +40,7 @@ function matchProtectedPath(pathname: string): RouteMatch | null {
   const generator = matchPath('/users/:userId/generator', pathname)
   if (generator?.params.userId) return { userId: generator.params.userId, itemId: null, screen: 'generator' }
 
-  const health = matchPath('/users/:userId/settings/health', pathname)
+  const health = matchPath('/users/:userId/health', pathname)
   if (health?.params.userId) return { userId: health.params.userId, itemId: null, screen: 'health' }
 
   const confirmations = matchPath('/users/:userId/confirmations', pathname)
@@ -149,7 +149,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
 
   if (screen === 'generator') {
     return (
-      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('generator.title')} topbarAction={<TopbarBackButton label={t('generator.backToVault')} onClick={() => onNavigate(`/users/${user.id}`)} />} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('generator.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <PasswordGeneratorPage onCopy={(value, label) => onCopy(value, label)} />
       </VaultLayout>
     )
@@ -157,14 +157,14 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   if (screen === 'settings') {
     return (
       <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('settings:title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <SettingsPage user={user} items={items} loadItem={loadHealthItem} onNavigate={onNavigate} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} />
+        <SettingsPage user={user} items={items} loadItem={loadHealthItem} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} />
       </VaultLayout>
     )
   }
   if (screen === 'health') {
     return (
       <VaultLayout user={user} filter="all" itemCount={items.length} isAdmin={isAdmin} title={t('health.title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <SettingsHealthPage items={items} loadItem={loadHealthItem} />
+        <PasswordHealthDashboard items={items} loadItem={loadHealthItem} />
       </VaultLayout>
     )
   }
@@ -198,7 +198,7 @@ export function AppRoutes(props: AppRoutesProps) {
       <Route path="/users/:userId/items/:itemId" element={<VaultRoute {...props} screen="vault" />} />
       <Route path="/users/:userId/generator" element={<VaultRoute {...props} screen="generator" />} />
       <Route path="/users/:userId/settings" element={<VaultRoute {...props} screen="settings" />} />
-      <Route path="/users/:userId/settings/health" element={<VaultRoute {...props} screen="health" />} />
+      <Route path="/users/:userId/health" element={<VaultRoute {...props} screen="health" />} />
       <Route path="/users/:userId/confirmations" element={<VaultRoute {...props} screen="confirmations" />} />
       <Route path="*" element={<NotFound onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />} />
     </Routes>

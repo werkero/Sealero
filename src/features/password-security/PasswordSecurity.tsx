@@ -10,6 +10,7 @@ import {
   type PasswordCharacterClass,
   type PasswordGeneratorOptions,
 } from './password-security'
+import { DEFAULT_USERNAME_OPTIONS, generateUsername, type UsernameGeneratorOptions, type UsernameSeparator } from './username-generator'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
@@ -168,6 +169,9 @@ export function PasswordHealthDashboard({ items, loadItem }: PasswordHealthPageP
   }
 
   const isWorking = phase === 'loading' || phase === 'checking'
+  const leakedCount = rows.filter((row) => row.assessment.leakStatus === 'leaked').length
+  const reusedCount = rows.filter((row) => row.assessment.reused).length
+  const weakCount = rows.filter((row) => row.assessment.strength === 'must-change').length
 
   return (
     <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
@@ -183,6 +187,16 @@ export function PasswordHealthDashboard({ items, loadItem }: PasswordHealthPageP
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-xs leading-relaxed text-muted-foreground">{t('health.privacyNote')}</p>
+          {rows.length ? (
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold">{t('health.summaryTitle')}</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="rounded-lg bg-muted px-3 py-2.5"><span className="block text-xs text-muted-foreground">{t('health.summaryLeaked')}</span><strong className={`mt-0.5 block text-2xl font-semibold tabular-nums ${leakedCount ? 'text-destructive' : ''}`}>{leakedCount}</strong></div>
+                <div className="rounded-lg bg-muted px-3 py-2.5"><span className="block text-xs text-muted-foreground">{t('health.summaryReused')}</span><strong className={`mt-0.5 block text-2xl font-semibold tabular-nums ${reusedCount ? 'text-destructive' : ''}`}>{reusedCount}</strong></div>
+                <div className="rounded-lg bg-muted px-3 py-2.5"><span className="block text-xs text-muted-foreground">{t('health.summaryWeak')}</span><strong className={`mt-0.5 block text-2xl font-semibold tabular-nums ${weakCount ? 'text-destructive' : ''}`}>{weakCount}</strong></div>
+              </div>
+            </div>
+          ) : null}
           {items.length === 0 ? <p className="py-8 text-center text-sm text-muted-foreground">{t('health.emptyVault')}</p> : null}
           {isWorking ? (
             <div className="space-y-2" role="status" aria-live="polite">
@@ -224,6 +238,8 @@ export function PasswordGeneratorPage({ onCopy }: PasswordGeneratorPageProps) {
   const [password, setPassword] = useState<string | null>(null)
   const [phase, setPhase] = useState<'idle' | 'generating' | 'generated' | 'exhausted' | 'unavailable'>('idle')
   const [notice, setNotice] = useState('')
+  const [usernameOptions, setUsernameOptions] = useState<UsernameGeneratorOptions>(DEFAULT_USERNAME_OPTIONS)
+  const [username, setUsername] = useState<string | null>(null)
   const controllerRef = useRef<AbortController | null>(null)
   const classCount = CHARACTER_OPTIONS.filter(({ key }) => options[key]).length
 
@@ -320,6 +336,49 @@ export function PasswordGeneratorPage({ onCopy }: PasswordGeneratorPageProps) {
                 <Button variant="outline" type="button" onClick={() => onCopy(password, t('generator.passwordLabel'))}>{t('generator.copy')}</Button>
               </div>
               <p className="text-xs text-muted-foreground">{t('generator.verifiedHint')}</p>
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle id="username-panel-title">{t('username.title')}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Label className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm font-normal">
+              <Checkbox checked={usernameOptions.includeNumber} onCheckedChange={(checked) => setUsernameOptions((current) => ({ ...current, includeNumber: checked === true }))} />
+              {t('username.includeNumber')}
+            </Label>
+            <Label className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm font-normal">
+              <Checkbox checked={usernameOptions.capitalize} onCheckedChange={(checked) => setUsernameOptions((current) => ({ ...current, capitalize: checked === true }))} />
+              {t('username.capitalize')}
+            </Label>
+          </div>
+          <div className="grid gap-1.5">
+            <label className="text-sm font-medium" htmlFor="security-username-separator">{t('username.separator')}</label>
+            <select
+              id="security-username-separator"
+              className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              value={usernameOptions.separator}
+              onChange={(event) => setUsernameOptions((current) => ({ ...current, separator: event.target.value as UsernameSeparator }))}
+            >
+              <option value="-">- ({t('username.separatorHyphen')})</option>
+              <option value="_">_ ({t('username.separatorUnderscore')})</option>
+              <option value="">{t('username.separatorNone')}</option>
+            </select>
+          </div>
+          <Button className="w-full" type="button" onClick={() => setUsername(generateUsername(usernameOptions))}>
+            {t('username.generate')}
+          </Button>
+          {username ? (
+            <div className="grid gap-2">
+              <label className="text-sm font-medium" htmlFor="security-generated-username">{t('username.resultLabel')}</label>
+              <div className="flex gap-2">
+                <Input id="security-generated-username" type="text" value={username} readOnly autoComplete="off" spellCheck={false} className="font-mono" />
+                <Button variant="outline" type="button" onClick={() => onCopy(username, t('username.usernameLabel'))}>{t('username.copy')}</Button>
+              </div>
+              <p className="text-xs text-muted-foreground">{t('username.hint')}</p>
             </div>
           ) : null}
         </CardContent>

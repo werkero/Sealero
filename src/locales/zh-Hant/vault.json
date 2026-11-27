@@ -25,7 +25,20 @@
   "backToVault": "返回所有項目",
   "loginDetails": "登入資料",
   "loginDetailsSubtitle": "此服務的帳號資訊。",
-  "username": "使用者名稱",
+  "username": {
+    "title": "使用者名稱產生器",
+    "includeNumber": "包含數字",
+    "capitalize": "首字母大寫",
+    "separator": "分隔符號",
+    "separatorHyphen": "連字符",
+    "separatorUnderscore": "底線",
+    "separatorNone": "無",
+    "generate": "產生使用者名稱",
+    "resultLabel": "產生的使用者名稱",
+    "usernameLabel": "產生的使用者名稱",
+    "copy": "複製",
+    "hint": "由常見英文單字組成，可直接用作使用者名稱。"
+  },
   "password": "密碼",
   "website": "網站",
   "note": "備註",
@@ -51,9 +64,8 @@
   "mnemonicSubtitle": "{{count}} 個詞 · 預設隱藏",
   "mnemonicRisk": "錢包助記詞可控制錢包。若保險庫遭入侵，將助記詞存於此處會增加風險。",
   "copyPhrase": "複製整段助記詞",
-  "clipboardAutoClear": "複製的秘密內容會在 30 秒後清除，前提是剪貼簿仍是該內容。",
   "generator": {
-    "title": "密碼產生器",
+    "title": "產生器",
     "settingsTitle": "設定密碼規則",
     "length": "長度",
     "lengthValue": "{{length}} 位",
@@ -72,8 +84,7 @@
     "resultLabel": "產生的密碼",
     "passwordLabel": "產生的密碼",
     "copy": "複製",
-    "verifiedHint": "此密碼已通過本機弱密碼清單和洩漏檢查。",
-    "backToVault": "返回保險庫"
+    "verifiedHint": "此密碼已通過本機弱密碼清單和洩漏檢查。"
   },
   "health": {
     "title": "密碼健康檢查",
@@ -98,7 +109,11 @@
     "acceptableHint": "目前可接受；下次修改時建議使用至少 20 位密碼。",
     "itemCheckLabel": "檢查 {{name}} 的密碼健康狀態",
     "itemCheckTitle": "密碼健康檢查",
-    "checkPassword": "檢查密碼"
+    "checkPassword": "檢查密碼",
+    "summaryTitle": "檢查結果匯總",
+    "summaryLeaked": "已洩露",
+    "summaryReused": "重複使用",
+    "summaryWeak": "安全性較弱"
   },
   "strength": {
     "must-change": "必須更換",
