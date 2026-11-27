@@ -61,6 +61,48 @@ function escapeHtml(value: string): string {
     .replaceAll('"', '&quot;');
 }
 
+/**
+ * Shared branded layout for every Sealero email. Table-based with inline
+ * styles only (email clients ignore external stylesheets and most modern
+ * CSS); it degrades to square corners in clients without border-radius.
+ * The brand mark is text, never an image, so it renders with images
+ * blocked. Brand blue #0832AA, system font stack, 600px card.
+ */
+function emailLayout(title: string, body: string): string {
+  const font = `-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif`;
+  return (
+    `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">` +
+    `<title>${escapeHtml(title)}</title></head>` +
+    `<body style="margin:0;padding:0;background-color:#f4f5f7;">` +
+    `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;">` +
+    `<tr><td align="center" style="padding:32px 16px;">` +
+    `<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px;background-color:#ffffff;border:1px solid #e5e8eb;border-radius:12px;">` +
+    `<tr><td style="padding:32px 32px 0;"><table role="presentation" cellpadding="0" cellspacing="0"><tr>` +
+    `<td style="vertical-align:middle;padding-right:10px;"><img src="https://raw.githubusercontent.com/werkero/Sealero/main/logo/sealero-logo.png" alt="Sealero" width="32" height="32" style="display:block;width:32px;height:32px;border:0;"></td>` +
+    `<td style="vertical-align:middle;font-family:${font};font-size:20px;font-weight:700;color:#0832aa;">Sealero</td>` +
+    `</tr></table></td></tr>` +
+    `<tr><td style="padding:20px 32px 0;"><div style="font-family:${font};font-size:20px;font-weight:700;color:#171a1f;">${escapeHtml(title)}</div></td></tr>` +
+    `<tr><td style="padding:16px 32px 32px;font-family:${font};font-size:15px;line-height:1.6;color:#2b2f36;">${body}</td></tr>` +
+    `<tr><td style="padding:0 32px 24px;font-family:${font};font-size:12px;line-height:1.6;color:#8a919c;">Sealero by Werkero · © 2026 Sealero. All rights reserved.</td></tr>` +
+    `</table></td></tr></table></body></html>`
+  );
+}
+
+/** The one-time code, set large and monospaced so it is easy to read and copy. */
+function codeBlock(code: string): string {
+  return (
+    `<div style="margin:24px 0;text-align:center;">` +
+    `<span style="display:inline-block;padding:14px 24px;border:1px solid #dbe2f2;border-radius:10px;background-color:#eef2fb;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:28px;font-weight:700;letter-spacing:8px;color:#0832aa;">${escapeHtml(code)}</span>` +
+    `</div>`
+  );
+}
+
+/** A bordered box for the detail lines of the security emails (device, time). */
+function detailBox(rows: Array<readonly [string, string]>): string {
+  const lines = rows.map(([label, value]) => `${escapeHtml(label)}: ${escapeHtml(value)}`).join('<br>');
+  return `<div style="margin:16px 0;padding:14px 16px;border:1px solid #e5e8eb;border-radius:8px;background-color:#fafbfc;font-size:14px;line-height:1.7;">${lines}</div>`;
+}
+
 export class SmtpNotifications implements AuthNotification {
   private readonly env: SmtpEnvironment;
   private readonly getDatabaseSettings:
@@ -89,9 +131,12 @@ export class SmtpNotifications implements AuthNotification {
       text:
         `Your Sealero verification code is ${input.code}.\n\n` +
         `It expires in ${minutes} minutes. If you did not request this, ignore this email.`,
-      html:
-        `<p>Your Sealero verification code is <strong>${input.code}</strong>.</p>` +
-        `<p>It expires in ${minutes} minutes. If you did not request this, ignore this email.</p>`,
+      html: emailLayout(
+        'Your verification code',
+        `<p style="margin:0 0 12px;">Use this code to verify your email address.</p>` +
+        codeBlock(input.code) +
+        `<p style="margin:0;">It expires in ${minutes} minutes. If you did not request this, ignore this email.</p>`,
+      ),
     });
   }
 
@@ -108,10 +153,12 @@ export class SmtpNotifications implements AuthNotification {
         `Your Sealero password reset code is ${input.code}.\n\n` +
         `It expires in ${minutes} minutes. If you did not request this, ignore this email. ` +
         `Your vault and master password are not affected.`,
-      html:
-        `<p>Your Sealero password reset code is <strong>${input.code}</strong>.</p>` +
-        `<p>It expires in ${minutes} minutes. If you did not request this, ignore this email. ` +
-        `Your vault and master password are not affected.</p>`,
+      html: emailLayout(
+        'Reset your login password',
+        `<p style="margin:0 0 12px;">Use this code to reset your Sealero login password.</p>` +
+        codeBlock(input.code) +
+        `<p style="margin:0;">It expires in ${minutes} minutes. If you did not request this, ignore this email. Your vault and master password are not affected.</p>`,
+      ),
     });
   }
 
@@ -128,10 +175,12 @@ export class SmtpNotifications implements AuthNotification {
         `Your Sealero account deletion code is ${input.code}.\n\n` +
         `It expires in ${minutes} minutes. Deleting your account is immediate and permanent. ` +
         `If you did not request this, ignore this email and change your login password.`,
-      html:
-        `<p>Your Sealero account deletion code is <strong>${input.code}</strong>.</p>` +
-        `<p>It expires in ${minutes} minutes. Deleting your account is immediate and permanent. ` +
-        `If you did not request this, ignore this email and change your login password.</p>`,
+      html: emailLayout(
+        'Confirm deleting your account',
+        `<p style="margin:0 0 12px;">Use this code to confirm deleting your Sealero account.</p>` +
+        codeBlock(input.code) +
+        `<p style="margin:0;">It expires in ${minutes} minutes. Deleting your account is immediate and permanent. If you did not request this, ignore this email and change your login password.</p>`,
+      ),
     });
   }
 
@@ -150,10 +199,12 @@ export class SmtpNotifications implements AuthNotification {
         `A new device signed in to your Sealero account.\n\n` +
         `Device: ${input.deviceName}\nTime: ${when}\n\n` +
         `If this was not you, change your login password and revoke the device in Settings.`,
-      html:
-        `<p>A new device signed in to your Sealero account.</p>` +
-        `<p>Device: ${escapeHtml(input.deviceName)}<br>Time: ${when}</p>` +
-        `<p>If this was not you, change your login password and revoke the device in Settings.</p>`,
+      html: emailLayout(
+        'New sign-in to your account',
+        `<p style="margin:0 0 12px;">A new device signed in to your Sealero account.</p>` +
+        detailBox([['Device', input.deviceName], ['Time', when]]) +
+        `<p style="margin:12px 0 0;">If this was not you, change your login password and revoke the device in Settings.</p>`,
+      ),
     });
   }
 
@@ -172,11 +223,12 @@ export class SmtpNotifications implements AuthNotification {
         `Time: ${when}\n\n` +
         `All sessions on the affected device were revoked as a precaution. ` +
         `If this was not you, change your login password immediately.`,
-      html:
-        `<p>A refresh token for your Sealero account was used twice, which should not happen.</p>` +
-        `<p>Time: ${when}</p>` +
-        `<p>All sessions on the affected device were revoked as a precaution. ` +
-        `If this was not you, change your login password immediately.</p>`,
+      html: emailLayout(
+        'Security alert',
+        `<p style="margin:0 0 12px;">A refresh token for your Sealero account was used twice, which should not happen.</p>` +
+        detailBox([['Time', when]]) +
+        `<p style="margin:12px 0 0;">All sessions on the affected device were revoked as a precaution. If this was not you, change your login password immediately.</p>`,
+      ),
     });
   }
 
