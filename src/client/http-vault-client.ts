@@ -405,6 +405,20 @@ export function createHttpVaultClient(baseUrl = ''): VaultClient {
       return { auto_lock_minutes: preferences.auto_lock_minutes }
     },
 
+    async updateUserProfile(input: { display_name?: string; avatar_url?: string }, signal?: AbortSignal): Promise<VaultIdentity> {
+      throwIfAborted(signal)
+      if (!accessToken) throw new VaultApiError('unauthorized', 401)
+      const profile = await request<{ id?: unknown; email?: unknown; display_name?: unknown; avatar_url?: unknown }>('/v1/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      }, signal)
+      if (typeof profile.id !== 'string' || typeof profile.email !== 'string' || (profile.display_name !== null && typeof profile.display_name !== 'string') || (profile.avatar_url !== null && typeof profile.avatar_url !== 'string')) {
+        throw new VaultApiError('invalid_response', 500)
+      }
+      return { id: profile.id, email: profile.email, display_name: profile.display_name, avatar_url: profile.avatar_url }
+    },
+
     async verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void> {
       throwIfAborted(signal)
       const response = await fetch(`${baseUrl}/v1/auth/verify-email`, {

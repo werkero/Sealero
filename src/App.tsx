@@ -417,7 +417,7 @@ function AppShell() {
   const getAccessToken = useCallback(() => vaultClient.getAccessToken?.() ?? null, [vaultClient])
   /** Shared token refresher: the vault adapter deduplicates concurrent refreshes. */
   const refreshAccessToken = useCallback((signal?: AbortSignal) => vaultClient.refreshAccessToken(signal), [vaultClient])
-  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
+  const { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout } = useVaultSession(vaultClient)
   const copyTimers = useRef<number[]>([])
   const copyGenerationRef = useRef(0)
   const [clipboardQueue] = useState(createClipboardOperationQueue)
@@ -649,6 +649,7 @@ function AppShell() {
       onExportBackupFull={exportBackupFull}
       autoLockMinutes={autoLockMinutes}
       onAutoLockMinutesChange={updateAutoLockMinutes}
+      onUpdateUserProfile={updateUserProfile}
     />
   )
 }

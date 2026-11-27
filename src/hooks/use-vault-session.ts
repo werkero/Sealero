@@ -297,6 +297,16 @@ export function useVaultSession(client: VaultClient) {
     }
   }, [client])
 
+  const updateUserProfile = useCallback(async (input: { display_name?: string; avatar_url?: string }): Promise<boolean> => {
+    try {
+      const profile = await client.updateUserProfile(input)
+      setUser(profile)
+      return true
+    } catch {
+      return false
+    }
+  }, [client])
+
   const logout = useCallback(() => {
     cancelPending()
     if (userIdRef.current) clearUnlockedSession(userIdRef.current)
@@ -318,5 +328,5 @@ export function useVaultSession(client: VaultClient) {
     client.lock()
   }, [cancelPending, client])
 
-  return { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
+  return { user, isUnlocked, isAdmin, sessionChecked, items, selectedItem, loadingItemId, autoLockMinutes, updateAutoLockMinutes, updateUserProfile, restoreSession, login, unlock, loadItem, createItem, updateItem, deleteItem, clearSelectedItem, lock, logout }
 }

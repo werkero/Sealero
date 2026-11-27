@@ -26,5 +26,8 @@
     "noLoginRows": "无法在本地读取保险库以比较条目。",
     "localCompareUnavailable": "所选列无效。"
   },
-  "minutes": "分钟"
+  "minutes": "分钟",
+  "displayName": "显示名称",
+  "avatarUrl": "头像链接",
+  "save": "保存"
 }

@@ -95,6 +95,8 @@ export interface AppRoutesProps {
   autoLockMinutes: number
   /** Replaces the auto-lock timeout; resolves false when the server rejects it. */
   onAutoLockMinutesChange: (minutes: number) => Promise<boolean>
+  /** Updates the display name / avatar URL; resolves false when the server rejects it. */
+  onUpdateUserProfile: (input: { display_name?: string; avatar_url?: string }) => Promise<boolean>
   /** KEK-only v3 container for cloud backup; null when the vault is locked. */
   onExportBackup: () => Promise<Uint8Array | null>
   /** Full v3 container (KEK + recovery-key wrappings) for manual export. */
@@ -139,7 +141,7 @@ function AdminRoute(props: AppRoutesProps) {
 function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 'settings' | 'health' | 'confirmations' }) {
   const { userId, itemId } = useParams()
   const { t } = useTranslation(['common', 'vault', 'settings'])
-  const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, detailLoadErrorId, screen, onNavigate, onLogin, onLock, onLogout, onOpenItem, onCreateItem, onUpdateItem, onDeleteItem, onCopy, loadHealthItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull, getAccessToken, refreshAccessToken, autoLockMinutes, onAutoLockMinutesChange } = props
+  const { user, isUnlocked, isAdmin, items, selectedItem, loadingItemId, detailLoadErrorId, screen, onNavigate, onLogin, onLock, onLogout, onOpenItem, onCreateItem, onUpdateItem, onDeleteItem, onCopy, loadHealthItem, appearancePreference, onAppearanceChange, onExportBackup, onExportBackupFull, getAccessToken, refreshAccessToken, autoLockMinutes, onAutoLockMinutesChange, onUpdateUserProfile } = props
 
   if (!user || userId !== user.id || !isUnlocked) {
     return <Login onLogin={onLogin} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
@@ -161,7 +163,7 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
   if (screen === 'settings') {
     return (
       <VaultLayout autoLockMinutes={autoLockMinutes} user={user} filter="all" activeNav="none" isAdmin={isAdmin} title={t('settings:title')} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
-        <SettingsPage user={user} items={items} loadItem={loadHealthItem} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} autoLockMinutes={autoLockMinutes} onAutoLockMinutesChange={onAutoLockMinutesChange} />
+        <SettingsPage user={user} items={items} loadItem={loadHealthItem} onExportBackup={onExportBackup} onExportBackupFull={onExportBackupFull} autoLockMinutes={autoLockMinutes} onAutoLockMinutesChange={onAutoLockMinutesChange} onUpdateUserProfile={onUpdateUserProfile} />
       </VaultLayout>
     )
   }

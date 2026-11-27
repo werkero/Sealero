@@ -260,6 +260,8 @@ export interface AuthStore {
   getUserPreferences(userId: string): Promise<{ readonly auto_lock_minutes: number } | null>;
   /** Creates or replaces the user's preference row. */
   upsertUserPreferences(userId: string, autoLockMinutes: number): Promise<{ readonly auto_lock_minutes: number }>;
+  /** Partially updates the user's profile; a field left undefined is unchanged, null clears it. Returns null when the account is gone. */
+  updateUserProfile(userId: string, patch: { readonly displayName?: string | null; readonly avatarUrl?: string | null }): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null } | null>;
   getAccessOwnerStatus(userId: string, deviceId: string): Promise<AccessOwnerStatus | null>;
   transaction<T>(callback: (transaction: AuthTransaction) => Promise<T>): Promise<T>;
 }

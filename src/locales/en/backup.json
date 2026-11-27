@@ -107,5 +107,6 @@
     "invalidContainer": "The backup file has an invalid or unsupported structure."
   },
   "tooSoon": "Backed up recently",
-  "webdavInsecureWarning": "Plain HTTP sends your password unencrypted. Only use it for a local NAS or loopback address."
+  "webdavInsecureWarning": "Plain HTTP sends your password unencrypted. Only use it for a local NAS or loopback address.",
+  "exportRecoveryKeyPlaceholder": "Paste the 24 words, separated by spaces"
 }

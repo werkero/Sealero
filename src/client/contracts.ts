@@ -94,6 +94,12 @@ export interface VaultClient {
    * anything else is rejected by the server with 400 invalid_request.
    */
   updateUserPreferences(autoLockMinutes: number, signal?: AbortSignal): Promise<{ auto_lock_minutes: number }>
+  /**
+   * Updates the current user's profile (PUT /v1/user/profile,
+   * System Design §5.1). Either field may be omitted (unchanged); an
+   * empty string clears it. Returns the updated identity.
+   */
+  updateUserProfile(input: { display_name?: string; avatar_url?: string }, signal?: AbortSignal): Promise<VaultIdentity>
   verifyEmail(email: string, code: string, signal?: AbortSignal): Promise<void>
   resendVerification(email: string, signal?: AbortSignal): Promise<void>
   /**

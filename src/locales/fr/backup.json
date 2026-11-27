@@ -107,5 +107,6 @@
     "invalidContainer": "La structure du fichier de sauvegarde est invalide ou non prise en charge."
   },
   "tooSoon": "Sauvegardé récemment",
-  "webdavInsecureWarning": "Le HTTP en clair envoie votre mot de passe sans chiffrement. Réservez-le à un NAS local ou à une adresse de bouclage."
+  "webdavInsecureWarning": "Le HTTP en clair envoie votre mot de passe sans chiffrement. Réservez-le à un NAS local ou à une adresse de bouclage.",
+  "exportRecoveryKeyPlaceholder": "Collez les 24 mots, séparés par des espaces"
 }

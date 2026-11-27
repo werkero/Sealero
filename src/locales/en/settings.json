@@ -26,5 +26,8 @@
     "noLoginRows": "The vault could not be read locally to compare entries.",
     "localCompareUnavailable": "One or more selected columns are invalid."
   },
-  "minutes": "minutes"
+  "minutes": "minutes",
+  "displayName": "Display name",
+  "avatarUrl": "Avatar URL",
+  "save": "Save"
 }

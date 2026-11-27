@@ -26,5 +26,8 @@
     "noLoginRows": "Impossible de lire le coffre localement pour comparer les entrées.",
     "localCompareUnavailable": "Une ou plusieurs colonnes sélectionnées sont invalides."
   },
-  "minutes": "minutes"
+  "minutes": "minutes",
+  "displayName": "Nom d'affichage",
+  "avatarUrl": "URL de l'avatar",
+  "save": "Enregistrer"
 }

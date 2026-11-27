@@ -107,5 +107,6 @@
     "invalidContainer": "Die Struktur der Backup-Datei ist ungültig oder wird nicht unterstützt."
   },
   "tooSoon": "Kürzlich gesichert",
-  "webdavInsecureWarning": "Unverschlüsseltes HTTP überträgt Ihr Passwort im Klartext. Nur für ein lokales NAS oder eine Loopback-Adresse verwenden."
+  "webdavInsecureWarning": "Unverschlüsseltes HTTP überträgt Ihr Passwort im Klartext. Nur für ein lokales NAS oder eine Loopback-Adresse verwenden.",
+  "exportRecoveryKeyPlaceholder": "24 Wörter einfügen, durch Leerzeichen getrennt"
 }

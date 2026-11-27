@@ -269,6 +269,50 @@ export class AuthService {
     return this.store.upsertUserPreferences(userId, autoLockMinutes);
   }
 
+  /** Updates the caller's display name and/or avatar URL; an empty string clears the field. */
+  async updateUserProfile(userId: string, displayName: unknown, avatarUrl: unknown): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null }> {
+    let displayNameValue: string | null | undefined;
+    if (displayName !== undefined) {
+      if (typeof displayName !== 'string') {
+        throw new AuthServiceError(400, 'invalid_request', 'display_name must be a string.');
+      }
+      const trimmed = displayName.trim();
+      if (trimmed.length > 64) {
+        throw new AuthServiceError(400, 'invalid_request', 'display_name must be at most 64 characters.');
+      }
+      displayNameValue = trimmed === '' ? null : trimmed;
+    }
+    let avatarUrlValue: string | null | undefined;
+    if (avatarUrl !== undefined) {
+      if (typeof avatarUrl !== 'string') {
+        throw new AuthServiceError(400, 'invalid_request', 'avatar_url must be a string.');
+      }
+      const trimmed = avatarUrl.trim();
+      if (trimmed === '') {
+        avatarUrlValue = null;
+      } else {
+        let parsed: URL;
+        try {
+          parsed = new URL(trimmed);
+        } catch {
+          throw new AuthServiceError(400, 'invalid_request', 'avatar_url must be a valid https URL.');
+        }
+        if (parsed.protocol !== 'https:' || trimmed.length > 2048) {
+          throw new AuthServiceError(400, 'invalid_request', 'avatar_url must be a valid https URL.');
+        }
+        avatarUrlValue = trimmed;
+      }
+    }
+    const patch: { displayName?: string | null; avatarUrl?: string | null } = {};
+    if (displayNameValue !== undefined) patch.displayName = displayNameValue;
+    if (avatarUrlValue !== undefined) patch.avatarUrl = avatarUrlValue;
+    const updated = await this.store.updateUserProfile(userId, patch);
+    if (updated === null) {
+      throw new AuthServiceError(401, 'unauthorized', 'A valid access token is required.');
+    }
+    return updated;
+  }
+
   async register(
     emailInput: string,
     loginPassword: string,

@@ -1346,6 +1346,23 @@ export class SqlAuthStore implements AuthStore, VaultStore, VaultKeyStore, Devic
     return { auto_lock_minutes: row.auto_lock_minutes };
   }
 
+  async updateUserProfile(userId: string, patch: { readonly displayName?: string | null; readonly avatarUrl?: string | null }): Promise<{ readonly id: string; readonly email: string; readonly display_name: string | null; readonly avatar_url: string | null } | null> {
+    const sets: string[] = [];
+    const values: unknown[] = [userId];
+    if (patch.displayName !== undefined) {
+      values.push(patch.displayName);
+      sets.push(`display_name = $${values.length}`);
+    }
+    if (patch.avatarUrl !== undefined) {
+      values.push(patch.avatarUrl);
+      sets.push(`avatar_url = $${values.length}`);
+    }
+    if (sets.length === 0) return this.findUserById(userId);
+    const row = await first<{ id: string; email: string; display_name: string | null; avatar_url: string | null }>(this.database,
+      `UPDATE users SET ${sets.join(', ')} WHERE id = $1 RETURNING id, email, display_name, avatar_url`, values);
+    return row === null ? null : { id: row.id, email: row.email, display_name: row.display_name, avatar_url: row.avatar_url };
+  }
+
   async hasAdminRole(userId: string): Promise<boolean> {
     const row = await first<{ is_admin: boolean }>(this.database,
       `SELECT EXISTS (

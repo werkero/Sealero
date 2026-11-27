@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type ChangeEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultListItem } from '../../client/contracts'
 import { getCsvHeaders, getImportFileModifiedAt, inspectBackupContainer, parseCsvWithMapping, parseImportText, type BackupContainerSummary, type ImportField, type ImportedVaultEntry, type ParsedImportFile } from './backup-local'
@@ -7,7 +7,9 @@ import { CloudBackupPanel } from './CloudBackupPanel'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../components/ui/card'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../components/ui/dialog'
 import { Input } from '../../components/ui/input'
+import { UserAvatar } from '../../components/UserAvatar'
 
 const requiredImportFields: ImportField[] = ['name', 'url', 'username', 'password']
 const importFields: ImportField[] = ['name', 'url', 'username', 'password', 'note', 'category', 'tags', 'favorite']
@@ -43,7 +45,7 @@ function importErrorTranslationKey(code: string): string {
   return known[code] ?? 'errors.parseFailed'
 }
 
-export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBackupFull, autoLockMinutes, onAutoLockMinutesChange }: {
+export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBackupFull, autoLockMinutes, onAutoLockMinutesChange, onUpdateUserProfile }: {
   user: VaultIdentity
   items: VaultListItem[]
   loadItem: (itemId: string) => Promise<VaultItem>
@@ -53,6 +55,7 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
   onExportBackupFull: (masterPassword: string, recoveryKey: string) => Promise<Uint8Array>
   autoLockMinutes: number
   onAutoLockMinutesChange: (minutes: number) => Promise<boolean>
+  onUpdateUserProfile: (input: { display_name?: string; avatar_url?: string }) => Promise<boolean>
 }) {
   const { t, i18n: activeI18n } = useTranslation(['settings', 'backup', 'vault'])
   const [selectedFileName, setSelectedFileName] = useState('')
@@ -73,9 +76,18 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
   const [exportBusy, setExportBusy] = useState(false)
   const [exportError, setExportError] = useState('')
   const [exportDoneFile, setExportDoneFile] = useState('')
+  const [profileDisplayName, setProfileDisplayName] = useState(user.display_name ?? '')
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState(user.avatar_url ?? '')
+  const [profileBusy, setProfileBusy] = useState(false)
+  const [profileError, setProfileError] = useState('')
   const csvSourceRef = useRef<string | null>(null)
   const importInputRef = useRef<HTMLInputElement>(null)
   const backupInputRef = useRef<HTMLInputElement>(null)
+  const exportRecoveryKeyWordCount = useMemo(() => {
+    const trimmed = exportRecoveryKey.trim()
+    return trimmed === '' ? 0 : trimmed.split(/\s+/).length
+  }, [exportRecoveryKey])
+
   const importCounts = useMemo(() => {
     const rows = importPreview ?? []
     return {
@@ -161,6 +173,22 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
     setExportDialogOpen(false)
   }, [])
 
+  useEffect(() => {
+    setProfileDisplayName(user.display_name ?? '')
+    setProfileAvatarUrl(user.avatar_url ?? '')
+  }, [user.display_name, user.avatar_url])
+
+  const profileChanged = profileDisplayName !== (user.display_name ?? '') || profileAvatarUrl !== (user.avatar_url ?? '')
+
+  const saveProfile = useCallback(async () => {
+    if (profileBusy || !profileChanged) return
+    setProfileBusy(true)
+    setProfileError('')
+    const ok = await onUpdateUserProfile({ display_name: profileDisplayName, avatar_url: profileAvatarUrl })
+    setProfileBusy(false)
+    if (!ok) setProfileError('vault:saveFailed')
+  }, [profileBusy, profileChanged, profileDisplayName, profileAvatarUrl, onUpdateUserProfile])
+
   const confirmExport = useCallback(async () => {
     if (exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()) return
     setExportBusy(true)
@@ -235,11 +263,18 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
         <CardHeader>
           <CardTitle id="settings-account-title" className="text-lg tracking-tight">{t('settings:accountTitle')}</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground" aria-hidden="true">{user.email.slice(0, 1).toUpperCase()}</div>
-          <strong className="min-w-0 flex-1 truncate text-sm font-medium">{user.email}</strong>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-3">
+            <UserAvatar displayName={user.display_name} avatarUrl={user.avatar_url} email={user.email} className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-primary-foreground" />
+            <strong className="min-w-0 flex-1 truncate text-sm font-medium">{user.email}</strong>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5"><span className="text-sm font-medium">{t('settings:displayName')}</span><Input value={profileDisplayName} placeholder={user.email} maxLength={64} onChange={(event) => setProfileDisplayName(event.target.value)} /></label>
+            <label className="grid gap-1.5"><span className="text-sm font-medium">{t('settings:avatarUrl')}</span><Input value={profileAvatarUrl} placeholder="https://" onChange={(event) => setProfileAvatarUrl(event.target.value)} /></label>
+          </div>
+          {profileError ? <p className="text-sm font-medium text-destructive" role="alert">{t(profileError)}</p> : null}
         </CardContent>
-        <CardFooter className="border-t"><small className="block min-w-0 truncate text-xs text-muted-foreground">{t('settings:accountId')} · {user.id}</small></CardFooter>
+        <CardFooter className="border-t"><small className="block min-w-0 flex-1 truncate text-xs text-muted-foreground">{t('settings:accountId')} · {user.id}</small><Button type="button" className="ml-auto" disabled={profileBusy || !profileChanged} onClick={() => void saveProfile()}>{t('settings:save')}</Button></CardFooter>
       </Card>
 
       <Card aria-labelledby="settings-server-title">
@@ -317,21 +352,6 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           <CardContent className="space-y-4">
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:encryptedBackupTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:encryptedBackupDescription')}</p></div><Badge variant="secondary">{t('backup:formatV3')}</Badge></div>
           {exportDoneFile ? <p className="text-sm text-muted-foreground" role="status">{t('backup:exportDone')}: <strong className="font-medium text-foreground">{exportDoneFile}</strong></p> : null}
-          {exportDialogOpen ? (
-            <div className="grid gap-3 rounded-lg bg-muted p-4" aria-label={t('backup:exportDialogTitle')}>
-              <h3 className="text-sm font-semibold">{t('backup:exportDialogTitle')}</h3>
-              <p className="text-xs text-muted-foreground">{t('backup:exportDialogDescription')}</p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportMasterPassword')}</span><Input type="password" value={exportMasterPassword} autoComplete="current-password" onChange={(event) => setExportMasterPassword(event.target.value)} /></label>
-                <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportRecoveryKey')}</span><Input type="password" value={exportRecoveryKey} autoComplete="off" onChange={(event) => setExportRecoveryKey(event.target.value)} /></label>
-              </div>
-              {exportError ? <p className="text-sm font-medium text-destructive" role="alert">{t(exportError)}</p> : null}
-              <div className="flex flex-wrap items-center gap-2">
-                <Button type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</Button>
-                <Button variant="outline" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</Button>
-              </div>
-            </div>
-          ) : null}
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:restoreTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:restoreDescription')}</p></div></div>
           <input ref={backupInputRef} className="visually-hidden" id="vault-backup-file" type="file" accept=".json,application/json" onChange={(event) => void onBackupFileChange(event)} />
           <div className="flex flex-wrap items-center gap-2"><Button asChild variant="outline"><label htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label></Button><span className="text-sm text-muted-foreground">{backupFileName}</span></div>
@@ -340,6 +360,26 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           </CardContent>
         <CardFooter className="border-t"><div className="min-w-0 flex-1 text-xs leading-relaxed text-muted-foreground">{t('backup:secretBoundary')}</div><Button type="button" onClick={openExportDialog} className="ml-auto">{t('backup:exportButton')}</Button></CardFooter>
         </Card>
+
+      <Dialog open={exportDialogOpen} onOpenChange={(open) => { if (!open) closeExportDialog() }}>
+        <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{t('backup:exportDialogTitle')}</DialogTitle>
+            <DialogDescription>{t('backup:exportDialogDescription')}</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportMasterPassword')}</span><Input type="password" value={exportMasterPassword} autoComplete="current-password" onChange={(event) => setExportMasterPassword(event.target.value)} /></label>
+              <label className="grid gap-1.5"><span className="text-sm font-medium">{t('backup:exportRecoveryKey')}</span><Input type="password" value={exportRecoveryKey} autoComplete="off" placeholder={t('backup:exportRecoveryKeyPlaceholder')} onChange={(event) => setExportRecoveryKey(event.target.value)} /><span className="text-xs text-muted-foreground">{exportRecoveryKeyWordCount} / 24</span></label>
+            </div>
+            {exportError ? <p className="text-sm font-medium text-destructive" role="alert">{t(exportError)}</p> : null}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" disabled={exportBusy || !exportMasterPassword || !exportRecoveryKey.trim()} onClick={() => void confirmExport()}>{exportBusy ? t('backup:backingUp') : t('backup:exportButton')}</Button>
+              <Button variant="outline" type="button" onClick={closeExportDialog}>{t('backup:cancel')}</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Card aria-labelledby="settings-cloud-title">
         <CardHeader>

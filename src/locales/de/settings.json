@@ -26,5 +26,8 @@
     "noLoginRows": "Der Tresor konnte zum Vergleichen nicht lokal gelesen werden.",
     "localCompareUnavailable": "Eine oder mehrere ausgewählte Spalten sind ungültig."
   },
-  "minutes": "Minuten"
+  "minutes": "Minuten",
+  "displayName": "Anzeigename",
+  "avatarUrl": "Avatar-URL",
+  "save": "Speichern"
 }

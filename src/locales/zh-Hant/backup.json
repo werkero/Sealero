@@ -107,5 +107,6 @@
     "invalidContainer": "備份檔案結構無效或不受支援。"
   },
   "tooSoon": "最近已備份",
-  "webdavInsecureWarning": "明文 HTTP 會以未加密方式傳送密碼，僅限區域網路 NAS 或本機位址使用。"
+  "webdavInsecureWarning": "明文 HTTP 會以未加密方式傳送密碼，僅限區域網路 NAS 或本機位址使用。",
+  "exportRecoveryKeyPlaceholder": "貼上 24 個單詞，用空格隔開"
 }

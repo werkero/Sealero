@@ -26,5 +26,8 @@
     "noLoginRows": "無法在本機讀取保險庫以比較項目。",
     "localCompareUnavailable": "所選欄位無效。"
   },
-  "minutes": "分鐘"
+  "minutes": "分鐘",
+  "displayName": "顯示名稱",
+  "avatarUrl": "頭像連結",
+  "save": "儲存"
 }

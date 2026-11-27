@@ -14,6 +14,7 @@ import { requireAccessToken } from '../middleware/authentication.js';
 import type { AuthenticatedEnvironment } from '../middleware/authentication.js';
 import { createSensitiveAuthRoutes } from '../routes/auth-security.js';
 import { createUserPreferencesRoutes } from '../routes/user-preferences.js';
+import { createUserProfileRoutes } from '../routes/user-profile.js';
 import { createVaultRoutes } from '../routes/vault.js';
 import { createVaultKeyRoutes } from '../routes/vault-key.js';
 import type { VaultKeyStore, VaultStore } from '../vault/types.js';
@@ -122,6 +123,9 @@ export function createAuthenticatedApp(
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
   }));
   securedRoutes.route('/user', createUserPreferencesRoutes(service, {
+    allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
+  }));
+  securedRoutes.route('/user', createUserProfileRoutes(service, {
     allowInsecureHttp: dependencies.allowInsecureHttp ?? false,
   }));
   const adminUserService = new AdminUserService(dependencies.store, service, dependencies.serviceOptions?.now);

@@ -107,5 +107,6 @@
     "invalidContainer": "备份文件结构无效或不受支持。"
   },
   "tooSoon": "最近已备份",
-  "webdavInsecureWarning": "明文 HTTP 会以未加密方式发送密码，仅限局域网 NAS 或本机地址使用。"
+  "webdavInsecureWarning": "明文 HTTP 会以未加密方式发送密码，仅限局域网 NAS 或本机地址使用。",
+  "exportRecoveryKeyPlaceholder": "粘贴 24 个单词，用空格隔开"
 }
