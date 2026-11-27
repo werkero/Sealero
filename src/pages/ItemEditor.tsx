@@ -18,11 +18,13 @@ function errorCode(error: unknown): string | null {
 }
 
 /** Create/edit form for one vault item, as a shadcn Card. */
-export function ItemEditor({ initial, onSave, onCancel }: {
+export function ItemEditor({ initial, onSave, onCancel, bare }: {
   /** Null for a new item; the loaded item when editing (passkey is preserved, not edited). */
   initial: VaultItem | null
   onSave: (input: VaultItemInput) => Promise<void>
   onCancel: () => void
+  /** Render only the form, without the Card shell (for use inside a Dialog). */
+  bare?: boolean
 }) {
   const { t } = useTranslation(['common', 'vault'])
   const [name, setName] = useState(initial?.name ?? '')
@@ -72,14 +74,8 @@ export function ItemEditor({ initial, onSave, onCancel }: {
     }
   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle id="item-editor-title">{initial ? t('vault:editItem') : t('vault:newItem')}</CardTitle>
-        <CardDescription>{initial ? initial.name : t('vault:collectionSubtitle')}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="grid gap-4" onSubmit={submit}>
+  const form = (
+    <form className="grid gap-4" onSubmit={submit}>
           <div className="grid gap-1.5">
             <Label htmlFor="item-name">{t('vault:name')}</Label>
             <Input id="item-name" name="name" type="text" autoComplete="off" value={name} onChange={(event) => setName(event.target.value)} required disabled={saving} />
@@ -136,8 +132,16 @@ export function ItemEditor({ initial, onSave, onCancel }: {
             <Button type="submit" disabled={saving}>{t('vault:saveItem')}</Button>
             <Button variant="outline" type="button" onClick={onCancel} disabled={saving}>{t('vault:cancelEdit')}</Button>
           </div>
-        </form>
-      </CardContent>
+    </form>
+  )
+  if (bare) return form
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle id="item-editor-title">{initial ? t('vault:editItem') : t('vault:newItem')}</CardTitle>
+        <CardDescription>{initial ? initial.name : t('vault:collectionSubtitle')}</CardDescription>
+      </CardHeader>
+      <CardContent>{form}</CardContent>
     </Card>
   )
 }

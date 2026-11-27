@@ -123,6 +123,7 @@
   "clipboardClearFailed": "We couldn't verify or clear the clipboard. Remove the copied password from your clipboard manually.",
   "name": "Name",
   "newItem": "New item",
+  "add": "Add",
   "editItem": "Edit item",
   "saveItem": "Save item",
   "cancelEdit": "Cancel",

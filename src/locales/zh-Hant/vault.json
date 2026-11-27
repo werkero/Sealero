@@ -123,6 +123,7 @@
   "clipboardClearFailed": "無法驗證或清除剪貼簿。請手動從剪貼簿中移除已複製的密碼。",
   "name": "名稱",
   "newItem": "新增條目",
+  "add": "新增",
   "editItem": "編輯條目",
   "saveItem": "儲存條目",
   "cancelEdit": "取消",

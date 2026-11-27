@@ -123,6 +123,7 @@
   "clipboardClearFailed": "Impossible de vérifier ou d'effacer le presse-papiers. Supprimez manuellement le mot de passe copié.",
   "name": "Nom",
   "newItem": "Nouvel élément",
+  "add": "Ajouter",
   "editItem": "Modifier l’élément",
   "saveItem": "Enregistrer l’élément",
   "cancelEdit": "Annuler",

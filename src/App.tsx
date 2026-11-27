@@ -61,7 +61,7 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
  * sidebar. Toasts are event-driven and render nothing when empty, so
  * both backends can share this shell.
  */
-export function BackendShell({ user, nav, bottom, menu, title, topbarAction, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
+export function BackendShell({ user, nav, bottom, menu, title, topbarAction, topbarEndAction, appearancePreference, onNavigate, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   nav: ReactNode
   bottom?: ReactNode
@@ -69,6 +69,8 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
   title?: ReactNode
   /** One tool shown in the top bar next to the collapse button. */
   topbarAction?: ReactNode
+  /** One action shown at the far right end of the top bar. */
+  topbarEndAction?: ReactNode
   appearancePreference: AppearancePreference
   onNavigate: (path: string) => void
   onLogout: () => void
@@ -153,6 +155,7 @@ export function BackendShell({ user, nav, bottom, menu, title, topbarAction, app
             <SidebarSeparator orientation="vertical" className="mr-2 h-4 md:hidden" />
             <span className="truncate text-sm font-medium">{title}</span>
           </> : null}
+          {topbarEndAction ? <span className="ml-auto flex items-center">{topbarEndAction}</span> : null}
         </header>
         <div className="flex min-w-0 flex-1 flex-col">{children}</div>
       </SidebarInset>
@@ -211,7 +214,7 @@ export function TopbarBackButton({ label, onClick }: { label: string; onClick: (
   )
 }
 
-export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
+export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAction, topbarEndAction, appearancePreference, onFilterChange, onNavigate, onLock, onLogout, onAppearanceChange, children }: {
   user: VaultIdentity
   filter: VaultFilter
   itemCount: number
@@ -220,6 +223,8 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
   title?: ReactNode
   /** One tool shown in the top bar next to the collapse button. */
   topbarAction?: ReactNode
+  /** One action shown at the far right end of the top bar. */
+  topbarEndAction?: ReactNode
   appearancePreference: AppearancePreference
   onFilterChange: (filter: VaultFilter) => void
   onNavigate: (path: string) => void
@@ -253,6 +258,7 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
       onLogout={onLogout}
       title={title}
       topbarAction={topbarAction}
+      topbarEndAction={topbarEndAction}
       appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
       nav={
@@ -263,8 +269,8 @@ export function VaultLayout({ user, filter, itemCount, isAdmin, title, topbarAct
                 <SidebarMenuButton isActive={filter === 'all'} tooltip={t('vault:allItems')} onClick={() => { onFilterChange('all'); onNavigate(`/users/${user.id}`) }}>
                   <LayoutGrid />
                   <span>{t('vault:allItems')}</span>
-                  <SidebarMenuBadge>{itemCount}</SidebarMenuBadge>
                 </SidebarMenuButton>
+                <SidebarMenuBadge>{itemCount}</SidebarMenuBadge>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton isActive={filter === 'favorites'} tooltip={t('vault:favorites')} onClick={() => { onFilterChange('favorites'); onNavigate(`/users/${user.id}`) }}>

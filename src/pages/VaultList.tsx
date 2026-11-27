@@ -7,6 +7,7 @@ import type { AppearancePreference } from '../features/settings/preferences'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../components/ui/dialog'
 import { ItemEditor } from './ItemEditor'
 
 export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCreateItem, onLock, onLogout, appearancePreference, onAppearanceChange }: {
@@ -52,23 +53,30 @@ export function VaultList({ user, items, isAdmin, onNavigate, onOpenItem, onCrea
   }, [filter, items, query])
 
   return (
-    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={<span className="inline-flex items-center gap-1.5">{filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')}{filter === 'all' ? <Button variant="ghost" size="icon" className="size-7" type="button" aria-label={t('vault:newItem')} title={t('vault:newItem')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /></Button> : null}</span>} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout user={user} filter={filter} itemCount={items.length} isAdmin={isAdmin} title={filter === 'favorites' ? t('vault:favorites') : t('vault:allItems')} topbarEndAction={filter === 'all' ? <Button variant="ghost" size="sm" type="button" aria-label={t('vault:add')} title={t('vault:add')} onClick={() => setCreating(true)}><Plus className="size-4" aria-hidden="true" /><span>{t('vault:add')}</span></Button> : undefined} onFilterChange={setFilter} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
         <div className="flex flex-wrap items-center gap-2">
           <span className="ml-auto self-center text-xs text-muted-foreground"><strong className="font-semibold text-foreground">{visibleItems.length}</strong> {t('vault:itemsLabel')}</span>
         </div>
-        {creating ? (
-          <ItemEditor
-            initial={null}
-            onSave={async (input) => {
-              const created = await onCreateItem(input)
-              if (!created) return
-              setCreating(false)
-              window.dispatchEvent(new CustomEvent('sealero:toast', { detail: t('vault:itemCreated') }))
-            }}
-            onCancel={() => setCreating(false)}
-          />
-        ) : null}
+        <Dialog open={creating} onOpenChange={(open) => { if (!open) setCreating(false) }}>
+          <DialogContent className="max-h-[calc(100dvh-4rem)] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t('vault:newItem')}</DialogTitle>
+              <DialogDescription>{t('vault:collectionSubtitle')}</DialogDescription>
+            </DialogHeader>
+            <ItemEditor
+              initial={null}
+              bare
+              onSave={async (input) => {
+                const created = await onCreateItem(input)
+                if (!created) return
+                setCreating(false)
+                window.dispatchEvent(new CustomEvent('sealero:toast', { detail: t('vault:itemCreated') }))
+              }}
+              onCancel={() => setCreating(false)}
+            />
+          </DialogContent>
+        </Dialog>
         <div className="relative min-w-0 flex-1">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" aria-hidden="true"><Search size={16} aria-hidden="true" /></span>
             <label className="sr-only" htmlFor="vault-search">{t('vault:searchLabel')}</label>

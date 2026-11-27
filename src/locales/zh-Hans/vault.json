@@ -123,6 +123,7 @@
   "clipboardClearFailed": "无法验证或清除剪贴板。请手动从剪贴板中移除已复制的密码。",
   "name": "名称",
   "newItem": "新建条目",
+  "add": "添加",
   "editItem": "编辑条目",
   "saveItem": "保存条目",
   "cancelEdit": "取消",

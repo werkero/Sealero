@@ -123,6 +123,7 @@
   "clipboardClearFailed": "Die Zwischenablage konnte nicht geprüft oder geleert werden. Entferne das kopierte Passwort manuell aus der Zwischenablage.",
   "name": "Name",
   "newItem": "Neuer Eintrag",
+  "add": "Hinzufügen",
   "editItem": "Eintrag bearbeiten",
   "saveItem": "Eintrag speichern",
   "cancelEdit": "Abbrechen",
