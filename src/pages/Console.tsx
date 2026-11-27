@@ -26,7 +26,7 @@ import {
 } from '../features/admin/contract'
 
 const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
-const panel = 'mt-[17px] min-w-0 rounded-xl bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
 const actionButton = 'min-h-[38px] rounded-[7px] border border-border bg-muted px-[13px] text-[12px] font-semibold text-muted-foreground disabled:cursor-not-allowed disabled:opacity-76'
 const enabledButton = 'min-h-[38px] cursor-pointer rounded-[7px] border border-primary/30 bg-primary/10 px-[13px] text-[12px] font-semibold text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60'
@@ -375,7 +375,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 
         <section className="grid grid-cols-[repeat(5,minmax(0,1fr))] gap-3 max-[1100px]:grid-cols-3 max-[760px]:grid-cols-2 max-[760px]:gap-2" aria-label={t('overview.metricsLabel')}>
           {metrics.map(([key, label, detail, value]) => (
-            <article className="flex min-h-[142px] min-w-0 flex-col items-start rounded-xl border border-border bg-(--surface) p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
+            <article className="glass-panel flex min-h-[142px] min-w-0 flex-col items-start rounded-xl p-[15px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:min-h-[124px] max-[760px]:p-3" key={key}>
               <span className="text-[12px] font-[580] leading-[1.4] text-muted-foreground">{label}</span>
               <strong className="mt-[17px] text-[28px] font-[620] tabular-nums tracking-[-0.04em] text-foreground max-[760px]:mt-[13px] max-[760px]:text-2xl">{overviewLoading && overview === null ? t('loading') : value}</strong>
               <span className="mt-[3px] text-[12px] text-muted-foreground">{detail}</span>

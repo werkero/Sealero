@@ -21,7 +21,7 @@ import {
 } from '../features/admin/contract'
 
 const pill = 'inline-flex items-center whitespace-nowrap rounded-full border border-border bg-muted px-2.5 py-1.5 text-[12px] font-[650] text-muted-foreground'
-const panel = 'mt-[17px] min-w-0 rounded-xl bg-(--surface) p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
+const panel = 'glass-panel mt-[17px] min-w-0 rounded-xl p-[19px] shadow-[0_4px_14px_rgb(28_39_58/3%)] max-[760px]:p-[15px]'
 const panelTitle = 'm-0 text-sm font-[640] text-foreground'
 const panelDesc = 'mt-1.5 text-[12px] leading-[1.6] text-muted-foreground'
 const filterLabel = 'grid gap-[5px] text-[12px] font-[570] text-muted-foreground'

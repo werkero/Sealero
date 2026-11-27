@@ -18,6 +18,9 @@
   --green: #14845d;
   --amber: #946316;
   --chevron: #818895;
+  --glass-bg: rgb(255 255 255 / 62%);
+  --glass-border: rgb(23 26 33 / 9%);
+  --glass-input-bg: rgb(255 255 255 / 55%);
   --shadow-card: 0 18px 60px rgb(25 39 67 / 8%), 0 2px 8px rgb(25 39 67 / 4%);
 }
 
@@ -66,7 +69,10 @@ button {
   padding: 0 clamp(20px, 5vw, 64px);
   display: flex;
   flex-direction: column;
-  background: var(--page);
+  background:
+    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 5%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
+    var(--page);
   color: var(--ink);
 }
 
@@ -485,10 +491,12 @@ button {
 .pricing-card {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
-  background: var(--surface);
+  background: var(--glass-bg);
   padding: 28px;
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
 }
 
 .pricing-card-pro {
@@ -848,7 +856,10 @@ button {
   flex-direction: column;
   min-height: 100svh;
   padding: 0 clamp(20px, 5vw, 64px) 30px;
-  background: var(--page);
+  background:
+    radial-gradient(560px 420px at 50% 42%, rgb(68 121 245 / 5%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
+    var(--page);
 }
 
 .auth-main {
@@ -886,11 +897,13 @@ button {
 
 .auth-card {
   margin-top: 19px;
-  border: 1px solid #e9ebef;
+  border: 1px solid var(--glass-border);
   border-radius: 16px;
-  background: var(--surface);
+  background: var(--glass-bg);
   padding: clamp(24px, 4vw, 31px) clamp(20px, 4vw, 34px) clamp(20px, 3vw, 25px);
   box-shadow: 0 12px 42px rgb(23 32 52 / 5%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
 }
 
 .auth-card-mark {
@@ -961,7 +974,7 @@ button {
   height: 45px;
   border: 1px solid #e3e6eb;
   border-radius: 9px;
-  background: #fff;
+  background: var(--glass-input-bg);
   padding: 0 12px;
   color: #222936;
   font-size: 13px;
@@ -1314,7 +1327,7 @@ button {
   gap: 10px;
   border: 1px solid #e5e8ed;
   border-radius: 10px;
-  background: #fff;
+  background: var(--glass-input-bg);
   padding: 0 12px;
   transition: border-color 140ms ease, box-shadow 140ms ease;
 }
@@ -1637,11 +1650,13 @@ button {
 
 .detail-card {
   min-width: 0;
-  border: 1px solid #e9ebef;
+  border: 1px solid var(--glass-border);
   border-radius: 13px;
-  background: #fff;
+  background: var(--glass-bg);
   padding: 19px 19px 17px;
   box-shadow: 0 5px 17px rgb(30 39 56 / 3%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
 }
 
 .detail-card-heading {
@@ -2334,11 +2349,13 @@ button {
     --blue-hover: #5c91ff;
     --blue-soft: #111f44;
     --chevron: #9aa3af;
+    --glass-bg: rgb(255 255 255 / 6%);
+    --glass-border: rgb(255 255 255 / 10%);
+    --glass-input-bg: rgb(255 255 255 / 5%);
     color-scheme: dark;
   }
 :root[data-theme="dark"] body,
-:root[data-theme="dark"] #root,
-:root[data-theme="dark"] .auth-shell {
+:root[data-theme="dark"] #root {
     background: oklch(0.205 0 0);
     color: oklch(0.955 0.006 264.5);
   }
@@ -2377,8 +2394,6 @@ button {
   }
 :root[data-theme="dark"] .auth-card,
 :root[data-theme="dark"] .detail-card {
-    border-color: oklch(0.345 0.024 268.6);
-    background: oklch(0.235 0.014 267.0);
     box-shadow: 0 18px 52px rgb(0 0 0 / 24%);
   }
 
@@ -2402,7 +2417,7 @@ button {
 :root[data-theme="dark"] .detail-metadata i,
 :root[data-theme="dark"] .mnemonic-word {
     border-color: oklch(0.345 0.024 268.6);
-    background: oklch(0.235 0.014 267.0);
+    background: var(--glass-input-bg);
     color: oklch(0.955 0.006 264.5);
   }
 :root[data-theme="dark"] .text-input::placeholder,
@@ -2470,6 +2485,43 @@ button {
 :root[data-theme="dark"] .lock-mark {
   background: #16281d;
   color: #6fce8f;
+}
+
+/* Frosted glass: translucent cards over the page glow. --glass-bg and
+   --glass-border switch per theme; the blur itself is theme-independent. */
+.glass-panel {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
+}
+
+.backend-shell {
+  background:
+    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 5%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 4%), transparent 70%),
+    var(--sidebar);
+}
+
+:root[data-theme="dark"] .backend-shell {
+  background:
+    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 11%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 8%), transparent 70%),
+    var(--sidebar);
+}
+
+:root[data-theme="dark"] .public-shell {
+  background:
+    radial-gradient(720px 480px at 12% -8%, rgb(68 121 245 / 11%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 8%), transparent 70%),
+    var(--page);
+}
+
+:root[data-theme="dark"] .auth-shell {
+  background:
+    radial-gradient(560px 420px at 50% 42%, rgb(68 121 245 / 10%), transparent 70%),
+    radial-gradient(640px 480px at 95% 108%, rgb(68 121 245 / 7%), transparent 70%),
+    var(--page);
 }
 
 @media (prefers-reduced-motion: reduce) {

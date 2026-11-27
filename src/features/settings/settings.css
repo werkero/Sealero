@@ -90,10 +90,12 @@
   line-height: 1.5;
 }
 .settings-card {
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-border);
   border-radius: 14px;
-  background: var(--surface);
+  background: var(--glass-bg);
   box-shadow: 0 7px 23px rgb(25 39 67 / 3%);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
 }
 .settings-account-card {
   display: flex;

@@ -137,7 +137,7 @@ export function BackendShell({ user, nav, bottom, menu, title, appearancePrefere
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="bg-sidebar">
+      <SidebarInset className="bg-sidebar backend-shell">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           {title ? <>
