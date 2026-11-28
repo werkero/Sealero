@@ -66,10 +66,19 @@ function storeDeviceId(deviceId: string): void {
 }
 
 const REFRESH_LOCK_KEY = 'sealero.refresh_lock'
-/** A cross-tab refresh lock lives at most this long before another tab may take it over. */
-const REFRESH_LOCK_TTL_MS = 10_000
-/** How long a tab waits for another tab's refresh before proceeding without the lock. */
-const REFRESH_LOCK_WAIT_MS = 5_000
+/**
+ * A cross-tab refresh lock lives at most this long before another tab may take it over.
+ * Kept well above a slow refresh (Vercel cold starts can take several seconds):
+ * if the lock expires while the holder is still refreshing, a second tab can
+ * acquire it and present the same old token, which the server reads as a
+ * replay and answers by revoking every device.
+ */
+const REFRESH_LOCK_TTL_MS = 30_000
+/**
+ * How long a tab waits for another tab's refresh before proceeding without the lock.
+ * Shorter than the lock TTL so a waiter never outlives the lock it is waiting on.
+ */
+const REFRESH_LOCK_WAIT_MS = 25_000
 const REFRESH_LOCK_POLL_MS = 100
 
 function sleep(ms: number): Promise<void> {

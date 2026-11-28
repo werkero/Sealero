@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Activity, ChevronLeft, ChevronRight, Database, LayoutGrid, ScrollText, Settings, Shield, Smartphone, UserPlus, Users as UsersIcon } from 'lucide-react'
+import { Activity, ChevronLeft, ChevronRight, Database, LayoutGrid, Plus, ScrollText, Settings, Shield, Smartphone, UserPlus, Users as UsersIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { BackendShell } from '../App'
@@ -54,12 +54,6 @@ function formatDateTime(value: string | null): string {
   if (value === null) return '—'
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString()
-}
-
-function formatDefault(value: string | number | boolean | null, t: AdminTFunction) {
-  if (value === null) return t('settings.notConfigured')
-  if (typeof value === 'boolean') return value ? t('common.yes') : t('common.no')
-  return String(value)
 }
 
 /** Maps a failed admin request to display copy; the server code is kept so the cause stays visible. */
@@ -141,12 +135,6 @@ function buildSettingsUpdates(draft: SettingsDraft, current: AdminSettings): { u
   return { updates, errorKey: null }
 }
 
-function sourceLabel(source: string, t: AdminTFunction): string {
-  if (source === 'db') return t('settings.sourceDb')
-  if (source === 'env') return t('settings.sourceEnv')
-  return t('settings.sourceDefault')
-}
-
 export function Console({ user, appearancePreference, onNavigate, getAccessToken, refreshAccessToken, currentUserId, onAppearanceChange, onLogout }: {
   user: VaultIdentity
   appearancePreference: AppearancePreference
@@ -160,6 +148,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
 }) {
   const { t } = useTranslation(['admin', 'common'])
   const [section, setSection] = useState<AdminSection>('overview')
+  const [userDetailBack, setUserDetailBack] = useState<(() => void) | null>(null)
   const sections: AdminSection[] = ['overview', 'users', 'roles', 'settings', 'audit']
   const adminClient: AdminClient = useMemo(() => createAdminClient({ getAccessToken, refreshAccessToken }), [getAccessToken, refreshAccessToken])
 
@@ -626,14 +615,11 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
         <Card className="mt-4">
           <CardContent>
             {ADMIN_SETTING_FIELDS.map((field) => {
-              const source = settingsResponse.sources[field.key]
               const draftValue = settingsDraft[field.key]
               return (
                 <article className="grid min-h-24 grid-cols-[minmax(150px,0.9fr)_minmax(190px,1.2fr)_auto] items-center gap-4 py-3 max-[760px]:grid-cols-[minmax(0,1fr)_auto] max-[760px]:gap-2.5" key={field.key}>
                   <div>
                     <h2 className="text-xs font-semibold text-foreground">{t(`fields.${field.key}`)}</h2>
-                    <code className="mt-1 inline-block font-mono text-xs text-muted-foreground">{field.key}</code>
-                    <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(field.constraintKey)}</p>
                   </div>
                   <div className="grid justify-items-start gap-1 max-[760px]:col-[1/2] max-[760px]:row-[2]">
                     {field.key === 'smtp_pass' ? (
@@ -667,10 +653,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
                         aria-label={t(`fields.${field.key}`)}
                       />
                     )}
-                    <span className="text-xs leading-relaxed text-muted-foreground">{sourceLabel(source, t)}</span>
-                    <span className="text-xs leading-relaxed text-muted-foreground">
-                      {t('settings.builtInDefault', { value: formatDefault(field.defaultValue, t) })}
-                    </span>
                   </div>
                   <Button variant="outline" size="sm" type="button" disabled={settingsSaving} onClick={() => void clearSetting(field.key)} aria-label={`${t('settings.clearOverride')} ${field.key}`}>
                     {t('settings.clearOverride')}
@@ -920,10 +902,6 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
           </Alert>
         ) : null}
         <Card className="mt-4">
-          <CardHeader>
-            <CardTitle id="admin-roles-title">{t('roles.title')}</CardTitle>
-            <CardAction><Button type="button" onClick={() => openRoleEditor('new')} variant="outline">{t('roles.newRole')}</Button></CardAction>
-          </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
             <Table>
@@ -977,7 +955,18 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       user={user}
       onNavigate={onNavigate}
       onLogout={onLogout}
-      title={section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'roles' ? t('roles.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
+      title={section === 'users' && userDetailBack ? t('users.detailsTitle') : section === 'overview' ? t('overview.title') : section === 'users' ? t('users.title') : section === 'roles' ? t('roles.title') : section === 'settings' ? t('settings.title') : t('audit.title')}
+      topbarAction={section === 'users' && userDetailBack ? (
+        <Button type="button" variant="ghost" size="icon" aria-label={t('users.backToList')} onClick={userDetailBack}>
+          <ChevronLeft className="size-4" aria-hidden="true" />
+        </Button>
+      ) : undefined}
+      topbarEndAction={section === 'roles' && editingRole === null && detailRole === null ? (
+        <Button type="button" variant="outline" onClick={() => openRoleEditor('new')}>
+          <Plus className="size-4" aria-hidden="true" />
+          {t('roles.addRole')}
+        </Button>
+      ) : undefined}
       appearancePreference={appearancePreference}
       onAppearanceChange={onAppearanceChange}
       nav={
@@ -1004,7 +993,7 @@ export function Console({ user, appearancePreference, onNavigate, getAccessToken
       </>)}
     >
       <div className="min-w-0 px-[clamp(20px,4vw,54px)] pb-[26px] pt-[34px] max-[760px]:px-4 max-[760px]:pb-5 max-[760px]:pt-6">
-        {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-muted px-1.5 py-[3px] text-[12px] font-[550] text-muted-foreground" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} /></Suspense> : section === 'roles' ? renderRoles() : section === 'settings' ? renderSettings() : renderAudit()}
+        {section === 'overview' ? renderOverview() : section === 'users' ? <Suspense fallback={<p className="inline-flex items-center rounded-[5px] bg-muted px-1.5 py-[3px] text-[12px] font-[550] text-muted-foreground" role="status">{t('loading')}</p>}><Users adminClient={adminClient} currentUserId={currentUserId} onDetailBack={setUserDetailBack} /></Suspense> : section === 'roles' ? renderRoles() : section === 'settings' ? renderSettings() : renderAudit()}
       </div>
     </BackendShell>
   )

@@ -6,7 +6,7 @@
   },
   "navigation": {
     "overview": "總覽",
-    "settings": "伺服器設定",
+    "settings": "系統設置",
     "audit": "稽核記錄",
     "users": "使用者管理",
     "roles": "角色管理"
@@ -34,7 +34,7 @@
     "trendActiveUsers": "活躍用戶"
   },
   "settings": {
-    "title": "伺服器設定",
+    "title": "系統設置",
     "builtInDefault": "內建回退值：{{value}}",
     "notConfigured": "未設定",
     "writeOnly": "僅寫入 · 永不顯示",
@@ -216,6 +216,7 @@
     "noPermissions": "無權限",
     "permissionCount": "{count} 項權限",
     "newRole": "新建角色",
+    "addRole": "新增角色",
     "editRole": "編輯角色",
     "viewRole": "查看角色",
     "deleteRole": "刪除",
@@ -240,7 +241,7 @@
     "modules": {
       "overview": "總覽",
       "users": "用戶",
-      "settings": "服務器設置",
+      "settings": "系統設置",
       "audit": "審計日誌",
       "roles": "角色管理",
       "dump": "數據庫備份"
@@ -249,7 +250,7 @@
       "overviewRead": "查看控制台總覽與用戶趨勢",
       "usersRead": "查看用戶列表與詳情",
       "usersManage": "停用、啟用、刪除用戶，指定、取消管理員，吊銷設備",
-      "settingsManage": "查看與修改服務器設置",
+      "settingsManage": "查看與修改系統設置",
       "auditRead": "查看審計日誌",
       "rolesManage": "增刪改角色，修改角色權限，指派、移除角色用戶",
       "dumpRead": "下載數據庫密文備份"

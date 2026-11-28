@@ -6,7 +6,7 @@
   },
   "navigation": {
     "overview": "Vue d’ensemble",
-    "settings": "Paramètres serveur",
+    "settings": "Paramètres système",
     "audit": "Journal d’audit",
     "users": "Utilisateurs",
     "roles": "Rôles"
@@ -34,7 +34,7 @@
     "trendActiveUsers": "Utilisateurs actifs"
   },
   "settings": {
-    "title": "Paramètres serveur",
+    "title": "Paramètres système",
     "builtInDefault": "Valeur de repli intégrée : {{value}}",
     "notConfigured": "Non configuré",
     "writeOnly": "Écriture seule · jamais affiché",
@@ -216,6 +216,7 @@
     "noPermissions": "Aucune autorisation",
     "permissionCount": "{count} autorisations",
     "newRole": "Nouveau rôle",
+    "addRole": "Ajouter un rôle",
     "editRole": "Modifier le rôle",
     "viewRole": "Voir le rôle",
     "deleteRole": "Supprimer",
@@ -240,7 +241,7 @@
     "modules": {
       "overview": "Vue d’ensemble",
       "users": "Utilisateurs",
-      "settings": "Paramètres du serveur",
+      "settings": "Paramètres système",
       "audit": "Journal d’audit",
       "roles": "Gestion des rôles",
       "dump": "Sauvegarde de la base de données"
@@ -249,7 +250,7 @@
       "overviewRead": "Voir la vue d’ensemble de la console et la tendance des utilisateurs",
       "usersRead": "Voir la liste et les détails des utilisateurs",
       "usersManage": "Désactiver, activer et supprimer des utilisateurs ; nommer et révoquer des administrateurs ; révoquer des appareils",
-      "settingsManage": "Voir et modifier les paramètres du serveur",
+      "settingsManage": "Voir et modifier les paramètres système",
       "auditRead": "Voir le journal d’audit",
       "rolesManage": "Créer, modifier et supprimer des rôles ; modifier les autorisations des rôles ; assigner et retirer des utilisateurs de rôle",
       "dumpRead": "Télécharger la sauvegarde chiffrée de la base de données"

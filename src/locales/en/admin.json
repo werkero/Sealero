@@ -6,7 +6,7 @@
   },
   "navigation": {
     "overview": "Overview",
-    "settings": "Server settings",
+    "settings": "System settings",
     "audit": "Audit log",
     "users": "Users",
     "roles": "Roles"
@@ -34,7 +34,7 @@
     "trendActiveUsers": "Active users"
   },
   "settings": {
-    "title": "Server settings",
+    "title": "System settings",
     "builtInDefault": "Built-in fallback: {{value}}",
     "notConfigured": "Not configured",
     "writeOnly": "Write-only · never displayed",
@@ -216,6 +216,7 @@
     "noPermissions": "No permissions",
     "permissionCount": "{count} permissions",
     "newRole": "New role",
+    "addRole": "Add role",
     "editRole": "Edit role",
     "viewRole": "View role",
     "deleteRole": "Delete",
@@ -240,7 +241,7 @@
     "modules": {
       "overview": "Overview",
       "users": "Users",
-      "settings": "Server settings",
+      "settings": "System settings",
       "audit": "Audit log",
       "roles": "Role management",
       "dump": "Database backup"
@@ -249,7 +250,7 @@
       "overviewRead": "View the console overview and user trend",
       "usersRead": "View the user list and details",
       "usersManage": "Disable, enable and delete users; assign and remove admins; revoke devices",
-      "settingsManage": "View and change server settings",
+      "settingsManage": "View and change system settings",
       "auditRead": "View the audit log",
       "rolesManage": "Create, update and delete roles; change role permissions; assign and remove role users",
       "dumpRead": "Download the encrypted database dump"

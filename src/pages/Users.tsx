@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { AdminApiError, type AdminClient } from '../client/admin'
@@ -58,7 +58,7 @@ interface UserFilters {
 
 const DEFAULT_FILTERS: UserFilters = { search: '', status: 'all', verified: 'all', role: 'all' }
 
-export function Users({ adminClient, currentUserId }: { adminClient: AdminClient; currentUserId: string }) {
+export function Users({ adminClient, currentUserId, onDetailBack }: { adminClient: AdminClient; currentUserId: string; onDetailBack: (back: (() => void) | null) => void }) {
   const { t } = useTranslation('admin')
   const mountedRef = useRef(true)
   useEffect(() => () => { mountedRef.current = false }, [])
@@ -260,16 +260,13 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
     setActionMessage('')
   }, [])
 
+  useEffect(() => {
+    onDetailBack(selectedId !== null ? backToList : null)
+  }, [selectedId, backToList, onDetailBack])
+
   if (selectedId !== null) {
     return (
       <>
-        <div>
-          <Button type="button" onClick={backToList} variant="outline" className="inline-flex items-center gap-1.5">
-            <ChevronLeft size={14} aria-hidden="true" />
-            {t('users.backToList')}
-          </Button>
-        </div>
-
         <div className="mt-4 grid grid-cols-2 gap-4 max-[760px]:grid-cols-1">
           <Card className="col-span-full max-[760px]:col-auto">
             <CardHeader>
@@ -278,8 +275,7 @@ export function Users({ adminClient, currentUserId }: { adminClient: AdminClient
                   <UserAvatar displayName={selectedUser.display_name} avatarUrl={selectedUser.avatar_url} email={selectedUser.email} className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground" />
                 )}
                 <div className="min-w-0">
-                  <CardTitle id="admin-user-detail-title">{t('users.detailsTitle')}</CardTitle>
-                  <CardDescription>{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : (selectedUser.display_name ?? selectedUser.email)}</CardDescription>
+                  <CardTitle id="admin-user-detail-title">{selectedUser === null ? (detailLoading ? t('loading') : t('users.selectUserHint')) : (selectedUser.display_name ?? selectedUser.email)}</CardTitle>
                 </div>
               </div>
             </CardHeader>

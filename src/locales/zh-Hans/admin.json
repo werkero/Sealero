@@ -6,7 +6,7 @@
   },
   "navigation": {
     "overview": "总览",
-    "settings": "服务器设置",
+    "settings": "系统设置",
     "audit": "审计日志",
     "users": "用户管理",
     "roles": "角色管理"
@@ -34,7 +34,7 @@
     "trendActiveUsers": "活跃用户"
   },
   "settings": {
-    "title": "服务器设置",
+    "title": "系统设置",
     "builtInDefault": "内置回退值：{{value}}",
     "notConfigured": "未配置",
     "writeOnly": "仅写入 · 永不显示",
@@ -216,6 +216,7 @@
     "noPermissions": "无权限",
     "permissionCount": "{count} 项权限",
     "newRole": "新建角色",
+    "addRole": "新增角色",
     "editRole": "编辑角色",
     "viewRole": "查看角色",
     "deleteRole": "删除",
@@ -240,7 +241,7 @@
     "modules": {
       "overview": "总览",
       "users": "用户",
-      "settings": "服务器设置",
+      "settings": "系统设置",
       "audit": "审计日志",
       "roles": "角色管理",
       "dump": "数据库备份"
@@ -249,7 +250,7 @@
       "overviewRead": "查看控制台总览与用户趋势",
       "usersRead": "查看用户列表与详情",
       "usersManage": "停用、启用、删除用户，指定、取消管理员，吊销设备",
-      "settingsManage": "查看与修改服务器设置",
+      "settingsManage": "查看与修改系统设置",
       "auditRead": "查看审计日志",
       "rolesManage": "增删改角色，修改角色权限，指派、移除角色用户",
       "dumpRead": "下载数据库密文备份"

@@ -6,7 +6,7 @@
   },
   "navigation": {
     "overview": "Übersicht",
-    "settings": "Servereinstellungen",
+    "settings": "Systemeinstellungen",
     "audit": "Prüfprotokoll",
     "users": "Nutzer",
     "roles": "Rollen"
@@ -34,7 +34,7 @@
     "trendActiveUsers": "Aktive Benutzer"
   },
   "settings": {
-    "title": "Servereinstellungen",
+    "title": "Systemeinstellungen",
     "builtInDefault": "Eingebauter Rückfallwert: {{value}}",
     "notConfigured": "Nicht konfiguriert",
     "writeOnly": "Nur Schreiben · wird nie angezeigt",
@@ -216,6 +216,7 @@
     "noPermissions": "Keine Berechtigungen",
     "permissionCount": "{count} Berechtigungen",
     "newRole": "Neue Rolle",
+    "addRole": "Rolle hinzufügen",
     "editRole": "Rolle bearbeiten",
     "viewRole": "Rolle ansehen",
     "deleteRole": "Löschen",
@@ -240,7 +241,7 @@
     "modules": {
       "overview": "Übersicht",
       "users": "Benutzer",
-      "settings": "Servereinstellungen",
+      "settings": "Systemeinstellungen",
       "audit": "Audit-Protokoll",
       "roles": "Rollenverwaltung",
       "dump": "Datenbanksicherung"
@@ -249,7 +250,7 @@
       "overviewRead": "Konsolenübersicht und Benutzertrend ansehen",
       "usersRead": "Benutzerliste und Details ansehen",
       "usersManage": "Benutzer deaktivieren, aktivieren und löschen; Admins ernennen und entfernen; Geräte widerrufen",
-      "settingsManage": "Servereinstellungen ansehen und ändern",
+      "settingsManage": "Systemeinstellungen ansehen und ändern",
       "auditRead": "Audit-Protokoll ansehen",
       "rolesManage": "Rollen erstellen, ändern und löschen; Rollenberechtigungen ändern; Rollenbenutzer zuweisen und entfernen",
       "dumpRead": "Verschlüsselte Datenbanksicherung herunterladen"

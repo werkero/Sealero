@@ -287,7 +287,7 @@ export function VaultLayout({ user, items, filter, activeNav = filter === 'favor
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip={t('vault:searchLabel')} onClick={() => setSearchOpen(true)}>
+                <SidebarMenuButton tooltip={t('vault:searchLabel')} onClick={() => setSearchOpen(true)} className="border border-border">
                   <Search />
                   <span className="min-w-0 flex-1 truncate">{t('vault:searchPlaceholder')}</span>
                   <kbd className="ml-auto shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-[inherit] text-[11px] text-muted-foreground group-data-[collapsible=icon]:hidden">⌘ K</kbd>
