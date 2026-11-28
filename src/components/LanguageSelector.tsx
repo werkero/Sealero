@@ -18,7 +18,7 @@ export function LanguageSelector() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button type="button" className="theme-toggle" aria-label={t('language')} title={t('language')}>
+        <button type="button" className="inline-flex h-9 min-h-9 w-9 cursor-pointer items-center justify-center rounded-[9px] border border-transparent bg-transparent p-0 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" aria-label={t('language')} title={t('language')}>
           <Languages size={18} aria-hidden="true" />
         </button>
       </DropdownMenuTrigger>

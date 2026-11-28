@@ -300,7 +300,7 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           <CardContent className="space-y-4">
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:localImportTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:localImportDescription')}</p></div><Badge variant="secondary">{t('backup:localOnly')}</Badge></div>
           <div className="flex flex-wrap items-center gap-2">
-            <input ref={importInputRef} className="visually-hidden" id="vault-import-file" type="file" accept=".csv,.json,text/csv,application/json" onChange={onImportFileChange} />
+            <input ref={importInputRef} className="sr-only" id="vault-import-file" type="file" accept=".csv,.json,text/csv,application/json" onChange={onImportFileChange} />
             <Button asChild variant="outline"><label htmlFor="vault-import-file">{t('backup:chooseImportFile')}</label></Button>
             {parsedImport ? <Button variant="outline" type="button" onClick={clearImportPreview}>{t('backup:clearImport')}</Button> : null}
           </div>
@@ -353,7 +353,7 @@ export function SettingsPage({ user, items, loadItem, onExportBackup, onExportBa
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:encryptedBackupTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:encryptedBackupDescription')}</p></div><Badge variant="secondary">{t('backup:formatV3')}</Badge></div>
           {exportDoneFile ? <p className="text-sm text-muted-foreground" role="status">{t('backup:exportDone')}: <strong className="font-medium text-foreground">{exportDoneFile}</strong></p> : null}
           <div className="flex items-start justify-between gap-3"><div><strong className="block text-sm font-medium">{t('backup:restoreTitle')}</strong><p className="mt-0.5 text-xs text-muted-foreground">{t('backup:restoreDescription')}</p></div></div>
-          <input ref={backupInputRef} className="visually-hidden" id="vault-backup-file" type="file" accept=".json,application/json" onChange={(event) => void onBackupFileChange(event)} />
+          <input ref={backupInputRef} className="sr-only" id="vault-backup-file" type="file" accept=".json,application/json" onChange={(event) => void onBackupFileChange(event)} />
           <div className="flex flex-wrap items-center gap-2"><Button asChild variant="outline"><label htmlFor="vault-backup-file">{t('backup:chooseBackupFile')}</label></Button><span className="text-sm text-muted-foreground">{backupFileName}</span></div>
           {backupError ? <p className="text-sm font-medium text-destructive" role="alert">{t(backupError)}</p> : null}
           {backupSummary ? <div className="grid gap-1 rounded-lg bg-muted p-3" role="status"><strong className="text-sm font-medium">{t('backup:containerRecognized', { version: backupSummary.version })}</strong><p className="text-xs text-muted-foreground">{t('backup:integrityNotChecked')}</p><span className="text-xs text-muted-foreground">{t('backup:restoreUnavailable')}</span></div> : null}

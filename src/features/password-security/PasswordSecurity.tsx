@@ -17,6 +17,7 @@ import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle }
 import { Checkbox } from '../../components/ui/checkbox'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { Slider } from '../../components/ui/slider'
 
 interface PasswordGeneratorPageProps {
   onCopy: (password: string, label: string) => void
@@ -296,18 +297,17 @@ export function PasswordGeneratorPage({ onCopy }: PasswordGeneratorPageProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2">
-            <label className="flex items-center justify-between text-sm" htmlFor="security-password-length">
+            <div className="flex items-center justify-between text-sm" id="security-password-length-label">
               <span className="font-medium">{t('generator.length')}</span><strong>{t('generator.lengthValue', { length: options.length })}</strong>
-            </label>
-            <input
-              id="security-password-length"
-              className="w-full accent-primary"
-              type="range"
+            </div>
+            <Slider
+              className="w-full"
               min={12}
               max={64}
               step={1}
-              value={options.length}
-              onChange={(event) => updateLength(Number(event.target.value))}
+              value={[options.length]}
+              onValueChange={(values) => updateLength(values[0])}
+              aria-labelledby="security-password-length-label"
               aria-valuetext={t('generator.lengthValue', { length: options.length })}
               disabled={phase === 'generating'}
             />

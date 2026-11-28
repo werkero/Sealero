@@ -43,12 +43,20 @@ function resolveAppearance(preference: AppearancePreference, systemDark: boolean
   return preference === 'system' ? (systemDark ? 'dark' : 'light') : preference
 }
 
+function applyTheme(theme: 'light' | 'dark'): void {
+  document.documentElement.dataset.theme = theme
+  document.documentElement.style.colorScheme = theme
+  // Tailwind's dark: variant is class-based (@custom-variant dark), so the
+  // .dark class must track the theme too; the [data-theme] tokens alone do
+  // not activate dark: utilities.
+  document.documentElement.classList.toggle('dark', theme === 'dark')
+}
+
 function applyAppearanceImmediately(): void {
   if (typeof window === 'undefined' || typeof document === 'undefined') return
   const systemDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
   const theme = resolveAppearance(readAppearancePreference(), systemDark)
-  document.documentElement.dataset.theme = theme
-  document.documentElement.style.colorScheme = theme
+  applyTheme(theme)
 }
 
 export function useAppearancePreference(): [AppearancePreference, (preference: AppearancePreference) => void] {
@@ -57,8 +65,7 @@ export function useAppearancePreference(): [AppearancePreference, (preference: A
     const media = window.matchMedia('(prefers-color-scheme: dark)')
     const apply = () => {
       const theme = resolveAppearance(preference, media.matches)
-      document.documentElement.dataset.theme = theme
-      document.documentElement.style.colorScheme = theme
+      applyTheme(theme)
     }
     apply()
     media.addEventListener('change', apply)

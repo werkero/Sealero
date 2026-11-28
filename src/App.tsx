@@ -25,7 +25,6 @@ import { markExplicitlyLocked } from './hooks/vault-session-channel'
 import { useAppearancePreference } from './features/settings/preferences'
 import { clearClipboardIfStillCurrent, createClipboardOperationQueue } from './features/password-security/clipboard'
 import { AppRoutes, useRouteMatch } from './routes'
-import './app.css'
 
 export type VaultFilter = 'all' | 'favorites'
 
@@ -38,15 +37,15 @@ export function AuthShell({ children, onNavigate, onAppearanceChange }: {
   onAppearanceChange: (preference: AppearancePreference) => void
 }) {
   return (
-    <div className="auth-shell">
-      <header className="auth-header">
+    <div className="flex min-h-svh flex-col bg-background px-[clamp(20px,5vw,64px)] pb-[30px] max-[700px]:px-[18px] max-[700px]:pb-6 max-[390px]:px-[17px] max-[390px]:pb-5">
+      <header className="flex min-h-[88px] items-center justify-between max-[700px]:min-h-[70px]">
         <Brand onNavigate={onNavigate} />
-        <div className="public-header-actions">
+        <div className="flex items-center gap-[26px] max-[390px]:gap-[9px]">
           <ThemeToggle onAppearanceChange={onAppearanceChange} />
           <LanguageSelector />
         </div>
       </header>
-      <main className="auth-main">
+      <main className="m-auto w-[min(100%,470px)]">
         {children}
       </main>
     </div>
@@ -200,8 +199,8 @@ function LogoToggle() {
       aria-label="Toggle Sidebar"
       className="group/logotoggle relative flex h-8 cursor-pointer items-center rounded-md border-0 bg-transparent p-0 hover:bg-accent"
     >
-      <span className="wordmark group-hover/logotoggle:invisible group-focus-visible/logotoggle:invisible">
-        <img className="wordmark-logo" src="/sealero-logo.svg" alt="" aria-hidden="true" />
+      <span className="inline-flex items-center gap-2 group-hover/logotoggle:invisible group-focus-visible/logotoggle:invisible">
+        <img className="h-8 w-auto shrink-0" src="/sealero-logo.svg" alt="" aria-hidden="true" />
       </span>
       <span className="absolute inset-0 hidden items-center justify-center group-hover/logotoggle:flex group-focus-visible/logotoggle:flex" aria-hidden="true">
         <PanelLeft className="size-5" />

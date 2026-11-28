@@ -29,7 +29,7 @@ export function ThemeToggle({
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className="inline-flex h-9 min-h-9 w-9 cursor-pointer items-center justify-center rounded-[9px] border border-transparent bg-transparent p-0 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]"
       aria-label={t('toggleTheme')}
       title={t('toggleTheme')}
       aria-pressed={isDark}

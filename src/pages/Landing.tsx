@@ -6,6 +6,8 @@ import { Brand } from '../components/Brand'
 import { UserAvatar } from '../components/UserAvatar'
 import { LanguageSelector } from '../components/LanguageSelector'
 import { ThemeToggle } from '../components/ThemeToggle'
+import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
 import type { VaultIdentity } from '../client/contracts'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { FooterStatus } from '../features/api-health/FooterStatus'
@@ -47,8 +49,15 @@ function TypewriterTitle({ text, onDone }: { text: string; onDone: () => void })
   return (
     <span aria-hidden="true">
       {text.slice(0, count)}
-      {!done && <span className="typewriter-caret" />}
-      <span className="typewriter-rest">{text.slice(count)}</span>
+      {!done && (
+        <motion.span
+          aria-hidden="true"
+          className="ml-1 inline-block h-[0.85em] w-[3px] bg-primary align-[-0.05em]"
+          animate={{ opacity: [1, 1, 0, 0] }}
+          transition={{ duration: 0.9, repeat: Infinity, times: [0, 0.5, 0.501, 1] }}
+        />
+      )}
+      <span className="opacity-0">{text.slice(count)}</span>
     </span>
   )
 }
@@ -56,17 +65,17 @@ function TypewriterTitle({ text, onDone }: { text: string; onDone: () => void })
 function PublicHeader({ user, onNavigate, onAppearanceChange }: { user: VaultIdentity | null; onNavigate: (path: string) => void; onAppearanceChange: (preference: AppearancePreference) => void }) {
   const { t } = useTranslation(['common', 'auth'])
   return (
-    <header className="public-header">
+    <header className="flex min-h-[88px] items-center justify-between max-[700px]:min-h-[70px]">
       <Brand onNavigate={onNavigate} />
-      <div className="public-header-actions">
+      <div className="flex items-center gap-[26px] max-[390px]:gap-[9px]">
         <ThemeToggle onAppearanceChange={onAppearanceChange} />
         <LanguageSelector />
         {user ? (
-          <button type="button" className="theme-toggle" aria-label={t('common:landingEnterVaultButton')} title={t('common:landingEnterVaultButton')} onClick={() => onNavigate(`/users/${user.id}`)}>
-            <UserAvatar displayName={user.display_name} avatarUrl={user.avatar_url} email={user.email} className="profile-avatar" />
+          <button type="button" className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-[9px] border border-transparent bg-transparent p-0 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" aria-label={t('common:landingEnterVaultButton')} title={t('common:landingEnterVaultButton')} onClick={() => onNavigate(`/users/${user.id}`)}>
+            <UserAvatar displayName={user.display_name} avatarUrl={user.avatar_url} email={user.email} className="grid size-[29px] flex-none place-items-center rounded-full bg-primary/10 text-xs font-[650] text-primary" />
           </button>
         ) : (
-          <a className="text-link" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
+          <a className="text-sm! font-[550] text-[#414958] no-underline underline-offset-4 hover:text-primary hover:underline focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px] dark:text-[oklch(0.865_0.01_264.5)]" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>
             {t('auth:loginTitle')}
           </a>
         )}
@@ -106,29 +115,35 @@ function AiCall() {
 
   return (
     <motion.section
-      className="ai-screen"
+      className="box-border flex min-h-svh w-full items-center px-[clamp(20px,5vw,64px)] py-[clamp(48px,8vw,96px)]"
       aria-labelledby="ai-title"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      <div className="ai-screen-inner">
-        <div className="ai-cubes-stage">
-          <div className="ai-cubes" aria-hidden="true">
+      <div className="mx-auto grid w-[min(100%,1200px)] grid-cols-[minmax(0,6fr)_minmax(0,5fr)] items-center gap-[clamp(32px,5vw,72px)] max-[900px]:grid-cols-1">
+        <div className="flex min-h-[420px] items-center justify-center max-[900px]:min-h-[340px]">
+          <div className="grid grid-cols-[repeat(3,92px)] gap-[22px] [transform:rotateX(58deg)_rotateZ(45deg)] [transform-style:preserve-3d] max-[900px]:grid-cols-[repeat(3,72px)] max-[900px]:gap-4" aria-hidden="true">
             {Array.from({ length: 9 }, (_, index) => {
               const flow = AI_CUBE_FLOW.find((cube) => cube.position === index)
               const state = !flow ? 'idle' : flow.phase === phase ? 'active' : flow.phase < phase ? 'done' : 'idle'
               const Icon = flow?.icon
               return (
-                <div key={index} className={`ai-cube ai-cube--${state}`}>
-                  <div className="ai-cube-face ai-cube-face--front" />
-                  <div className="ai-cube-face ai-cube-face--back" />
-                  <div className="ai-cube-face ai-cube-face--right" />
-                  <div className="ai-cube-face ai-cube-face--left" />
-                  <div className="ai-cube-face ai-cube-face--top">
+                <div key={index} className="relative h-[92px] w-[92px] [transform-style:preserve-3d] max-[900px]:h-[72px] max-[900px]:w-[72px]">
+                  <div className="absolute inset-0 border border-border bg-card brightness-[0.88] [transform:translateZ(46px)] max-[900px]:[transform:translateZ(36px)]" />
+                  <div className="absolute inset-0 border border-border bg-card brightness-[0.64] [transform:rotateY(180deg)_translateZ(46px)] max-[900px]:[transform:rotateY(180deg)_translateZ(36px)]" />
+                  <div className="absolute inset-0 border border-border bg-card brightness-[0.76] [transform:rotateY(90deg)_translateZ(46px)] max-[900px]:[transform:rotateY(90deg)_translateZ(36px)]" />
+                  <div className="absolute inset-0 border border-border bg-card brightness-[0.52] [transform:rotateY(-90deg)_translateZ(46px)] max-[900px]:[transform:rotateY(-90deg)_translateZ(36px)]" />
+                  <div className={state === 'active'
+                    ? 'absolute inset-0 flex items-center justify-center border border-primary bg-card shadow-[0_0_0_1px_var(--primary),0_0_28px_rgb(8_50_170/0.35)] [transform:rotateX(90deg)_translateZ(46px)] max-[900px]:[transform:rotateX(90deg)_translateZ(36px)]'
+                    : 'absolute inset-0 flex items-center justify-center border border-border bg-card [transform:rotateX(90deg)_translateZ(46px)] max-[900px]:[transform:rotateX(90deg)_translateZ(36px)]'}>
                     {Icon ? (
-                      <span className="ai-cube-icon">
+                      <span className={state === 'active'
+                        ? 'flex text-primary [transform:scaleY(1.9)_rotate(-45deg)] transition-colors duration-200 motion-reduce:transition-none motion-reduce:animate-none'
+                        : state === 'done'
+                          ? 'flex text-[#15966a] [transform:scaleY(1.9)_rotate(-45deg)] transition-colors duration-200 motion-reduce:transition-none motion-reduce:animate-none'
+                          : 'flex text-muted-foreground [transform:scaleY(1.9)_rotate(-45deg)] transition-colors duration-200 motion-reduce:transition-none motion-reduce:animate-none'}>
                         <Icon size={30} aria-hidden="true" />
                       </span>
                     ) : null}
@@ -138,24 +153,34 @@ function AiCall() {
             })}
           </div>
         </div>
-        <div className="ai-copy">
-          <h2 id="ai-title">{t('aiCallTitle')}</h2>
-          <p className="section-subtitle">{t('aiCallDescription')}</p>
-          <ul className="ai-points">
-            {points.map((point, index) => (
-              <li
-                key={point.title}
-                className={index === phase || (phase === 2 && index === 3) ? 'ai-point ai-point--active' : 'ai-point'}
-              >
-                <span className="ai-point-icon" aria-hidden="true">
-                  <point.icon size={20} />
-                </span>
-                <div>
-                  <h3>{point.title}</h3>
-                  <p>{point.body}</p>
-                </div>
-              </li>
-            ))}
+        <div className="max-[900px]:order-first">
+          <h2 id="ai-title" className="m-0 text-[clamp(28px,4vw,40px)] font-[650] tracking-[-0.04em] leading-[1.15] text-foreground">{t('aiCallTitle')}</h2>
+          <p className="mt-3 text-base leading-[1.6] text-muted-foreground">{t('aiCallDescription')}</p>
+          <ul className="mt-8 grid list-none gap-5 p-0">
+            {points.map((point, index) => {
+              const active = index === phase || (phase === 2 && index === 3)
+              return (
+                <li
+                  key={point.title}
+                  className={active
+                    ? 'flex items-start gap-[14px] opacity-100 transition-opacity duration-200 motion-reduce:transition-none motion-reduce:animate-none'
+                    : 'flex items-start gap-[14px] opacity-55 transition-opacity duration-200 motion-reduce:transition-none motion-reduce:animate-none'}
+                >
+                  <span
+                    className={active
+                      ? 'flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary text-primary-foreground'
+                      : 'flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-primary/10 text-primary'}
+                    aria-hidden="true"
+                  >
+                    <point.icon size={20} />
+                  </span>
+                  <div>
+                    <h3 className="m-0 text-[17px] font-[650] text-foreground">{point.title}</h3>
+                    <p className="mt-1 text-[15px] leading-[1.6] text-muted-foreground">{point.body}</p>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         </div>
       </div>
@@ -165,101 +190,94 @@ function AiCall() {
 
 function Pricing({ user, onNavigate }: { user: VaultIdentity | null; onNavigate: (path: string) => void }) {
   const { t } = useTranslation('common')
+  const ctaButtonClass = 'mt-[10px] h-12 w-full justify-center rounded-[11px]! px-[18px] font-[620]! text-sm! duration-[140ms] hover:-translate-y-px motion-reduce:transition-none motion-reduce:animate-none'
+  const featureItemClass = "relative py-[7px] pl-6 text-sm leading-[1.55] text-[#414958] dark:text-[oklch(0.865_0.01_264.5)] before:absolute before:left-[2px] before:top-[9px] before:h-2 before:w-[14px] before:border-b-2 before:border-l-2 before:border-primary before:content-[''] before:[transform:rotate(-45deg)_translateY(-2px)]"
   return (
     <motion.section
-      className="landing-section pricing-section"
+      className="mx-auto w-[min(100%,1200px)] px-0 py-[clamp(40px,6vw,64px)] text-center"
       aria-labelledby="pricing-title"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      <h2 id="pricing-title">{t('pricingTitle')}</h2>
-      <p className="section-subtitle">{t('pricingSubtitle')}</p>
-      <div className="pricing-grid">
-        <motion.article
-          className="pricing-card"
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          <h3>{t('pricingFreeName')}</h3>
-          <p className="pricing-price">
+      <h2 id="pricing-title" className="m-0 text-[clamp(28px,4vw,40px)] font-[650] tracking-[-0.04em] leading-[1.15] text-foreground">{t('pricingTitle')}</h2>
+      <p className="mx-auto mt-3 text-base leading-[1.6] text-muted-foreground">{t('pricingSubtitle')}</p>
+      <div className="mt-9 grid grid-cols-3 gap-4 text-left max-[900px]:mx-auto max-[900px]:max-w-[520px] max-[900px]:grid-cols-1">
+        <Card className="gap-[0px] rounded-[16px]! px-7 py-7 [box-shadow:0_0_#0000] transition-transform duration-200 hover:-translate-y-1 motion-reduce:transition-none motion-reduce:animate-none max-[390px]:px-[22px] max-[390px]:py-[22px]">
+          <h3 className="m-0 text-lg font-[650] text-foreground">{t('pricingFreeName')}</h3>
+          <p className="mt-[14px] text-[40px] font-[650] leading-none tracking-[-0.04em] text-foreground">
             {t('pricingFreePrice')}
-            <span className="pricing-period">{t('pricingFreePeriod')}</span>
+            <span className="ml-1.5 text-sm font-medium tracking-normal text-muted-foreground">{t('pricingFreePeriod')}</span>
           </p>
-          <p className="pricing-desc">{t('pricingFreeDesc')}</p>
-          <ul className="pricing-features">
-            <li>{t('pricingFreeF1')}</li>
-            <li>{t('pricingFreeF2')}</li>
-            <li>{t('pricingFreeF3')}</li>
-            <li>{t('pricingFreeF4')}</li>
-            <li>{t('pricingFreeF5')}</li>
-            <li>{t('pricingFreeF6')}</li>
+          <p className="mt-3 text-sm leading-[1.6] text-muted-foreground">{t('pricingFreeDesc')}</p>
+          <ul className="my-5 flex-1 list-none p-0">
+            <li className={featureItemClass}>{t('pricingFreeF1')}</li>
+            <li className={featureItemClass}>{t('pricingFreeF2')}</li>
+            <li className={featureItemClass}>{t('pricingFreeF3')}</li>
+            <li className={featureItemClass}>{t('pricingFreeF4')}</li>
+            <li className={featureItemClass}>{t('pricingFreeF5')}</li>
+            <li className={featureItemClass}>{t('pricingFreeF6')}</li>
           </ul>
-          <a
-            className="button button-secondary pricing-cta"
-            href={GITHUB_REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {t('pricingOpenSource')}
-            <span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span>
-          </a>
-          {user ? null : (
-            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-              {t('pricingFreeCta')}
+          <Button asChild variant="outline" className={ctaButtonClass}>
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noreferrer">
+              {t('pricingOpenSource')}
+              <span aria-hidden="true"><ArrowUpRight size={12} aria-hidden="true" /></span>
             </a>
+          </Button>
+          {user ? null : (
+            <Button asChild className={ctaButtonClass}>
+              <a href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+                {t('pricingFreeCta')}
+              </a>
+            </Button>
           )}
-        </motion.article>
-        <motion.article
-          className="pricing-card"
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          <h3>{t('pricingProName')}</h3>
-          <p className="pricing-price">
+        </Card>
+        <Card className="gap-[0px] rounded-[16px]! px-7 py-7 [box-shadow:0_0_#0000] transition-transform duration-200 hover:-translate-y-1 motion-reduce:transition-none motion-reduce:animate-none max-[390px]:px-[22px] max-[390px]:py-[22px]">
+          <h3 className="m-0 text-lg font-[650] text-foreground">{t('pricingProName')}</h3>
+          <p className="mt-[14px] text-[40px] font-[650] leading-none tracking-[-0.04em] text-foreground">
             {t('pricingProPrice')}
-            <span className="pricing-period">{t('pricingProPeriod')}</span>
+            <span className="ml-1.5 text-sm font-medium tracking-normal text-muted-foreground">{t('pricingProPeriod')}</span>
           </p>
-          <p className="pricing-yearly">{t('pricingProYearly')}</p>
-          <p className="pricing-desc">{t('pricingProDesc')}</p>
-          <ul className="pricing-features">
-            <li>{t('pricingProF1')}</li>
-            <li>{t('pricingProF2')}</li>
-            <li>{t('pricingProF3')}</li>
-            <li>{t('pricingProF4')}</li>
-            <li>{t('pricingProF5')}</li>
-            <li>{t('pricingProF6')}</li>
-            <li>{t('pricingProF7')}</li>
+          <p className="mt-2 text-[13px] text-muted-foreground">{t('pricingProYearly')}</p>
+          <p className="mt-3 text-sm leading-[1.6] text-muted-foreground">{t('pricingProDesc')}</p>
+          <ul className="my-5 flex-1 list-none p-0">
+            <li className={featureItemClass}>{t('pricingProF1')}</li>
+            <li className={featureItemClass}>{t('pricingProF2')}</li>
+            <li className={featureItemClass}>{t('pricingProF3')}</li>
+            <li className={featureItemClass}>{t('pricingProF4')}</li>
+            <li className={featureItemClass}>{t('pricingProF5')}</li>
+            <li className={featureItemClass}>{t('pricingProF6')}</li>
+            <li className={featureItemClass}>{t('pricingProF7')}</li>
           </ul>
           {user ? null : (
-            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-              {t('pricingProCta')}
-            </a>
+            <Button asChild className={ctaButtonClass}>
+              <a href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+                {t('pricingProCta')}
+              </a>
+            </Button>
           )}
-        </motion.article>
-        <motion.article
-          className="pricing-card pricing-card-pro"
-          whileHover={{ y: -4 }}
-          transition={{ duration: 0.2, ease: 'easeOut' }}
-        >
-          <h3>{t('pricingCloudName')}</h3>
-          <p className="pricing-price">
+        </Card>
+        <Card className="gap-[0px] rounded-[16px]! border-primary px-7 py-7 [box-shadow:0_0_0_1px_var(--primary)] transition-transform duration-200 hover:-translate-y-1 motion-reduce:transition-none motion-reduce:animate-none max-[390px]:px-[22px] max-[390px]:py-[22px]">
+          <h3 className="m-0 text-lg font-[650] text-foreground">{t('pricingCloudName')}</h3>
+          <p className="mt-[14px] text-[40px] font-[650] leading-none tracking-[-0.04em] text-foreground">
             {t('pricingCloudPrice')}
-            <span className="pricing-period">{t('pricingCloudPeriod')}</span>
+            <span className="ml-1.5 text-sm font-medium tracking-normal text-muted-foreground">{t('pricingCloudPeriod')}</span>
           </p>
-          <p className="pricing-yearly">{t('pricingCloudYearly')}</p>
-          <p className="pricing-desc">{t('pricingCloudDesc')}</p>
-          <ul className="pricing-features">
-            <li>{t('pricingCloudF1')}</li>
-            <li>{t('pricingCloudF2')}</li>
+          <p className="mt-2 text-[13px] text-muted-foreground">{t('pricingCloudYearly')}</p>
+          <p className="mt-3 text-sm leading-[1.6] text-muted-foreground">{t('pricingCloudDesc')}</p>
+          <ul className="my-5 flex-1 list-none p-0">
+            <li className={featureItemClass}>{t('pricingCloudF1')}</li>
+            <li className={featureItemClass}>{t('pricingCloudF2')}</li>
           </ul>
           {user ? null : (
-            <a className="button button-primary pricing-cta" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-              {t('pricingCloudCta')}
-            </a>
+            <Button asChild className={ctaButtonClass}>
+              <a href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+                {t('pricingCloudCta')}
+              </a>
+            </Button>
           )}
-        </motion.article>
+        </Card>
       </div>
     </motion.section>
   )
@@ -273,19 +291,19 @@ function Faq() {
   }))
   return (
     <motion.section
-      className="landing-section faq-section"
+      className="mx-auto w-[min(100%,1200px)] px-0 py-[clamp(40px,6vw,64px)] text-center"
       aria-labelledby="faq-title"
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      <h2 id="faq-title">{t('faqTitle')}</h2>
-      <div className="faq-list">
+      <h2 id="faq-title" className="m-0 text-[clamp(28px,4vw,40px)] font-[650] tracking-[-0.04em] leading-[1.15] text-foreground">{t('faqTitle')}</h2>
+      <div className="mt-10 text-left">
         {items.map((item, i) => (
-          <details className="faq-item" key={i}>
-            <summary>{item.q}</summary>
-            <p>{item.a}</p>
+          <details className="group border-t border-border p-0 last:border-b" key={i}>
+            <summary className="flex cursor-pointer list-none select-none items-center justify-between gap-6 py-[22px] text-[17px] font-semibold leading-[1.5] text-foreground transition-colors duration-150 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2 motion-reduce:transition-none motion-reduce:animate-none after:h-2 after:w-2 after:shrink-0 after:translate-y-[-2px] after:rotate-45 after:border-r-[1.5px] after:border-b-[1.5px] after:border-[#818895] after:transition-transform after:duration-200 after:content-[''] after:motion-reduce:transition-none group-open:after:rotate-[225deg] [&::-webkit-details-marker]:hidden max-[390px]:py-[18px] max-[390px]:text-base">{item.q}</summary>
+            <p className="mb-[22px] max-w-[680px] text-[15px] leading-[1.75] text-muted-foreground group-open:animate-in group-open:fade-in group-open:slide-in-from-top-1 group-open:duration-[250ms] motion-reduce:animate-none motion-reduce:transition-none max-[390px]:text-sm">{item.a}</p>
           </details>
         ))}
       </div>
@@ -304,30 +322,30 @@ function GithubIcon() {
 function PublicFooter({ onNavigate }: { onNavigate: (path: string) => void }) {
   const { t } = useTranslation('common')
   return (
-    <footer className="public-footer">
-      <div className="footer-top">
-        <div className="footer-brand">
+    <footer className="w-full px-0 pt-8 pb-10 text-[13px] leading-[1.5] text-muted-foreground">
+      <div className="flex items-center justify-between gap-6 max-[700px]:flex-col max-[700px]:items-start max-[700px]:gap-4">
+        <div className="flex items-center gap-4">
           <Brand onNavigate={onNavigate} />
-          <span className="footer-divider" aria-hidden="true" />
-          <a className="footer-social" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer" aria-label="GitHub">
+          <span className="h-5 w-px bg-border" aria-hidden="true" />
+          <a className="inline-flex items-center text-[#414958] no-underline hover:text-primary focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px] dark:text-[oklch(0.865_0.01_264.5)]" href={GITHUB_REPO_URL} target="_blank" rel="noreferrer" aria-label="GitHub">
             <GithubIcon />
           </a>
         </div>
-        <nav className="footer-links" aria-label="Legal">
-          <a href="/terms" onClick={(event) => { event.preventDefault(); onNavigate('/terms') }}>
+        <nav className="flex items-center gap-7" aria-label="Legal">
+          <a className="text-sm! font-[550] text-[#414958] no-underline hover:text-primary hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px] dark:text-[oklch(0.865_0.01_264.5)]" href="/terms" onClick={(event) => { event.preventDefault(); onNavigate('/terms') }}>
             {t('footerTerms')}
           </a>
-          <a href="/privacy" onClick={(event) => { event.preventDefault(); onNavigate('/privacy') }}>
+          <a className="text-sm! font-[550] text-[#414958] no-underline hover:text-primary hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px] dark:text-[oklch(0.865_0.01_264.5)]" href="/privacy" onClick={(event) => { event.preventDefault(); onNavigate('/privacy') }}>
             {t('footerPrivacy')}
           </a>
         </nav>
       </div>
-      <div className="footer-status-row">
+      <div className="mt-6">
         <FooterStatus />
       </div>
-      <div className="footer-bottom">
-        <span className="footer-copyright">{t('footerCopyright')}</span>
-        <a className="footer-by" href={WERKERO_URL} target="_blank" rel="noreferrer">
+      <div className="mt-4 flex items-center justify-between gap-4 max-[700px]:flex-col max-[700px]:items-start max-[700px]:gap-2">
+        <span className="text-muted-foreground">{t('footerCopyright')}</span>
+        <a className="font-semibold text-foreground no-underline hover:text-primary hover:underline hover:underline-offset-[3px] focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" href={WERKERO_URL} target="_blank" rel="noreferrer">
           {t('footerBy')}
         </a>
       </div>
@@ -349,15 +367,16 @@ export default function Landing({ user, onNavigate, onAppearanceChange }: { user
     setTitleDone(false)
   }
   const handleTitleDone = useCallback(() => setTitleDone(true), [])
+  const heroButtonClass = 'h-12 rounded-[11px]! px-[18px] font-[620]! text-sm! duration-[140ms] hover:-translate-y-px motion-reduce:transition-none motion-reduce:animate-none max-[390px]:px-4 max-[390px]:text-[13px]!'
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="public-shell">
+      <div className="mx-auto flex min-h-svh w-full flex-col bg-background px-[clamp(20px,5vw,64px)] text-foreground max-[700px]:px-[22px] max-[390px]:px-[17px]">
         <PublicHeader user={user} onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
-        <main className="landing-main">
-          <section className="landing-copy" aria-labelledby="landing-title">
+        <main className="flex min-h-[calc(100svh-88px)] flex-1 items-center justify-center px-0 pt-[clamp(24px,3vw,32px)] pb-[clamp(64px,8vw,92px)] text-center max-[700px]:min-h-[calc(100svh-70px)] max-[700px]:pt-[46px] max-[700px]:pb-[78px] max-[390px]:pt-[35px] max-[390px]:pb-[58px]">
+          <section className="mx-auto w-full p-0" aria-labelledby="landing-title">
             <motion.div
-              className="landing-logo"
+              className="mb-[clamp(28px,4vw,44px)] flex justify-center max-[390px]:mb-[22px]"
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -367,15 +386,16 @@ export default function Landing({ user, onNavigate, onAppearanceChange }: { user
                 alt="Sealero"
                 width="120"
                 height="120"
+                className="h-[120px] w-[120px] dark:brightness-[1.7] dark:saturate-[1.25] max-[390px]:h-[90px] max-[390px]:w-[90px]"
                 animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
               />
             </motion.div>
-            <h1 id="landing-title" aria-label={title}>
+            <h1 id="landing-title" aria-label={title} className="mx-auto max-w-[920px] text-[clamp(46px,7.5vw,88px)] font-[650] tracking-[-0.067em] leading-[1.05] text-foreground text-balance max-[700px]:max-w-[700px] max-[390px]:text-[36px]">
               <TypewriterTitle text={title} onDone={handleTitleDone} />
             </h1>
             <motion.p
-              className="landing-description"
+              className="mx-auto mt-[clamp(24px,3vw,36px)] max-w-[610px] text-[clamp(17px,1.8vw,20px)] leading-[1.65] text-muted-foreground max-[700px]:max-w-[520px] max-[700px]:text-base max-[390px]:text-[15px]"
               initial={{ opacity: 0, y: 16 }}
               animate={titleDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
               transition={{ duration: 0.55, ease: 'easeOut' }}
@@ -383,19 +403,23 @@ export default function Landing({ user, onNavigate, onAppearanceChange }: { user
               {t('common:landingBody')}
             </motion.p>
             <motion.div
-              className="landing-actions"
+              className="mt-[clamp(32px,4vw,48px)] flex items-center justify-center"
               initial={{ opacity: 0, y: 12 }}
               animate={titleDone ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{ duration: 0.5, ease: 'easeOut', delay: 0.12 }}
             >
               {user ? (
-                <a className="button button-primary" href={`/users/${user.id}`} onClick={(event) => { event.preventDefault(); onNavigate(`/users/${user.id}`) }}>
-                  {t('common:landingEnterVaultButton')}
-                </a>
+                <Button asChild className={heroButtonClass}>
+                  <a href={`/users/${user.id}`} onClick={(event) => { event.preventDefault(); onNavigate(`/users/${user.id}`) }}>
+                    {t('common:landingEnterVaultButton')}
+                  </a>
+                </Button>
               ) : (
-                <a className="button button-primary" href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
-                  {t('auth:createAccount')}
-                </a>
+                <Button asChild className={heroButtonClass}>
+                  <a href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>
+                    {t('auth:createAccount')}
+                  </a>
+                </Button>
               )}
             </motion.div>
           </section>

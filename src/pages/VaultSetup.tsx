@@ -2,7 +2,11 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Copy, Download, Eye, EyeOff, Printer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
+import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
 import { Checkbox } from '../components/ui/checkbox'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
 import type { VaultClient, VaultIdentity } from '../client/contracts'
 import { VaultApiError } from '../client/http-vault-client'
 import {
@@ -151,35 +155,35 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
   if (step === 'recovery' && recoveryStage === 'words') {
     return (
       <>
-        <p className="auth-subtitle">{t('auth:recoveryKeySubtitle')}</p>
-        <ol className="recovery-words">
+        <p className="mt-[9px] text-[13px] leading-[1.65] text-[#737b88] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:recoveryKeySubtitle')}</p>
+        <ol className="mt-[18px] grid grid-cols-3 gap-2 list-none p-0">
           {recoveryWords.map((word, index) => (
-            <li key={`${index}-${word}`}><span className="recovery-word-index">{index + 1}</span><span>{word}</span></li>
+            <li key={`${index}-${word}`} className="flex items-center gap-2 rounded-lg border border-[#e3e6eb] bg-[#f8f9fb] px-2.5 py-2 text-xs text-[#222936] dark:border-border dark:bg-muted dark:text-foreground"><span className="text-xs tabular-nums text-[#89909b] dark:text-[oklch(0.774_0.022_261.8)]">{index + 1}</span><span>{word}</span></li>
           ))}
         </ol>
         <div className="mt-4 flex gap-2">
-          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={downloadRecoveryKey}><Download className="size-4 shrink-0" />{t('auth:downloadRecoveryKeyButton')}</button>
-          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={copyRecoveryKey}><Copy className="size-4 shrink-0" />{copied ? t('auth:copied') : t('auth:copyRecoveryKeyButton')}</button>
-          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={printRecoveryKey}><Printer className="size-4 shrink-0" />{t('auth:printRecoveryKeyButton')}</button>
+          <Button variant="outline" className="h-12 min-w-0 flex-1 rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" onClick={downloadRecoveryKey}><Download className="size-4 shrink-0" />{t('auth:downloadRecoveryKeyButton')}</Button>
+          <Button variant="outline" className="h-12 min-w-0 flex-1 rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" onClick={copyRecoveryKey}><Copy className="size-4 shrink-0" />{copied ? t('auth:copied') : t('auth:copyRecoveryKeyButton')}</Button>
+          <Button variant="outline" className="h-12 min-w-0 flex-1 rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" onClick={printRecoveryKey}><Printer className="size-4 shrink-0" />{t('auth:printRecoveryKeyButton')}</Button>
         </div>
         <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
           <Checkbox checked={savedConfirmed} onCheckedChange={(checked) => setSavedConfirmed(checked === true)} />
           <span>{t('auth:savedRecoveryKeyLabel')}</span>
         </label>
-        <button className="button button-primary button-full mt-4 disabled:opacity-50" type="button" disabled={!savedConfirmed} onClick={() => setRecoveryStage('confirm')}>{t('auth:nextButton')}</button>
+        <Button className="mt-4 h-12 w-full rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" disabled={!savedConfirmed} onClick={() => setRecoveryStage('confirm')}>{t('auth:nextButton')}</Button>
       </>
     )
   }
 
   if (step === 'recovery') {
     return (
-      <form className="auth-form gap-4" onSubmit={submitRecovery}>
-        <p className="field-label">{t('auth:recoveryKeyConfirmLabel')}</p>
+      <form className="mt-[25px] flex flex-col gap-4" onSubmit={submitRecovery}>
+        <p className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:recoveryKeyConfirmLabel')}</p>
         {confirmPositions.map((position, index) => (
-          <div key={position} className="recovery-confirm-row">
-            <label className="field-label" htmlFor={`recovery-word-${position}`}>{t('auth:recoveryKeyWordLabel', { n: position + 1 })}</label>
-            <input
-              className="text-input"
+          <div key={position} className="mt-[14px]">
+            <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor={`recovery-word-${position}`}>{t('auth:recoveryKeyWordLabel', { n: position + 1 })}</Label>
+            <Input
+              className="mt-2 h-[45px] rounded-[9px]! px-3 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
               id={`recovery-word-${position}`}
               name={`recovery-word-${position}`}
               type="text"
@@ -195,10 +199,10 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
             />
           </div>
         ))}
-        {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
+        {errorKey ? <p className="mt-3 text-xs leading-[1.6] text-[#b3261e] dark:text-[#ff9d94]" role="alert">{t(`auth:${errorKey}`)}</p> : null}
         <div className="flex gap-2">
-          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={() => setRecoveryStage('words')}>{t('auth:previousButton')}</button>
-          <button className="button button-primary min-w-0 flex-1" type="submit">{t('auth:registerCompleteButton')}</button>
+          <Button variant="outline" className="h-12 min-w-0 flex-1 rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" onClick={() => setRecoveryStage('words')}>{t('auth:previousButton')}</Button>
+          <Button className="h-12 min-w-0 flex-1 rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="submit">{t('auth:registerCompleteButton')}</Button>
         </div>
       </form>
     )
@@ -206,12 +210,12 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
 
   return (
     <>
-      <p className="auth-subtitle">{t('auth:registerMasterSubtitle')}</p>
-      <form className="auth-form gap-4" onSubmit={submitMaster}>
-        <label className="field-label" htmlFor="setup-master-password">{t('auth:masterPasswordLabel')}</label>
-        <div className="password-input-wrap password-input-wrap--icon">
-          <input
-            className="text-input"
+      <p className="mt-[9px] text-[13px] leading-[1.65] text-[#737b88] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:registerMasterSubtitle')}</p>
+      <form className="mt-[25px] flex flex-col gap-4" onSubmit={submitMaster}>
+        <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="setup-master-password">{t('auth:masterPasswordLabel')}</Label>
+        <div className="relative">
+          <Input
+            className="h-[45px] rounded-[9px]! pl-3 pr-12 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
             id="setup-master-password"
             name="master-password"
             type={masterVisible ? 'text' : 'password'}
@@ -221,7 +225,7 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
             onChange={(event) => setMasterPassword(event.target.value)}
             required
           />
-          <button className="input-action" type="button" onClick={() => setMasterVisible((visible) => !visible)} aria-label={masterVisible ? t('common:hide') : t('common:show')}>
+          <button className="absolute top-1/2 right-2 -translate-y-1/2 inline-flex items-center justify-center border-0 bg-transparent p-1.5 text-xs font-[580] text-muted-foreground hover:text-primary cursor-pointer" type="button" onClick={() => setMasterVisible((visible) => !visible)} aria-label={masterVisible ? t('common:hide') : t('common:show')}>
             {masterVisible ? (
               <EyeOff size={18} aria-hidden="true" />
             ) : (
@@ -229,10 +233,10 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
             )}
           </button>
         </div>
-        <label className="field-label" htmlFor="setup-master-password-confirm">{t('auth:masterPasswordConfirmLabel')}</label>
-        <div className="password-input-wrap password-input-wrap--icon">
-          <input
-            className="text-input"
+        <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="setup-master-password-confirm">{t('auth:masterPasswordConfirmLabel')}</Label>
+        <div className="relative">
+          <Input
+            className="h-[45px] rounded-[9px]! pl-3 pr-12 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
             id="setup-master-password-confirm"
             name="master-password-confirm"
             type={masterVisible ? 'text' : 'password'}
@@ -243,8 +247,8 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
             required
           />
         </div>
-        {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-        <button className="button button-primary button-full" type="submit" disabled={busy}>{t('auth:createVaultButton')}</button>
+        {errorKey ? <p className="mt-3 text-xs leading-[1.6] text-[#b3261e] dark:text-[#ff9d94]" role="alert">{t(`auth:${errorKey}`)}</p> : null}
+        <Button className="h-12 w-full rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="submit" disabled={busy}>{t('auth:createVaultButton')}</Button>
       </form>
     </>
   )
@@ -279,11 +283,11 @@ export function VaultSetup({ user, vaultClient, onNavigate, onAppearanceChange }
 
   return (
     <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
-      <section className="auth-card" aria-labelledby="setup-vault-title">
-        <h1 id="setup-vault-title">{t('auth:setupVaultTitle')}</h1>
+      <Card className="mt-[19px] gap-[0px] rounded-[16px]! pt-[clamp(24px,4vw,31px)] pb-[clamp(20px,3vw,25px)] px-[clamp(20px,4vw,34px)] [box-shadow:0_12px_42px_rgb(23_32_52/5%)] max-[700px]:p-[26px_22px_22px] max-[390px]:rounded-[14px] max-[390px]:px-[17px] dark:shadow-[0_18px_52px_rgb(0_0_0/24%)]" aria-labelledby="setup-vault-title">
+        <h1 id="setup-vault-title" className="m-0 text-[clamp(24px,3vw,30px)] font-[640] tracking-[-0.05em] leading-[1.15] text-foreground">{t('auth:setupVaultTitle')}</h1>
         {ready ? (
           <>
-            <p className="auth-subtitle">{t('auth:setupVaultSubtitle')}</p>
+            <p className="mt-[9px] text-[13px] leading-[1.65] text-[#737b88] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:setupVaultSubtitle')}</p>
             <VaultSetupForm
               vaultClient={vaultClient}
               resolveUserId={async () => user.id}
@@ -291,7 +295,7 @@ export function VaultSetup({ user, vaultClient, onNavigate, onAppearanceChange }
             />
           </>
         ) : null}
-      </section>
+      </Card>
     </AuthShell>
   )
 }

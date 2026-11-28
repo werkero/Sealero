@@ -6,7 +6,11 @@ import type { VaultClient } from '../client/contracts'
 import { VaultApiError } from '../client/http-vault-client'
 import type { VaultIdentity } from '../client/types'
 import type { AppearancePreference } from '../features/settings/preferences'
+import { Button } from '../components/ui/button'
+import { Card } from '../components/ui/card'
 import { Checkbox } from '../components/ui/checkbox'
+import { Input } from '../components/ui/input'
+import { Label } from '../components/ui/label'
 import { VaultSetupForm } from './VaultSetup'
 
 type RegisterStep = 'account' | 'verify' | 'master'
@@ -101,15 +105,15 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
 
   return (
     <AuthShell onNavigate={onNavigate} onAppearanceChange={onAppearanceChange}>
-      <section className="auth-card" aria-labelledby="register-title">
-        <h1 id="register-title">{t('auth:registerTitle')}</h1>
+      <Card className="mt-[19px] gap-[0px] rounded-[16px]! pt-[clamp(24px,4vw,31px)] pb-[clamp(20px,3vw,25px)] px-[clamp(20px,4vw,34px)] [box-shadow:0_12px_42px_rgb(23_32_52/5%)] max-[700px]:p-[26px_22px_22px] max-[390px]:rounded-[14px] max-[390px]:px-[17px] dark:shadow-[0_18px_52px_rgb(0_0_0/24%)]" aria-labelledby="register-title">
+        <h1 id="register-title" className="m-0 text-[clamp(24px,3vw,30px)] font-[640] tracking-[-0.05em] leading-[1.15] text-foreground">{t('auth:registerTitle')}</h1>
         {step === 'account' ? (
           <>
-            <p className="auth-subtitle">{t('auth:registerSubtitle')}</p>
-            <form className="auth-form gap-4" onSubmit={submitAccount}>
-              <label className="field-label" htmlFor="register-email">{t('auth:emailLabel')}</label>
-              <input
-                className="text-input"
+            <p className="mt-[9px] text-[13px] leading-[1.65] text-[#737b88] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:registerSubtitle')}</p>
+            <form className="mt-[25px] flex flex-col gap-4" onSubmit={submitAccount}>
+              <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="register-email">{t('auth:emailLabel')}</Label>
+              <Input
+                className="h-[45px] rounded-[9px]! px-3 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
                 id="register-email"
                 name="email"
                 type="email"
@@ -119,10 +123,10 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                 onChange={(event) => setEmail(event.target.value)}
                 required
               />
-              <label className="field-label" htmlFor="register-login-password">{t('auth:loginPasswordLabel')}</label>
-              <div className="password-input-wrap password-input-wrap--icon">
-                <input
-                  className="text-input"
+              <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="register-login-password">{t('auth:loginPasswordLabel')}</Label>
+              <div className="relative">
+                <Input
+                  className="h-[45px] rounded-[9px]! pl-3 pr-12 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
                   id="register-login-password"
                   name="login-password"
                   type={passwordVisible ? 'text' : 'password'}
@@ -132,7 +136,7 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                   onChange={(event) => setLoginPassword(event.target.value)}
                   required
                 />
-                <button className="input-action" type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? t('common:hide') : t('common:show')}>
+                <button className="absolute top-1/2 right-2 -translate-y-1/2 inline-flex items-center justify-center border-0 bg-transparent p-1.5 text-xs font-[580] text-muted-foreground hover:text-primary cursor-pointer" type="button" onClick={() => setPasswordVisible((visible) => !visible)} aria-label={passwordVisible ? t('common:hide') : t('common:show')}>
                   {passwordVisible ? (
                     <EyeOff size={18} aria-hidden="true" />
                   ) : (
@@ -140,10 +144,10 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                   )}
                 </button>
               </div>
-              <label className="field-label" htmlFor="register-login-password-confirm">{t('auth:loginPasswordConfirmLabel')}</label>
-              <div className="password-input-wrap password-input-wrap--icon">
-                <input
-                  className="text-input"
+              <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="register-login-password-confirm">{t('auth:loginPasswordConfirmLabel')}</Label>
+              <div className="relative">
+                <Input
+                  className="h-[45px] rounded-[9px]! pl-3 pr-12 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
                   id="register-login-password-confirm"
                   name="login-password-confirm"
                   type={passwordVisible ? 'text' : 'password'}
@@ -154,34 +158,34 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                   required
                 />
               </div>
-              <div className="consent-row">
+              <div className="flex items-start gap-2.5">
                 <Checkbox
                   id="register-consent"
-                  className="consent-checkbox"
+                  className="mt-0.5"
                   checked={consentAgreed}
                   onCheckedChange={(checked) => setConsentAgreed(checked === true)}
                 />
-                <label className="consent-text" htmlFor="register-consent">
+                <label className="text-[13px] leading-[1.6] text-muted-foreground cursor-pointer" htmlFor="register-consent">
                   {t('auth:registerConsentBefore')}
-                  <a href="/terms" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/terms') }}>{t('common:termsTitle')}</a>
+                  <a className="text-primary no-underline hover:underline focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" href="/terms" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/terms') }}>{t('common:termsTitle')}</a>
                   {t('auth:registerConsentBetween')}
-                  <a href="/privacy" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/privacy') }}>{t('common:privacyTitle')}</a>
+                  <a className="text-primary no-underline hover:underline focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" href="/privacy" onClick={(event) => { event.stopPropagation(); event.preventDefault(); onNavigate('/privacy') }}>{t('common:privacyTitle')}</a>
                   {t('auth:registerConsentAfter')}
                 </label>
               </div>
-              {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-              <button className="button button-primary button-full" type="submit" disabled={busy || !consentAgreed}>{t('auth:continueButton')}</button>
+              {errorKey ? <p className="mt-3 text-xs leading-[1.6] text-[#b3261e] dark:text-[#ff9d94]" role="alert">{t(`auth:${errorKey}`)}</p> : null}
+              <Button className="h-12 w-full rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="submit" disabled={busy || !consentAgreed}>{t('auth:continueButton')}</Button>
             </form>
-            <p className="auth-switch">{t('auth:haveAccount')} <a href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>{t('auth:loginTitle')}</a></p>
+            <p className="mt-5 text-center text-xs text-muted-foreground">{t('auth:haveAccount')} <a className="font-semibold text-primary no-underline hover:underline focus-visible:outline-3 focus-visible:outline-[#a9c3ff] focus-visible:outline-offset-[3px]" href="/login" onClick={(event) => { event.preventDefault(); onNavigate('/login') }}>{t('auth:loginTitle')}</a></p>
           </>
         ) : null}
         {step === 'verify' ? (
           <>
-            <p className="auth-subtitle">{t('auth:registerVerifySubtitle', { email })}</p>
-            <form className="auth-form gap-4" onSubmit={submitVerify}>
-              <label className="field-label" htmlFor="register-code">{t('auth:verificationCodeLabel')}</label>
-              <input
-                className="text-input"
+            <p className="mt-[9px] text-[13px] leading-[1.65] text-[#737b88] dark:text-[oklch(0.865_0.01_264.5)]">{t('auth:registerVerifySubtitle', { email })}</p>
+            <form className="mt-[25px] flex flex-col gap-4" onSubmit={submitVerify}>
+              <Label className="text-xs! font-[620]! text-[#38404c] dark:text-[oklch(0.865_0.01_264.5)]" htmlFor="register-code">{t('auth:verificationCodeLabel')}</Label>
+              <Input
+                className="h-[45px] rounded-[9px]! px-3 text-[13px]! bg-white/55 placeholder:text-[#a0a6b0] md:text-[13px]! dark:bg-white/5 dark:placeholder:text-[oklch(0.774_0.022_261.8)]"
                 id="register-code"
                 name="code"
                 type="text"
@@ -192,12 +196,12 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
                 onChange={(event) => setCode(event.target.value.replace(/[^0-9]/g, '').slice(0, 6))}
                 required
               />
-              {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-              {infoKey ? <p className="auth-info" role="status">{t(`auth:${infoKey}`)}</p> : null}
-              <button className="button button-primary button-full" type="submit" disabled={busy}>{t('auth:verifyButton')}</button>
-              <button className="button button-secondary button-full" type="button" onClick={resendCode} disabled={busy || resendCooldown > 0}>
+              {errorKey ? <p className="mt-3 text-xs leading-[1.6] text-[#b3261e] dark:text-[#ff9d94]" role="alert">{t(`auth:${errorKey}`)}</p> : null}
+              {infoKey ? <p className="mt-3 text-xs leading-[1.6] text-[#2e7d32] dark:text-[#7ec98a]" role="status">{t(`auth:${infoKey}`)}</p> : null}
+              <Button className="h-12 w-full rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="submit" disabled={busy}>{t('auth:verifyButton')}</Button>
+              <Button variant="outline" className="h-12 w-full rounded-[11px]! px-[18px] gap-[14px] font-[620]! text-sm! hover:-translate-y-px" type="button" onClick={resendCode} disabled={busy || resendCooldown > 0}>
                 {resendCooldown > 0 ? t('auth:resendCodeCooldown', { seconds: resendCooldown }) : t('auth:resendCode')}
-              </button>
+              </Button>
             </form>
           </>
         ) : null}
@@ -212,7 +216,7 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
             onComplete={(id) => onNavigate(`/users/${id}/unlock`)}
           />
         ) : null}
-      </section>
+      </Card>
     </AuthShell>
   )
 }
