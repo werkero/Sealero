@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Copy, Download, Eye, EyeOff, Printer } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AuthShell } from '../App'
+import { Checkbox } from '../components/ui/checkbox'
 import type { VaultClient, VaultIdentity } from '../client/contracts'
 import { VaultApiError } from '../client/http-vault-client'
 import {
@@ -46,6 +47,9 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
   const [confirmMasterPassword, setConfirmMasterPassword] = useState('')
   const [masterVisible, setMasterVisible] = useState(false)
   const [recoveryKey, setRecoveryKey] = useState('')
+  const [savedConfirmed, setSavedConfirmed] = useState(false)
+  const [recoveryStage, setRecoveryStage] = useState<'words' | 'confirm'>('words')
+  const [copied, setCopied] = useState(false)
   const [confirmPositions, setConfirmPositions] = useState<number[]>([])
   const [confirmWords, setConfirmWords] = useState<string[]>(['', '', ''])
   const [userId, setUserId] = useState('')
@@ -130,7 +134,21 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
     URL.revokeObjectURL(url)
   }
 
-  if (step === 'recovery') {
+  const copyRecoveryKey = async () => {
+    try {
+      await navigator.clipboard.writeText(recoveryKey)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard unavailable (e.g. insecure context); the user can still download.
+    }
+  }
+
+  const printRecoveryKey = () => {
+    window.print()
+  }
+
+  if (step === 'recovery' && recoveryStage === 'words') {
     return (
       <>
         <p className="auth-subtitle">{t('auth:recoveryKeySubtitle')}</p>
@@ -139,33 +157,50 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
             <li key={`${index}-${word}`}><span className="recovery-word-index">{index + 1}</span><span>{word}</span></li>
           ))}
         </ol>
-        <button className="button button-secondary button-full" type="button" onClick={downloadRecoveryKey}>{t('auth:downloadRecoveryKeyButton')}</button>
-        <form className="auth-form gap-4" onSubmit={submitRecovery}>
-          <p className="field-label">{t('auth:recoveryKeyConfirmLabel')}</p>
-          {confirmPositions.map((position, index) => (
-            <div key={position} className="recovery-confirm-row">
-              <label className="field-label" htmlFor={`recovery-word-${position}`}>{t('auth:recoveryKeyWordLabel', { n: position + 1 })}</label>
-              <input
-                className="text-input"
-                id={`recovery-word-${position}`}
-                name={`recovery-word-${position}`}
-                type="text"
-                autoComplete="off"
-                placeholder={t('auth:recoveryKeyWordPlaceholder')}
-                value={confirmWords[index] ?? ''}
-                onChange={(event) => {
-                  const next = [...confirmWords]
-                  next[index] = event.target.value
-                  setConfirmWords(next)
-                }}
-                required
-              />
-            </div>
-          ))}
-          {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-          <button className="button button-primary button-full" type="submit">{t('auth:registerCompleteButton')}</button>
-        </form>
+        <div className="mt-4 flex gap-2">
+          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={downloadRecoveryKey}><Download className="size-4 shrink-0" />{t('auth:downloadRecoveryKeyButton')}</button>
+          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={copyRecoveryKey}><Copy className="size-4 shrink-0" />{copied ? t('auth:copied') : t('auth:copyRecoveryKeyButton')}</button>
+          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={printRecoveryKey}><Printer className="size-4 shrink-0" />{t('auth:printRecoveryKeyButton')}</button>
+        </div>
+        <label className="mt-4 flex cursor-pointer items-center gap-2 text-sm">
+          <Checkbox checked={savedConfirmed} onCheckedChange={(checked) => setSavedConfirmed(checked === true)} />
+          <span>{t('auth:savedRecoveryKeyLabel')}</span>
+        </label>
+        <button className="button button-primary button-full mt-4 disabled:opacity-50" type="button" disabled={!savedConfirmed} onClick={() => setRecoveryStage('confirm')}>{t('auth:nextButton')}</button>
       </>
+    )
+  }
+
+  if (step === 'recovery') {
+    return (
+      <form className="auth-form gap-4" onSubmit={submitRecovery}>
+        <p className="field-label">{t('auth:recoveryKeyConfirmLabel')}</p>
+        {confirmPositions.map((position, index) => (
+          <div key={position} className="recovery-confirm-row">
+            <label className="field-label" htmlFor={`recovery-word-${position}`}>{t('auth:recoveryKeyWordLabel', { n: position + 1 })}</label>
+            <input
+              className="text-input"
+              id={`recovery-word-${position}`}
+              name={`recovery-word-${position}`}
+              type="text"
+              autoComplete="off"
+              placeholder={t('auth:recoveryKeyWordPlaceholder')}
+              value={confirmWords[index] ?? ''}
+              onChange={(event) => {
+                const next = [...confirmWords]
+                next[index] = event.target.value
+                setConfirmWords(next)
+              }}
+              required
+            />
+          </div>
+        ))}
+        {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
+        <div className="flex gap-2">
+          <button className="button button-secondary min-w-0 flex-1" type="button" onClick={() => setRecoveryStage('words')}>{t('auth:previousButton')}</button>
+          <button className="button button-primary min-w-0 flex-1" type="submit">{t('auth:registerCompleteButton')}</button>
+        </div>
+      </form>
     )
   }
 
