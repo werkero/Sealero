@@ -48,15 +48,12 @@
 
 :root {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
-  color: #171a21;
-  background: #fff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-optical-sizing: auto;
   font-weight: 400;
-  color-scheme: light;
   /* shadcn/ui theme tokens */
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -130,10 +127,6 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
-* {
-  box-sizing: border-box;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -143,33 +136,20 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-}
 
-html {
-  min-width: 320px;
-  min-height: 100%;
-  background: #fff;
-}
+  html {
+    @apply min-h-full min-w-[320px] bg-background;
+  }
 
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-  background: #fff;
-}
+  body {
+    @apply min-h-screen min-w-[320px] bg-background text-foreground;
+  }
 
-button,
-a,
-input,
-select {
-  font: inherit;
-}
+  a {
+    @apply underline-offset-3;
+  }
 
-a {
-  text-underline-offset: 3px;
-}
-
-::selection {
-  color: #0832aa;
-  background: #ebeff8;
+  ::selection {
+    @apply bg-primary/10 text-primary;
+  }
 }
