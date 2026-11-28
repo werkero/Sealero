@@ -847,13 +847,8 @@ button {
   outline: none;
 }
 
-#login-email {
-  margin-top: 8px;
-}
-
 .password-input-wrap {
   position: relative;
-  margin-top: 8px;
 }
 
 .password-input-wrap .text-input {
@@ -890,10 +885,6 @@ button {
   color: var(--blue);
 }
 
-.auth-form .button {
-  margin-top: 22px;
-}
-
 .auth-switch {
   margin: 20px 0 0;
   color: var(--muted-text);
@@ -915,7 +906,6 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-top: 4px;
 }
 
 .consent-checkbox {
@@ -1127,10 +1117,6 @@ button {
 
   .auth-shell {
     padding: 0 18px 24px;
-  }
-
-  .auth-main {
-    margin-top: 17px;
   }
 
   .auth-card {

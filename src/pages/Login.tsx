@@ -27,7 +27,7 @@ export function Login({ onLogin, onNavigate, onAppearanceChange }: {
       <section className="auth-card" aria-labelledby="login-title">
         <h1 id="login-title">{t('auth:loginTitle')}</h1>
         <p className="auth-subtitle">{t('auth:loginSubtitle')}</p>
-        <form className="auth-form" onSubmit={submit}>
+        <form className="auth-form gap-4" onSubmit={submit}>
           <label className="field-label" htmlFor="login-email">{t('auth:emailLabel')}</label>
           <input
             className="text-input"
@@ -62,7 +62,7 @@ export function Login({ onLogin, onNavigate, onAppearanceChange }: {
             </button>
           </div>
           {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
-          <button className="button button-primary button-full" type="submit">{t('auth:continueButton')}</button>
+          <button className="button button-primary button-full" type="submit">{t('auth:loginButton')}</button>
         </form>
         <p className="auth-switch">{t('auth:noAccount')} <a href="/register" onClick={(event) => { event.preventDefault(); onNavigate('/register') }}>{t('auth:createAccount')}</a></p>
       </section>

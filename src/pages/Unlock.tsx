@@ -30,8 +30,7 @@ export function Unlock({ user, onUnlock, onSignOut, lockedAfterLogin, onNavigate
       <section className="auth-card unlock-card" aria-labelledby="unlock-title">
         <h1 id="unlock-title">{lockedAfterLogin ? t('auth:lockedTitle') : t('auth:unlockTitle')}</h1>
         <div className="account-chip"><span className="account-avatar">{user.email.slice(0, 1).toUpperCase()}</span><span>{user.email}</span><span className="account-chip-check"><Check size={14} aria-hidden="true" /></span></div>
-        <button className="button button-secondary button-full unlock-signout" type="button" onClick={onSignOut}>{t('auth:signOut')}</button>
-        <form className="auth-form" onSubmit={submit}>
+        <form className="auth-form gap-4" onSubmit={submit}>
           <label className="field-label" htmlFor="master-password">{t('auth:masterPasswordLabel')}</label>
           <div className="password-input-wrap password-input-wrap--icon">
             <input
@@ -57,6 +56,12 @@ export function Unlock({ user, onUnlock, onSignOut, lockedAfterLogin, onNavigate
           {errorKey ? <p className="auth-error" role="alert">{t(`auth:${errorKey}`)}</p> : null}
           <button className="button button-primary button-full" type="submit">{t('auth:unlockButton')}</button>
         </form>
+        <div className="mt-5 flex items-center gap-3" aria-hidden="true">
+          <span className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">{t('auth:or')}</span>
+          <span className="h-px flex-1 bg-border" />
+        </div>
+        <button className="button button-secondary button-full unlock-signout" type="button" onClick={onSignOut}>{t('auth:signOut')}</button>
       </section>
     </AuthShell>
   )

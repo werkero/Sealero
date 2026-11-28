@@ -140,7 +140,7 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
           ))}
         </ol>
         <button className="button button-secondary button-full" type="button" onClick={downloadRecoveryKey}>{t('auth:downloadRecoveryKeyButton')}</button>
-        <form className="auth-form" onSubmit={submitRecovery}>
+        <form className="auth-form gap-4" onSubmit={submitRecovery}>
           <p className="field-label">{t('auth:recoveryKeyConfirmLabel')}</p>
           {confirmPositions.map((position, index) => (
             <div key={position} className="recovery-confirm-row">
@@ -172,7 +172,7 @@ export function VaultSetupForm({ vaultClient, resolveUserId, onComplete }: {
   return (
     <>
       <p className="auth-subtitle">{t('auth:registerMasterSubtitle')}</p>
-      <form className="auth-form" onSubmit={submitMaster}>
+      <form className="auth-form gap-4" onSubmit={submitMaster}>
         <label className="field-label" htmlFor="setup-master-password">{t('auth:masterPasswordLabel')}</label>
         <div className="password-input-wrap password-input-wrap--icon">
           <input

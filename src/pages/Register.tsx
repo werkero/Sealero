@@ -106,7 +106,7 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
         {step === 'account' ? (
           <>
             <p className="auth-subtitle">{t('auth:registerSubtitle')}</p>
-            <form className="auth-form" onSubmit={submitAccount}>
+            <form className="auth-form gap-4" onSubmit={submitAccount}>
               <label className="field-label" htmlFor="register-email">{t('auth:emailLabel')}</label>
               <input
                 className="text-input"
@@ -178,7 +178,7 @@ export function Register({ vaultClient, onSessionLogin, onNavigate, onAppearance
         {step === 'verify' ? (
           <>
             <p className="auth-subtitle">{t('auth:registerVerifySubtitle', { email })}</p>
-            <form className="auth-form" onSubmit={submitVerify}>
+            <form className="auth-form gap-4" onSubmit={submitVerify}>
               <label className="field-label" htmlFor="register-code">{t('auth:verificationCodeLabel')}</label>
               <input
                 className="text-input"
