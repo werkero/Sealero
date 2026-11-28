@@ -2,21 +2,20 @@ import { useEffect, useState } from 'react'
 import { ArrowUpRight, ChevronLeft, Info, KeyRound, Lock, Star } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { VaultIdentity, VaultItem, VaultItemInput, VaultListItem } from '../client/contracts'
-import { PasswordHealthInline } from '../features/password-security/PasswordSecurity'
 import { CopyIcon, SecretRow, VaultLayout, hostname, iconTone } from '../App'
 import type { AppearancePreference } from '../features/settings/preferences'
 import { ItemEditor } from './ItemEditor'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../components/ui/alert-dialog'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 
-export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadItem, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
+export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, onNavigate, onLock, onLogout, appearancePreference, onAppearanceChange, onCopy, onUpdateItem, onDeleteItem }: {
   user: VaultIdentity
   item: VaultItem
   items: VaultListItem[]
   isAdmin?: boolean
   autoLockMinutes: number
-  loadItem: (itemId: string) => Promise<VaultItem>
   onNavigate: (path: string) => void
   onLock: () => void
   onLogout: () => void
@@ -35,7 +34,8 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
   const [usedCodes, setUsedCodes] = useState<Set<string>>(() => new Set<string>())
   const [mnemonicVisible, setMnemonicVisible] = useState(false)
   const [editing, setEditing] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [editorSaving, setEditorSaving] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [deleteFailed, setDeleteFailed] = useState(false)
 
   useEffect(() => {
@@ -63,11 +63,77 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
 
   const remainingCodes = (item.recoveryCodes?.length ?? 0) - usedCodes.size
 
+  // When the item has only login details, the right column would be empty;
+  // render a single-column layout so the login card spans the full width.
+  const hasSidebarContent = Boolean(item.totpSecret || item.passkey || item.recoveryCodes?.length || item.mnemonic?.length)
+
+  const toggleFavorite = async () => {
+    try {
+      await onUpdateItem(item.id, {
+        name: item.name,
+        url: item.url,
+        username: item.username,
+        password: item.password,
+        note: item.note,
+        category: item.category,
+        tags: item.tags,
+        favorite: !item.favorite,
+        icon: item.icon,
+        totpSecret: item.totpSecret,
+        passkey: item.passkey,
+        recoveryCodes: item.recoveryCodes,
+        mnemonic: item.mnemonic,
+      })
+    } catch {
+      // Saving failed; leave the item unchanged.
+    }
+  }
+
+  const backToVault = () => onNavigate(`/users/${user.id}`)
+
+  const backButton = (
+    <Button type="button" variant="ghost" size="icon" aria-label={t('vault:backToVault')} title={t('vault:backToVault')} onClick={backToVault}>
+      <ChevronLeft className="size-4" aria-hidden="true" />
+    </Button>
+  )
+
+  const handleDelete = () => {
+    setDeleteFailed(false)
+    void onDeleteItem(item.id).then((deleted) => {
+      if (deleted) {
+        window.dispatchEvent(new CustomEvent('sealero:toast', { detail: t('vault:itemDeleted') }))
+      } else {
+        setDeleteFailed(true)
+      }
+    }).catch(() => {
+      setDeleteFailed(true)
+    })
+  }
+
+  const deleteDialog = (
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{t('vault:deleteItem')}</AlertDialogTitle>
+          <AlertDialogDescription>{t('vault:deleteItemConfirm')}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{t('vault:cancelEdit')}</AlertDialogCancel>
+          <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleDelete}>{t('vault:confirmDelete')}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+
   if (editing) {
     return (
-      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+      <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} title={item.name} topbarAction={backButton} topbarEndAction={
+        <div className="flex items-center gap-2">
+          <Button type="submit" form="item-editor-form" disabled={editorSaving}>{t('vault:saveItem')}</Button>
+          <Button variant="outline" type="button" onClick={() => setEditing(false)} disabled={editorSaving}>{t('vault:cancelEdit')}</Button>
+        </div>
+      } onFilterChange={backToVault} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
         <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
-          <Button variant="ghost" className="w-fit" type="button" onClick={() => setEditing(false)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
           <ItemEditor
             initial={item}
             onSave={async (input) => {
@@ -78,6 +144,7 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
               }
             }}
             onCancel={() => setEditing(false)}
+            onSavingChange={setEditorSaving}
           />
         </div>
       </VaultLayout>
@@ -85,56 +152,40 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
   }
 
   return (
-    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} onFilterChange={() => onNavigate(`/users/${user.id}`)} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
+    <VaultLayout autoLockMinutes={autoLockMinutes} user={user} items={items} filter="all" isAdmin={isAdmin} title={item.name} topbarAction={backButton} topbarEndAction={
+      <div className="flex items-center gap-2">
+        <Button type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</Button>
+        <Button variant="outline" type="button" onClick={() => { setDeleteFailed(false); setDeleteDialogOpen(true) }}>{t('vault:deleteItem')}</Button>
+      </div>
+    } onFilterChange={backToVault} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange}>
       <div className="w-full space-y-4 px-[clamp(20px,4vw,48px)] pb-10 pt-8">
-        <Button variant="ghost" className="w-fit" type="button" onClick={() => onNavigate(`/users/${user.id}`)}><ChevronLeft size={16} aria-hidden="true" />{t('vault:backToVault')}</Button>
         <div className="flex items-start gap-4">
           <span className={`grid size-[54px] shrink-0 place-items-center rounded-[15px] text-xl font-bold ${iconTone(item.icon)}`}>{item.icon}</span>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('vault:detailEyebrow')}</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">{item.name}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">{item.name}</h1>
             <a href={item.url} target="_blank" rel="noreferrer" className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline">{hostname(item.url)}<ArrowUpRight size={12} aria-hidden="true" /></a>
           </div>
-          {item.favorite ? <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"><Star size={10} aria-hidden="true" /> {t('vault:favorite')}</span> : null}
+          {item.favorite ? (
+            <button
+              type="button"
+              onClick={() => void toggleFavorite()}
+              className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-500/20 dark:text-amber-400"
+              aria-label={t('vault:unfavorite')}
+              title={t('vault:unfavorite')}
+            >
+              <Star size={12} className="fill-current" aria-hidden="true" /> {t('vault:favorite')}
+            </button>
+          ) : null}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" onClick={() => setEditing(true)}>{t('vault:editItem')}</Button>
-          {confirmingDelete ? (
-            <>
-              <span className="text-xs font-medium text-destructive" role="alert">{t('vault:deleteItemConfirm')}</span>
-              <Button
-                variant="destructive"
-                type="button"
-                onClick={() => {
-                  void onDeleteItem(item.id).then((deleted) => {
-                    if (deleted) {
-                      window.dispatchEvent(new CustomEvent('sealero:toast', { detail: t('vault:itemDeleted') }))
-                    } else {
-                      setDeleteFailed(true)
-                      setConfirmingDelete(false)
-                    }
-                  }).catch(() => {
-                    setDeleteFailed(true)
-                    setConfirmingDelete(false)
-                  })
-                }}
-              >{t('vault:confirmDelete')}</Button>
-              <Button variant="outline" type="button" onClick={() => setConfirmingDelete(false)}>{t('vault:cancelEdit')}</Button>
-            </>
-          ) : (
-            <Button variant="outline" type="button" onClick={() => { setDeleteFailed(false); setConfirmingDelete(true) }}>{t('vault:deleteItem')}</Button>
-          )}
-          {deleteFailed ? <span className="text-xs font-medium text-destructive" role="alert">{t('vault:deleteFailed')}</span> : null}
-        </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_340px] items-start gap-4 max-[1100px]:grid-cols-1">
+        {deleteFailed ? <p className="text-xs font-medium text-destructive" role="alert">{t('vault:deleteFailed')}</p> : null}
+        <div className={hasSidebarContent ? "grid grid-cols-[minmax(0,1fr)_340px] items-start gap-4 max-[1100px]:grid-cols-1" : "grid grid-cols-1 items-start gap-4"}>
           <Card>
             <CardHeader>
               <CardTitle id="login-details-title">{t('vault:loginDetails')}</CardTitle>
-              <CardDescription>{t('vault:loginDetailsSubtitle')}</CardDescription>
               <CardAction><Lock size={16} className="text-muted-foreground" aria-hidden="true" /></CardAction>
             </CardHeader>
             <CardContent className="grid gap-4">
-              <SecretRow label={t('vault:username')} value={item.username} maskedValue={item.username} onCopy={() => onCopy(item.username, t('vault:username'))} copyLabel={t('vault:username')} />
+              <SecretRow label={t('vault:usernameLabel')} value={item.username} maskedValue={item.username} onCopy={() => onCopy(item.username, t('vault:usernameLabel'))} copyLabel={t('vault:usernameLabel')} />
               <SecretRow
                 label={t('vault:password')}
                 value={item.password}
@@ -144,7 +195,6 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
                 onCopy={() => onCopy(item.password, t('vault:password'))}
                 copyLabel={t('vault:password')}
               />
-              <PasswordHealthInline itemId={item.id} password={item.password} itemName={item.name} items={items} loadItem={loadItem} />
               <div className="grid gap-1">
                 <div className="text-xs font-medium text-muted-foreground">{t('vault:website')}</div>
                 <div className="flex items-center gap-2">
@@ -156,6 +206,7 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
               <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs"><span><span className="text-muted-foreground">{t('vault:category')} </span>{item.category}</span><span className="flex flex-wrap items-center gap-1.5"><span className="text-muted-foreground">{t('vault:tags')} </span>{item.tags.map((tag) => <Badge key={tag} variant="secondary">{tag}</Badge>)}</span></div>
             </CardContent>
           </Card>
+          {hasSidebarContent ? (
           <div className="flex flex-col gap-4">
             {item.totpSecret ? (
               <Card>
@@ -228,8 +279,10 @@ export function ItemDetail({ user, item, items, isAdmin, autoLockMinutes, loadIt
               </Card>
             ) : null}
           </div>
+          ) : null}
         </div>
       </div>
+      {deleteDialog}
     </VaultLayout>
   )
 }

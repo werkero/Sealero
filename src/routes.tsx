@@ -185,9 +185,9 @@ function VaultRoute(props: AppRoutesProps & { screen: 'vault' | 'generator' | 's
       if (detailLoadErrorId === itemId) return <NotFound onNavigate={onNavigate} onAppearanceChange={onAppearanceChange} />
       return loading
     }
-    return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} items={items} isAdmin={isAdmin} autoLockMinutes={autoLockMinutes} loadItem={loadHealthItem} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
+    return <ItemDetail key={selectedItem.id} user={user} item={selectedItem} items={items} isAdmin={isAdmin} autoLockMinutes={autoLockMinutes} onNavigate={onNavigate} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onCopy={(value, label) => onCopy(value, label)} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} />
   }
-  return <VaultList user={user} items={items} isAdmin={isAdmin} autoLockMinutes={autoLockMinutes} onNavigate={onNavigate} onOpenItem={onOpenItem} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onCreateItem={onCreateItem} />
+  return <VaultList user={user} items={items} isAdmin={isAdmin} autoLockMinutes={autoLockMinutes} onNavigate={onNavigate} onOpenItem={onOpenItem} onLock={onLock} onLogout={onLogout} appearancePreference={appearancePreference} onAppearanceChange={onAppearanceChange} onCreateItem={onCreateItem} onCopy={onCopy} onUpdateItem={onUpdateItem} onDeleteItem={onDeleteItem} loadItem={loadHealthItem} />
 }
 
 export function AppRoutes(props: AppRoutesProps) {
